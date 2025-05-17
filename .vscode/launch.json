@@ -4,7 +4,8 @@
             "name": "Launch Project (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "C:\\Godot\\Godot_v4.4.1-stable_win64_console.exe",
+            // Don't use the console exe if you want breakpoints to work (something to look into)
+            "program": "C:\\Godot\\Godot_v4.4.1-stable_win64.exe",
             // Change the arguments below for the project you want to test with.
             // To run the project instead of editing it, remove the "--editor" argument.
             "args": [                
