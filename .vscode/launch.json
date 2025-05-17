@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Launch Project (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "C:\\Godot\\Godot_v4.4.1-stable_win64_console.exe",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [                
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/gd-doom",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/gd-doom-extension/debugging/windows/godot.natvis"            
+        }
+    ]
+}
