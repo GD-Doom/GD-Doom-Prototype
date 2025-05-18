@@ -40,3 +40,7 @@ source_files/glew/glew.pc
 
 # WSL files created when exploring linux filesystem
 *Zone.Identifier
+
+gd-doom/bin/**/*.dll
+gd-doom/bin/**/*.pdb
+.godot

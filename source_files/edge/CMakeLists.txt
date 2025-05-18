@@ -313,3 +313,45 @@ endif()
 if (COPY_FILES)
   add_custom_command( TARGET edge-classic POST_BUILD COMMAND_EXPAND_LISTS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COPY_FILES} ${DEST_DIR})
 endif()
+
+if (EDGE_GODOT)
+
+  set(GDEXTENSION_NAME gd-doom)
+
+  if (WIN32)
+    set(EDGE_GODOT_PLATFORM_FOLDER windows)
+  endif()
+
+  set(OUTPUT_NAME ${GDEXTENSION_NAME})
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Windows>:.windows>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Linux>:.linux>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Android>:.android>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Darwin>:.macos>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<CONFIG:Debug>:.debug>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<CONFIG:Release>:.release>)
+
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${EDGE_GODOT_PLATFORM_FOLDER})
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/gd-doom/bin/${EDGE_GODOT_PLATFORM_FOLDER})
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/gd-doom/bin/${EDGE_GODOT_PLATFORM_FOLDER})
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/gd-doom/bin/${EDGE_GODOT_PLATFORM_FOLDER})
+
+  set(OUTPUT_NAME ${OUTPUT_NAME}.x86_64)
+
+  file(GLOB_RECURSE GODOT_SOURCES 
+      "${CMAKE_CURRENT_SOURCE_DIR}/godot/*.cc")
+
+  # Add a dynamic library named ${GDEXTENSION_NAME}
+  add_library(${GDEXTENSION_NAME} SHARED ${EDGE_SOURCE_FILES} ${GODOT_SOURCES})
+
+  if(WIN32)
+    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE WIN32 EDGE_GODOT)
+    target_include_directories(${GDEXTENSION_NAME} PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/msvc/include)
+  else()
+    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE UNIX)
+  endif()
+
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
+  target_include_directories(${GDEXTENSION_NAME} PRIVATE ./ "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  target_link_libraries(${GDEXTENSION_NAME} PUBLIC godot::cpp ${EDGE_LINK_LIBRARIES})
+
+endif()

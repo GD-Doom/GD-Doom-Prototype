@@ -15,6 +15,13 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# GD-DOOM
+option(EDGE_GODOT "Godot Backend" ON)
+
+if (EDGE_GODOT) 
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 # Rendering Options
 
 # Sokol Renderer
@@ -54,7 +61,7 @@ option(EDGE_PROFILING "Enable Profiling" OFF)
 option(EDGE_EXTRA_CHECKS "Enable diagnostic checks/functions" OFF)
 
 # memory allocator
-option(EDGE_MIMALLOC "Enable mimalloc" ON)
+option(EDGE_MIMALLOC "Enable mimalloc" OFF)
 # disable Mimalloc if targeting Emscripten or using MSY2 MinGW32,
 # which fails for some reason
 if (EMSCRIPTEN OR (MSYS AND ${CMAKE_SIZEOF_VOID_P} MATCHES 4))

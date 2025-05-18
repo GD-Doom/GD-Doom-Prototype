@@ -610,7 +610,7 @@ ScreenWipe wipe_method = kScreenWipeMelt;
 
 void ForceWipe(void)
 {
-#ifdef EDGE_WEB
+#if defined(EDGE_WEB) || defined(EDGE_GODOT)
     // Wiping blocks the main thread while rendering outside of the main loop
     // tick Disabled on the platform until can be better integrated
     return;
@@ -1236,14 +1236,14 @@ static void InitializeDirectories(void)
     // Get the App Directory from parameter.
 
     // Note: This might need adjusting for Apple
-    char *path = SDL_GetBasePath();
+    char *path = "C:\\Dev\\GD-Doom-Prototype";//SDL_GetBasePath();
 
     if (!path)
         FatalError("Failed to get base path!\n");
 
     std::string s = path;
 
-    SDL_free(path);
+    //SDL_free(path);
     path = NULL;
 
     game_directory = s;
@@ -2543,7 +2543,7 @@ void EdgeMain(int argc, const char **argv)
 
     LogDebug("- Entering game loop...\n");
 
-#ifndef EDGE_WEB
+#if !defined(EDGE_WEB) && !defined(EDGE_GODOT)
     while (!(app_state & kApplicationPendingQuit))
     {
         // We always do this once here, although the engine may

@@ -25,3 +25,7 @@ if (EDGE_CLASSIC)
   add_subdirectory(m4p)
   add_subdirectory(opalmidi)
 endif()
+
+if (EDGE_GODOT)
+  add_subdirectory(godot-cpp)
+endif()
