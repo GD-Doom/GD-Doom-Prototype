@@ -88,15 +88,6 @@ static void SetPlayerSprite(Player *p, int position, int stnum, WeaponDefinition
 
     State *st = &states[stnum];
 
-    // model interpolation stuff
-    if (psp->state && (st->flags & kStateFrameFlagModel) && (psp->state->flags & kStateFrameFlagModel) &&
-        (st->sprite == psp->state->sprite) && st->tics > 1)
-    {
-        p->weapon_last_frame_ = psp->state->frame;
-    }
-    else
-        p->weapon_last_frame_ = -1;
-
     psp->state      = st;
     psp->tics       = st->tics;
     psp->next_state = (st->nextstate == 0) ? nullptr : (states + st->nextstate);
@@ -434,7 +425,6 @@ static void BringUpWeapon(Player *p)
     p->remember_attack_state_[2] = -1;
     p->remember_attack_state_[3] = -1;
     p->idle_wait_                = 0;
-    p->weapon_last_frame_        = -1;
 
     if (sel == KWeaponSelectionNone)
     {
@@ -2055,27 +2045,6 @@ void A_WeaponDisableRadTrig(MapObject *mo)
     {
         uint64_t tag = *(uint64_t *)psp->state->action_par;
         ScriptEnableByTag(tag, true, (RADScriptTag)psp->state->rts_tag_type);
-    }
-}
-
-void A_WeaponSetSkin(MapObject *mo)
-{
-    Player       *p   = mo->player_;
-    PlayerSprite *psp = &p->player_sprites_[p->action_player_sprite_];
-
-    EPI_ASSERT(p->ready_weapon_ >= 0);
-    WeaponDefinition *info = p->weapons_[p->ready_weapon_].info;
-
-    const State *st = psp->state;
-
-    if (st && st->action_par)
-    {
-        int skin = ((int *)st->action_par)[0];
-
-        if (skin < 0 || skin > 9)
-            FatalError("Weapon [%s]: Bad skin number %d in SET_SKIN action.\n", info->name_.c_str(), skin);
-
-        p->weapons_[p->ready_weapon_].model_skin = skin;
     }
 }
 

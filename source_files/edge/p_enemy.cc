@@ -307,7 +307,7 @@ bool DoMove(MapObject *actor, bool path)
     }
 
     // -AJA- 2008/01/16: position interpolation
-    if ((actor->state_->flags & kStateFrameFlagModel) || (actor->flags_ & kMapObjectFlagFloat))
+    if (actor->flags_ & kMapObjectFlagFloat)
     {
         if (actor->old_x_ != kInvalidPosition)
         {

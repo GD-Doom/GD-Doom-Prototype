@@ -1830,28 +1830,6 @@ static void RenderSubsector(DrawSubsector *dsub, bool mirror_sub)
     }
 }
 
-static void DoWeaponModel(void)
-{
-    Player *pl = view_camera_map_object->player_;
-
-    if (!pl)
-        return;
-
-    // clear the depth buffer, so that the weapon is never clipped
-    // by the world geometry.  NOTE: a tad expensive, but I don't
-    // know how any better way to prevent clipping -- the model
-    // needs the depth buffer for overlapping parts of itself.
-
-    render_state->Clear(GL_DEPTH_BUFFER_BIT);
-
-    solid_mode = false;
-    StartUnitBatch(solid_mode);
-
-    RenderWeaponModel(pl);
-
-    FinishUnitBatch();
-}
-
 static void InitializeCamera(MapObject *mo, bool full_height, float expand_w)
 {
     float fov = HMM_Clamp(5, field_of_view.f_, 175);
@@ -2238,26 +2216,7 @@ void RenderTrueBSP(void)
         newly_seen_lines.clear();
     }
 
-    // Lobo 2022:
-    // Allow changing the order of weapon model rendering to be
-    // after RenderWeaponSprites() so that FLASH states are
-    // drawn in front of the weapon
-    bool FlashFirst = false;
-
-    if (v_player)
-    {
-        if (v_player->ready_weapon_ >= 0)
-        {
-            FlashFirst = v_player->weapons_[v_player->ready_weapon_].info->render_invert_;
-        }
-    }
-
     render_backend->SetRenderLayer(kRenderLayerWeapon);
-
-    if (FlashFirst == false)
-    {
-        DoWeaponModel();
-    }
 
     render_state->Disable(GL_DEPTH_TEST);
 
@@ -2272,15 +2231,6 @@ void RenderTrueBSP(void)
         RendererPaletteEffect(v_player);
         render_backend->SetupMatrices2D();
         RenderCrosshair(v_player);
-    }
-
-    if (FlashFirst == true)
-    {
-        render_backend->SetupMatrices3D();
-        render_state->Enable(GL_DEPTH_TEST);
-        DoWeaponModel();
-        render_state->Disable(GL_DEPTH_TEST);
-        render_backend->SetupMatrices2D();
     }
 
 #if (DEBUG >= 3)

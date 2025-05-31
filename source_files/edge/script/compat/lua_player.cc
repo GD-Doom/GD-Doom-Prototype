@@ -485,15 +485,6 @@ static void LuaSetPlayerSprite(Player *p, int position, int stnum, WeaponDefinit
 
     State *st = &states[stnum];
 
-    // model interpolation stuff
-    if (psp->state && (st->flags & kStateFrameFlagModel) && (psp->state->flags & kStateFrameFlagModel) &&
-        (st->sprite == psp->state->sprite) && st->tics > 1)
-    {
-        p->weapon_last_frame_ = psp->state->frame;
-    }
-    else
-        p->weapon_last_frame_ = -1;
-
     psp->state      = st;
     psp->tics       = st->tics;
     psp->next_state = (st->nextstate == 0) ? nullptr : (states + st->nextstate);

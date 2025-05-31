@@ -67,7 +67,6 @@ void A_TargetJump(MapObject *mo);
 void A_FriendJump(MapObject *mo);
 void A_GunFlash(MapObject *mo);
 void A_WeaponKick(MapObject *mo);
-void A_WeaponSetSkin(MapObject *mo);
 void A_WeaponUnzoom(MapObject *mo);
 void A_WeaponBecome(MapObject *mo);
 
@@ -181,7 +180,6 @@ void A_DLightSet(MapObject *mo);
 void A_DLightFade(MapObject *mo);
 void A_DLightRandom(MapObject *mo);
 void A_DLightColour(MapObject *mo);
-void A_SetSkin(MapObject *mo);
 void A_Die(MapObject *mo);
 void A_KeenDie(MapObject *mo);
 void A_CheckBlood(MapObject *mo);

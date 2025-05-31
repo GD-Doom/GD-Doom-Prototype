@@ -810,17 +810,13 @@ static void DrawKeys()
         }
         else if (automap_keydoor_text.d_ > 1)
         {
-            State *idlestate = &states[TheObject->idle_state_];
-            if (!(idlestate->flags & kStateFrameFlagModel)) // Can't handle 3d models...yet
-            {
-                bool         flip;
-                const Image *img = GetOtherSprite(idlestate->sprite, idlestate->frame, &flip);
+            State       *idlestate = &states[TheObject->idle_state_];
+            bool         flip;
+            const Image *img = GetOtherSprite(idlestate->sprite, idlestate->frame, &flip);
 
-                if (epi::StringCaseCompareASCII("DUMMY_SPRITE", img->name_) != 0)
-                    HUDStretchImageNoOffset(key.x, key.y,
-                                            2 * map_scale * ((float)img->actual_width_ / img->actual_height_),
-                                            2 * map_scale, img, 0, 0);
-            }
+            if (epi::StringCaseCompareASCII("DUMMY_SPRITE", img->name_) != 0)
+                HUDStretchImageNoOffset(key.x, key.y, 2 * map_scale * ((float)img->actual_width_ / img->actual_height_),
+                                        2 * map_scale, img, 0, 0);
         }
     }
 

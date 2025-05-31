@@ -57,7 +57,6 @@
 #include "s_music.h"
 #include "s_sound.h"
 #include "stb_sprintf.h"
-#include "w_model.h"
 #include "w_wad.h"
 
 enum FinaleStage
@@ -813,27 +812,6 @@ static void CastDrawer(void)
         scale_y = 3;
 
     HUDGetCastPosition(&pos_x, &pos_y, &scale_x, &scale_y);
-
-    if (cast_state->flags & kStateFrameFlagModel)
-    {
-        ModelDefinition *md = GetModel(cast_state->sprite);
-
-        const Image *skin_img = md->skins_[cast_order->model_skin_];
-
-        if (!skin_img)
-            skin_img = ImageForDummySkin();
-
-        render_state->Clear(GL_DEPTH_BUFFER_BIT);
-        render_state->Enable(GL_DEPTH_TEST);
-
-        if (md->md2_model_)
-            MD2RenderModel2D(md->md2_model_, skin_img, cast_state->frame, pos_x, pos_y, scale_x, scale_y, cast_order);
-        else if (md->mdl_model_)
-            MDLRenderModel2D(md->mdl_model_, cast_state->frame, pos_x, pos_y, scale_x, scale_y, cast_order);
-
-        render_state->Disable(GL_DEPTH_TEST);
-        return;
-    }
 
     // draw the current frame in the middle of the screen
     image = GetOtherSprite(cast_state->sprite, cast_state->frame, &flip);

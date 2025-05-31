@@ -134,12 +134,6 @@ static SaveField sv_fields_mobj[] = {
                     SaveGameGetInteger, SaveGamePutInteger),
     EDGE_SAVE_FIELD(dummy_map_object, threshold_, "threshold", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
                     SaveGamePutInteger),
-    EDGE_SAVE_FIELD(dummy_map_object, model_skin_, "model_skin", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
-                    SaveGamePutInteger),
-    EDGE_SAVE_FIELD(dummy_map_object, model_scale_, "model_scale", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetFloat,
-                    SaveGamePutFloat),
-    EDGE_SAVE_FIELD(dummy_map_object, model_aspect_, "model_aspect", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetFloat,
-                    SaveGamePutFloat),
     EDGE_SAVE_FIELD(dummy_map_object, tid_, "tid", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
                     SaveGamePutInteger),
     EDGE_SAVE_FIELD(dummy_map_object, tag_, "tag", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
@@ -391,9 +385,6 @@ void SaveGameMapObjectCreateElems(int num_elems)
         // initialise defaults
         cur->info_  = nullptr;
         cur->state_ = cur->next_state_ = states + 1;
-
-        cur->model_skin_       = 1;
-        cur->model_last_frame_ = -1;
     }
 }
 

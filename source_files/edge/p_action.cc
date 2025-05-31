@@ -1292,21 +1292,6 @@ void A_DLightColour(MapObject *mo)
     }
 }
 
-void A_SetSkin(MapObject *mo)
-{
-    const State *st = mo->state_;
-
-    if (st && st->action_par)
-    {
-        int skin = ((int *)st->action_par)[0];
-
-        if (skin < 0 || skin > 9)
-            FatalError("Thing [%s]: Bad skin number %d in SET_SKIN action.\n", mo->info_->name_.c_str(), skin);
-
-        mo->model_skin_ = skin;
-    }
-}
-
 //-------------------------------------------------------------------
 //------------------- MOVEMENT ROUTINES -----------------------------
 //-------------------------------------------------------------------
@@ -4392,10 +4377,6 @@ void A_Become(MapObject *mo)
 
         mo->target_visibility_ = mo->info_->translucency_;
         mo->current_attack_    = nullptr;
-        mo->model_skin_        = mo->info_->model_skin_;
-        mo->model_last_frame_  = -1;
-        mo->model_scale_       = mo->info_->model_scale_;
-        mo->model_aspect_      = mo->info_->model_aspect_;
         mo->scale_             = mo->info_->scale_;
         mo->aspect_            = mo->info_->aspect_;
 
@@ -4471,10 +4452,6 @@ void A_UnBecome(MapObject *mo)
 
         mo->target_visibility_ = mo->info_->translucency_;
         mo->current_attack_    = nullptr;
-        mo->model_skin_        = mo->info_->model_skin_;
-        mo->model_last_frame_  = -1;
-        mo->model_scale_       = mo->info_->model_scale_;
-        mo->model_aspect_      = mo->info_->model_aspect_;
         mo->scale_             = mo->info_->scale_;
         mo->aspect_            = mo->info_->aspect_;
 
@@ -4553,10 +4530,6 @@ void A_Morph(MapObject *mo)
 
         mo->target_visibility_ = mo->info_->translucency_;
         mo->current_attack_    = nullptr;
-        mo->model_skin_        = mo->info_->model_skin_;
-        mo->model_last_frame_  = -1;
-        mo->model_scale_       = mo->info_->model_scale_;
-        mo->model_aspect_      = mo->info_->model_aspect_;
         mo->scale_             = mo->info_->scale_;
         mo->aspect_            = mo->info_->aspect_;
 
@@ -4636,10 +4609,6 @@ void A_UnMorph(MapObject *mo)
 
         mo->target_visibility_ = mo->info_->translucency_;
         mo->current_attack_    = nullptr;
-        mo->model_skin_        = mo->info_->model_skin_;
-        mo->model_last_frame_  = -1;
-        mo->model_scale_       = mo->info_->model_scale_;
-        mo->model_aspect_      = mo->info_->model_aspect_;
         mo->scale_             = mo->info_->scale_;
         mo->aspect_            = mo->info_->aspect_;
 
@@ -5483,17 +5452,14 @@ void A_PainChanceSet(MapObject *mo)
 void A_ScaleSet(MapObject *mo)
 {
     float valueSprite = mo->info_->scale_;       // grab the default scale for this thing as a fallback
-    float valueModel  = mo->info_->model_scale_; // grab the default scale for this thing as a fallback
 
     const State *st = mo->state_;
 
     if (st && st->action_par)
     {
         valueSprite = ((float *)st->action_par)[0];
-        valueModel  = valueSprite;
     }
     mo->scale_       = valueSprite;
-    mo->model_scale_ = valueModel;
 }
 
 void A_Gravity(MapObject *mo)

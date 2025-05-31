@@ -2463,7 +2463,7 @@ static void LoadUDMFThings()
                 // try to juggle both
                 if (!AlmostEquals(scale, 0.0f))
                 {
-                    udmf_thing->scale_ = udmf_thing->model_scale_ = scale;
+                    udmf_thing->scale_ = scale;
                     udmf_thing->height_ *= scale;
                     udmf_thing->radius_ *= scale;
                 }
@@ -2471,8 +2471,8 @@ static void LoadUDMFThings()
                 {
                     float sx           = AlmostEquals(scalex, 0.0f) ? 1.0f : scalex;
                     float sy           = AlmostEquals(scaley, 0.0f) ? 1.0f : scaley;
-                    udmf_thing->scale_ = udmf_thing->model_scale_ = sy;
-                    udmf_thing->aspect_ = udmf_thing->model_aspect_ = (sx / sy);
+                    udmf_thing->scale_ = sy;
+                    udmf_thing->aspect_ = (sx / sy);
                     udmf_thing->height_ *= sy;
                     udmf_thing->radius_ *= sx;
                 }

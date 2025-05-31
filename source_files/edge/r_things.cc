@@ -65,7 +65,6 @@
 #ifdef EDGE_CLASSIC
 #include "vm_coal.h"
 #endif
-#include "w_model.h"
 #include "w_sprite.h"
 
 #ifdef EDGE_CLASSIC
@@ -317,9 +316,6 @@ static int GetMulticolMaxRGB(ColorMixer *cols, int num, bool additive)
 
 static void RenderPSprite(PlayerSprite *psp, int which, Player *player, RegionProperties *props, const State *state)
 {
-    if (state->flags & kStateFrameFlagModel)
-        return;
-
     // determine sprite patch
     bool         flip;
     const Image *image = GetOtherSprite(state->sprite, state->frame, &flip);
@@ -756,103 +752,6 @@ void RenderCrosshair(Player *p)
         DrawStdCrossHair();
 }
 
-void RenderWeaponModel(Player *p)
-{
-    if (view_is_zoomed && p->weapons_[p->ready_weapon_].info->zoom_state_ > 0)
-        return;
-
-    PlayerSprite *psp = &p->player_sprites_[kPlayerSpriteWeapon];
-
-    if (p->ready_weapon_ < 0)
-        return;
-
-    if (psp->state == 0)
-        return;
-
-    if (!(psp->state->flags & kStateFrameFlagModel))
-        return;
-
-    WeaponDefinition *w = p->weapons_[p->ready_weapon_].info;
-
-    ModelDefinition *md = GetModel(psp->state->sprite);
-
-    int skin_num = p->weapons_[p->ready_weapon_].model_skin;
-
-    const Image *skin_img = md->skins_[skin_num];
-
-    if (!skin_img && md->md2_model_)
-    {
-        skin_img = ImageForDummySkin();
-    }
-
-    float psp_x, psp_y;
-
-    if (!console_active && !paused && !menu_active && !erraticism_active && !rts_menu_active)
-    {
-        psp_x = HMM_Lerp(psp->old_screen_x, fractional_tic, psp->screen_x);
-        psp_y = HMM_Lerp(psp->old_screen_y, fractional_tic, psp->screen_y);
-    }
-    else
-    {
-        psp_x = psp->screen_x;
-        psp_y = psp->screen_y;
-    }
-
-    float x = view_x + view_right.X * psp_x / 8.0;
-    float y = view_y + view_right.Y * psp_x / 8.0;
-    float z = view_z + view_right.Z * psp_x / 8.0;
-
-    x -= view_up.X * psp_y / 10.0;
-    y -= view_up.Y * psp_y / 10.0;
-    z -= view_up.Z * psp_y / 10.0;
-
-    x += view_forward.X * w->model_forward_;
-    y += view_forward.Y * w->model_forward_;
-    z += view_forward.Z * w->model_forward_;
-
-    x += view_right.X * w->model_side_;
-    y += view_right.Y * w->model_side_;
-    z += view_right.Z * w->model_side_;
-
-    int   last_frame = psp->state->frame;
-    float lerp       = 0.0;
-
-    if (p->weapon_last_frame_ >= 0)
-    {
-        EPI_ASSERT(psp->state);
-        EPI_ASSERT(psp->state->tics > 1);
-
-        last_frame = p->weapon_last_frame_;
-
-        lerp = (psp->state->tics - psp->tics + 1) / (float)(psp->state->tics);
-        lerp = HMM_Clamp(0, lerp, 1);
-    }
-
-    float bias = 0.0f;
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-    {
-        bias =
-            LuaGetFloat(LuaGetGlobalVM(), "hud", "universal_y_adjust") + p->weapons_[p->ready_weapon_].info->y_adjust_;
-    }
-    else
-    {
-        bias = COALGetFloat(ui_vm, "hud", "universal_y_adjust") + p->weapons_[p->ready_weapon_].info->y_adjust_;
-    }
-#else
-    bias = LuaGetFloat(LuaGetGlobalVM(), "hud", "universal_y_adjust") + p->weapons_[p->ready_weapon_].info->y_adjust_;
-#endif
-    bias /= 5;
-    bias += w->model_bias_;
-
-    if (md->md2_model_)
-        MD2RenderModel(md->md2_model_, skin_img, true, last_frame, psp->state->frame, lerp, x, y, z, p->map_object_,
-                       view_properties, 1.0f /* scale */, w->model_aspect_, bias, w->model_rotate_);
-    else if (md->mdl_model_)
-        MDLRenderModel(md->mdl_model_, true, last_frame, psp->state->frame, lerp, x, y, z, p->map_object_,
-                       view_properties, 1.0f /* scale */, w->model_aspect_, bias, w->model_rotate_);
-}
-
 // ============================================================================
 // RendererBSP START
 // ============================================================================
@@ -994,8 +893,6 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     if (AlmostEquals(mo->visibility_, 0.0f))
         return;
 
-    bool is_model = (mo->state_->flags & kStateFrameFlagModel) ? true : false;
-
     // transform the origin point
     float mx, my, mz, fz;
 
@@ -1032,21 +929,8 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
 
     float tz = tr_x * view_cosine + tr_y * view_sine;
 
-    // thing is behind view plane?
-    if (!is_model)
-    {
-        if (clip_scope != kBAMAngle180 && tz <= 0)
-            return;
-    }
-    else
-    {
-        ModelDefinition *md = GetModel(mo->state_->sprite);
-        EPI_ASSERT(md);
-        if (clip_scope != kBAMAngle180 && tz < -(md->radius_ * mo->scale_))
-        {
-            return;
-        }
-    }
+    if (clip_scope != kBAMAngle180 && tz <= 0)
+        return;
 
     float tx = tr_x * view_sine - tr_y * view_cosine;
 
@@ -1054,7 +938,7 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     // -ES- 1999/03/13 Fixed clipping to work with large FOVs (up to 176 deg)
     // rejects all sprites where angle>176 deg (arctan 32), since those
     // sprites would result in overflow in future calculations
-    if (!is_model && (tz >= kMinimumSpriteDistance) && ((fabs(tx) / 32) > tz))
+    if ((tz >= kMinimumSpriteDistance) && ((fabs(tx) / 32) > tz))
         return;
 
     float   sink_mult = 0;
@@ -1081,13 +965,10 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     bool         spr_flip = false;
     const Image *image    = nullptr;
 
-    if (!is_model)
-    {
-        image = RendererGetThingSprite2(mo, mx, my, &spr_flip);
+    image = RendererGetThingSprite2(mo, mx, my, &spr_flip);
 
-        if (!image)
-            return;
-    }
+    if (!image)
+        return;
 
     // Dasho: feels like we can figure this out up above
     if (!(mo->hyper_flags_ & kHyperFlagHover || (sink_mult > 0 || bob_mult > 0)))
@@ -1111,7 +992,6 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     dthing->map_z      = mz;
 
     dthing->properties = dsub->floors[0]->properties;
-    dthing->is_model   = is_model;
 
     dthing->image = image;
     dthing->flip  = spr_flip;
@@ -1124,49 +1004,6 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     dthing->mir_scale = bsp_mirror_set.XYScale();
 
     RendererClipSpriteVertically(dsub, dthing);
-}
-
-static void RenderModel(DrawThing *dthing)
-{
-    EDGE_ZoneScoped;
-
-    MapObject *mo = dthing->map_object;
-
-    ModelDefinition *md = GetModel(mo->state_->sprite);
-
-    const Image *skin_img = md->skins_[mo->model_skin_];
-
-    if (!skin_img && md->md2_model_)
-    {
-        // LogDebug("Render model: no skin %d\n", mo->model_skin);
-        skin_img = ImageForDummySkin();
-    }
-
-    float z = dthing->map_z + dthing->hover_dz;
-
-    render_mirror_set.Height(z);
-
-    int   last_frame = mo->state_->frame;
-    float lerp       = 0.0;
-
-    if (mo->model_last_frame_ >= 0)
-    {
-        last_frame = mo->model_last_frame_;
-
-        EPI_ASSERT(mo->state_->tics > 1);
-
-        lerp = (mo->state_->tics - mo->tics_ + 1) / (float)(mo->state_->tics);
-        lerp = HMM_Clamp(0, lerp, 1);
-    }
-
-    if (md->md2_model_)
-        MD2RenderModel(md->md2_model_, skin_img, false, last_frame, mo->state_->frame, lerp, dthing->map_x,
-                       dthing->map_y, z, mo, mo->region_properties_, mo->model_scale_, mo->model_aspect_,
-                       mo->info_->model_bias_, mo->info_->model_rotate_);
-    else if (md->mdl_model_)
-        MDLRenderModel(md->mdl_model_, false, last_frame, mo->state_->frame, lerp, dthing->map_x, dthing->map_y, z, mo,
-                       mo->region_properties_, mo->model_scale_, mo->model_aspect_, mo->info_->model_bias_,
-                       mo->info_->model_rotate_);
 }
 
 struct ThingCoordinateData
@@ -1202,28 +1039,6 @@ static bool RenderThing(DrawThing *dthing, bool solid)
     EDGE_ZoneScoped;
 
     ec_frame_stats.draw_things++;
-
-    if (dthing->is_model)
-    {
-        bool             is_solid = true;
-        MapObject       *mo       = dthing->map_object;
-        ModelDefinition *md       = GetModel(mo->state_->sprite);
-        const Image     *skin_img = md->skins_[mo->model_skin_];
-
-        if ((mo->visibility_ < 0.99f) || (skin_img && skin_img->opacity_ == kOpacityComplex) ||
-            mo->hyper_flags_ & kHyperFlagNoZBufferUpdate)
-        {
-            is_solid = false;
-        }
-
-        if (solid == is_solid)
-        {
-            RenderModel(dthing);
-            return is_solid;
-        }
-
-        return is_solid;
-    }
 
     MapObject *mo = dthing->map_object;
 
@@ -1285,7 +1100,7 @@ static bool RenderThing(DrawThing *dthing, bool solid)
     gzt += dthing->hover_dz;
     gzb += dthing->hover_dz;
 
-    if (dthing->is_model || (mo->flags_ & kMapObjectFlagFuzzy) ||
+    if ((mo->flags_ & kMapObjectFlagFuzzy) ||
         ((mo->hyper_flags_ & kHyperFlagHover) && AlmostEquals(dthing->sink_mult, 0.0f)))
     {
         /* nothing, don't adjust clipping */
@@ -1314,16 +1129,13 @@ static bool RenderThing(DrawThing *dthing, bool solid)
             }
         }
     }
+       
+    if (gzb >= gzt)
+        return false;
 
-    if (!dthing->is_model)
-    {
-        if (gzb >= gzt)
-            return false;
-
-        bsp_mirror_set.Height(gzb);
-        bsp_mirror_set.Height(gzt);
-    }
-
+    bsp_mirror_set.Height(gzb);
+    bsp_mirror_set.Height(gzt);
+   
     dthing->top    = gzt;
     dthing->bottom = gzb;
 

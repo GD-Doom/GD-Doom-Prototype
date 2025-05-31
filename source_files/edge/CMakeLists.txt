@@ -98,7 +98,6 @@ set (EDGE_SOURCE_FILES
   snd_types.cc
   w_files.cc
   w_flat.cc
-  w_model.cc
   w_epk.cc
   w_sprite.cc
   w_texture.cc
@@ -115,8 +114,6 @@ set (EDGE_SOKOL_SOURCE_FILES
   render/sokol/sokol_backend.cc
   render/sokol/sokol_gl.cc  
   render/sokol/sokol_images.cc
-  render/sokol/sokol_md2.cc
-  render/sokol/sokol_mdl.cc
   render/sokol/sokol_pipeline.cc
   render/sokol/sokol_sky.cc
   render/sokol/sokol_state.cc

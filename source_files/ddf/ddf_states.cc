@@ -417,37 +417,13 @@ void DDFStateReadState(const char *info, const char *label, std::vector<StateRan
     {
         cur->frame = j - (int)'A';
     }
-    else if (j == '@')
-    {
-        cur->frame = -1;
-
-        char first_ch = sprite_x[1];
-
-        if (epi::IsDigitASCII(first_ch))
-        {
-            cur->flags = kStateFrameFlagModel;
-            cur->frame = atol(sprite_x + 1) - 1;
-        }
-        else if (epi::IsAlphaASCII(first_ch) || (first_ch == '_'))
-        {
-            cur->flags       = kStateFrameFlagModel | kStateFrameFlagUnmapped;
-            cur->frame       = 0;
-            cur->model_frame = strdup(sprite_x + 1);
-        }
-
-        if (cur->frame < 0)
-            DDFError("DDFMainLoadStates: Illegal model frame: %s\n", sprite_x);
-    }
     else
         DDFError("DDFMainLoadStates: Illegal sprite frame: %s\n", sprite_x);
 
     if (is_weapon)
         cur->flags |= kStateFrameFlagWeapon;
 
-    if (cur->flags & kStateFrameFlagModel)
-        cur->sprite = AddModelName(stateinfo[0].c_str());
-    else
-        cur->sprite = AddSpriteName(stateinfo[0].c_str());
+    cur->sprite = AddSpriteName(stateinfo[0].c_str());
 
     //--------------------------------------------------
     //------------STATE TIC COUNT HANDLING--------------
