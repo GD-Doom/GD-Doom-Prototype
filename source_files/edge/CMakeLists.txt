@@ -111,15 +111,6 @@ set (EDGE_SOURCE_FILES
   script/compat/lua_player.cc
   script/compat/lua_hud.cc)
   
-set (EDGE_GL_SOURCE_FILES
-  render/gl/gl_backend.cc
-  render/gl/gl_md2.cc
-  render/gl/gl_mdl.cc
-  render/gl/gl_sky.cc
-  render/gl/gl_state.cc
-  render/gl/gl_units.cc
-)
-
 set (EDGE_SOKOL_SOURCE_FILES
   render/sokol/sokol_backend.cc
   render/sokol/sokol_gl.cc  
@@ -132,15 +123,11 @@ set (EDGE_SOKOL_SOURCE_FILES
   render/sokol/sokol_units.cc
 )
 
-if (NOT EDGE_SOKOL)
-  list (APPEND EDGE_SOURCE_FILES ${EDGE_GL_SOURCE_FILES})
-else()
-  if (EDGE_SOKOL_D3D11)
-    list (APPEND EDGE_SOKOL_SOURCE_FILES render/sokol/sokol_d3d11.cc)
-  endif()
-
-  list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
+if (EDGE_SOKOL_D3D11)
+  list (APPEND EDGE_SOKOL_SOURCE_FILES render/sokol/sokol_d3d11.cc)
 endif()
+
+list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
 
 if (EDGE_CLASSIC)
   list (APPEND 
@@ -176,7 +163,7 @@ add_executable(
   ${EDGE_SOURCE_FILES}
 )
 
-if(WIN32 OR MINGW)
+if(WIN32)
   target_compile_definitions(edge-classic PRIVATE WIN32)
 else()
   target_compile_definitions(edge-classic PRIVATE UNIX)
@@ -184,8 +171,6 @@ endif()
 
 if(WIN32 AND (MSVC OR CLANG))
   target_include_directories(edge-classic PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/msvc/include)
-elseif (MINGW)
-  target_include_directories(edge-classic SYSTEM PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/mingw/include)
 endif()
 
 target_include_directories(edge-classic PRIVATE ./)
@@ -226,18 +211,13 @@ if (EDGE_PROFILING)
   list (APPEND EDGE_LINK_LIBRARIES TracyClient)
 endif()
 
-if (EDGE_SOKOL)
-  list(APPEND EDGE_LINK_LIBRARIES sokol)
-  if (MINGW)
-    if (EDGE_SOKOL_GL)
-      list(APPEND EDGE_LINK_LIBRARIES winmm kernel32)
-    else ()
-      list(APPEND EDGE_LINK_LIBRARIES d3d11 winmm kernel32)
-    endif()
+list(APPEND EDGE_LINK_LIBRARIES sokol)
+if (MINGW)
+  if (EDGE_SOKOL_GL)
+    list(APPEND EDGE_LINK_LIBRARIES winmm kernel32)
+  else ()
+    list(APPEND EDGE_LINK_LIBRARIES d3d11 winmm kernel32)
   endif()
-else ()
-  target_include_directories(edge-classic PRIVATE ${EDGE_LIBRARY_DIR}/glad/include/glad)
-	list(APPEND EDGE_LINK_LIBRARIES glad OpenGL::GL)
 endif()
 
 target_link_libraries(edge-classic PRIVATE ${EDGE_LINK_LIBRARIES})
@@ -312,77 +292,4 @@ endif()
 
 if (COPY_FILES)
   add_custom_command( TARGET edge-classic POST_BUILD COMMAND_EXPAND_LISTS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COPY_FILES} ${DEST_DIR})
-endif()
-
-if (UNIX AND NOT EMSCRIPTEN)
-  if (EXISTS "${CMAKE_SOURCE_DIR}/edge_defs.epk")
-    set(HAVE_EPKS TRUE)
-  else()
-    set(HAVE_EPKS FALSE)
-  endif()
-
-  set(INSTALL_BASEDIR "${CMAKE_INSTALL_PREFIX}/share/edge-classic")
-
-  install(PROGRAMS "$<TARGET_FILE:edge-classic>" DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" RENAME "edge-classic.bin")
-  install(FILES "${CMAKE_SOURCE_DIR}/source_files/edge/edge-classic.png"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pixmaps")
-
-  install(PROGRAMS "${CMAKE_SOURCE_DIR}/source_files/edge/edge-classic.sh" DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" RENAME "edge-classic")
-  install(FILES "${CMAKE_SOURCE_DIR}/source_files/edge/edge-classic.desktop"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
-
-  # Update launch script/desktop file with path information
-  install(CODE "file(APPEND \"${CMAKE_INSTALL_PREFIX}/bin/edge-classic\" \"\nexec \\\"${CMAKE_INSTALL_PREFIX}/bin/edge-classic.bin\\\" \\\"$@\\\" \\\"-game\\\" \\\"${INSTALL_BASEDIR}\\\"\n\")")
-  install(CODE "file(APPEND \"${CMAKE_INSTALL_PREFIX}/share/applications/edge-classic.desktop\" \"\nExec=\\\"${CMAKE_INSTALL_PREFIX}/bin/edge-classic.bin\\\" \\\"$@\\\" \\\"-game\\\" \\\"${INSTALL_BASEDIR}\\\"\")")
-  install(CODE "file(APPEND \"${CMAKE_INSTALL_PREFIX}/share/applications/edge-classic.desktop\" \"\nIcon=\"${CMAKE_INSTALL_PREFIX}/share/pixmaps/edge-classic.png\"\n\")")
-
-  install(
-    DIRECTORY "${CMAKE_SOURCE_DIR}/autoload"
-              "${CMAKE_SOURCE_DIR}/crosshairs"
-              "${CMAKE_SOURCE_DIR}/docs"
-              "${CMAKE_SOURCE_DIR}/edge_fixes"
-              "${CMAKE_SOURCE_DIR}/overlays"
-              "${CMAKE_SOURCE_DIR}/soundfont"
-    DESTINATION ${INSTALL_BASEDIR}
-    CONFIGURATIONS Release
-    PATTERN ".gitkeep" EXCLUDE
-    PATTERN ".gitignore" EXCLUDE
-  )
-
-  if (HAVE_EPKS)
-    install(
-      FILES "${CMAKE_SOURCE_DIR}/edge_defs.epk"
-      DESTINATION ${INSTALL_BASEDIR}
-      CONFIGURATIONS Release
-    )
-    install(
-      FILES "${CMAKE_SOURCE_DIR}/edge_base/blasphemer.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/chex1.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/chex3v.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/chex3vm.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/doom.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/doom1.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/doom2.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/freedoom1.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/freedoom2.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/hacx.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/harmony.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/harmonyc.epk"    
-            "${CMAKE_SOURCE_DIR}/edge_base/heretic.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/plutonia.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/rekkr.epk"
-            "${CMAKE_SOURCE_DIR}/edge_base/tnt.epk"  
-      DESTINATION "${INSTALL_BASEDIR}/edge_base"
-      CONFIGURATIONS Release
-    )
-  else()
-    install(
-      DIRECTORY "${CMAKE_SOURCE_DIR}/edge_base"
-                "${CMAKE_SOURCE_DIR}/edge_defs"
-      DESTINATION ${INSTALL_BASEDIR}
-      CONFIGURATIONS Release
-      PATTERN ".gitkeep" EXCLUDE
-      PATTERN ".gitignore" EXCLUDE
-    )
-  endif()
 endif()

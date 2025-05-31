@@ -18,30 +18,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Rendering Options
 
 # Sokol Renderer
+set (EDGE_SOKOL ON)
 option(EDGE_SOKOL_GL "Sokol GL" OFF)
 option(EDGE_SOKOL_GLES3 "Sokol GLES3" OFF)
 option(EDGE_SOKOL_D3D11 "Sokol D3D11" OFF)
-option(EDGE_LEGACY_GL "Legacy GL Renderer" OFF)
 
-# If the legacy GL renderer has not been selected and
-# a Sokol backend is not already specified by CMake params, 
-# choose a default based on platform
-if (NOT EDGE_LEGACY_GL)
-  if (NOT EDGE_SOKOL_GL AND NOT EDGE_SOKOL_D3D11 AND NOT EDGE_SOKOL_GLES3)
-    if (WIN32 OR MINGW)
-      set (EDGE_SOKOL_D3D11 ON)
-    elseif (EMSCRIPTEN)
-      set (EDGE_SOKOL_GLES3 ON)
-  # Unix; Apple will eventually have a Metal backend but it should support 
-  # the level of GL in use by Sokol GFX/GL
-    else ()
-      set (EDGE_SOKOL_GL ON)
-    endif()
+if (NOT EDGE_SOKOL_GL AND NOT EDGE_SOKOL_D3D11 AND NOT EDGE_SOKOL_GLES3)
+  if (WIN32)
+    set (EDGE_SOKOL_D3D11 ON)
+  elseif (EMSCRIPTEN)
+    set (EDGE_SOKOL_GLES3 ON)
+# Unix; Apple will eventually have a Metal backend but it should support 
+# the level of GL in use by Sokol GFX/GL
+  else ()
+    set (EDGE_SOKOL_GL ON)
   endif()
-endif()
-
-if (EDGE_SOKOL_GL OR EDGE_SOKOL_GLES3 OR EDGE_SOKOL_D3D11)
-  set (EDGE_SOKOL ON)
 endif()
 
 # Optional Features
@@ -76,11 +67,6 @@ endif()
 
 if (EMSCRIPTEN)
   include("${CMAKE_SOURCE_DIR}/cmake/Emscripten.cmake")  
-endif()
-
-# Set WIN32_WINNT to Windows 7 if using the new renderer or mimalloc
-if ((WIN32 OR MINGW) AND (EDGE_SOKOL OR EDGE_MIMALLOC))
-  add_definitions(-D_WIN32_WINNT=0x601)
 endif()
 
 if(MSVC)
@@ -179,16 +165,7 @@ else()
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libtsan")
     endif()
   endif()
- 
-  if (MINGW)
-    set(CMAKE_EXE_LINKER_FLAGS "-lmingw32 ${CMAKE_EXE_LINKER_FLAGS}")
-  endif()
-
-  if (MSYS)
-    set(CMAKE_EXE_LINKER_FLAGS "-static -mwindows ${CMAKE_EXE_LINKER_FLAGS}")
-  endif()
-
-endif()
+ endif()
 
 # set some directory values for various situations
 
@@ -196,7 +173,7 @@ if(${CMAKE_SYSTEM} MATCHES "BSD")
   include_directories("/usr/local/include")  
 endif()
 
-if(MINGW OR MSVC OR (WIN32 AND CLANG))
+if(MSVC OR (WIN32 AND CLANG))
   set(SDL2_DIR "${CMAKE_SOURCE_DIR}/libraries/sdl2")
 endif()
 
@@ -213,15 +190,11 @@ if (APPLE)
   endif()
 endif()
 
-if (EDGE_SOKOL)
-  add_definitions(-DEDGE_SOKOL)
-  if (EDGE_SOKOL_GL)  
-    find_package(OpenGL REQUIRED)
-  elseif (EDGE_SOKOL_GLES3 AND NOT EMSCRIPTEN)
-    find_package(OpenGL COMPONENTS GLES3 REQUIRED)
-  endif()
-else()
+add_definitions(-DEDGE_SOKOL)
+if (EDGE_SOKOL_GL)  
   find_package(OpenGL REQUIRED)
+elseif (EDGE_SOKOL_GLES3 AND NOT EMSCRIPTEN)
+  find_package(OpenGL COMPONENTS GLES3 REQUIRED)
 endif()
 
 if (EDGE_CLASSIC)
