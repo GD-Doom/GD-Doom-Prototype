@@ -24,7 +24,5 @@
 
 bool LoadDoomSound(SoundData *buf, const uint8_t *data, int length);
 
-bool LoadPCSpeakerSound(SoundData *buf, const uint8_t *data, int length);
-
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

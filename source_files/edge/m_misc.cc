@@ -72,7 +72,6 @@
 bool show_old_config_warning = false;
 
 extern ConsoleVariable midi_soundfont;
-extern bool            pc_speaker_mode;
 
 static bool done_first_init = false;
 
@@ -81,8 +80,6 @@ static ConfigurationDefault defaults[] = {
     {kConfigInteger, "screenheight", &current_screen_height, EDGE_DEFAULT_SCREENHEIGHT},
     {kConfigInteger, "screendepth", &current_screen_depth, EDGE_DEFAULT_SCREENBITS},
     {kConfigInteger, "displaymode", &current_window_mode, EDGE_DEFAULT_DISPLAYMODE},
-
-    {kConfigBoolean, "pc_speaker_mode", &pc_speaker_mode, 0},
 
     // -ES- 1998/11/28 Save fade settings
     {kConfigInteger, "reduce_flash", &reduce_flash, 0},

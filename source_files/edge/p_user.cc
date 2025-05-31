@@ -28,9 +28,6 @@
 
 #include "AlmostEquals.h"
 #include "bot_think.h"
-#ifdef EDGE_CLASSIC
-#include "coal.h"
-#endif
 #include "ddf_colormap.h"
 #include "ddf_reverb.h"
 #include "dm_state.h"
@@ -49,13 +46,6 @@
 #include "s_sound.h"
 #include "script/compat/lua_compat.h"
 #include "stb_sprintf.h"
-#ifdef EDGE_CLASSIC
-#include "vm_coal.h"
-
-extern coal::VM *ui_vm;
-extern void      COALSetVector(coal::VM *vm, const char *mod_name, const char *var_name, double val_1, double val_2,
-                               double val_3);
-#endif
 
 EDGE_DEFINE_CONSOLE_VARIABLE(erraticism, "0", kConsoleVariableFlagArchive)
 
@@ -901,23 +891,10 @@ bool PlayerThink(Player *player)
 
     player->action_button_down_[0] = (cmd->extended_buttons & kExtendedButtonCodeAction1) ? true : false;
     player->action_button_down_[1] = (cmd->extended_buttons & kExtendedButtonCodeAction2) ? true : false;
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-        LuaSetVector3(LuaGetGlobalVM(), "player", "inventory_event_handler",
-                      HMM_Vec3{{cmd->extended_buttons & kExtendedButtonCodeInventoryPrevious ? 1.0f : 0.0f,
-                                cmd->extended_buttons & kExtendedButtonCodeInventoryUse ? 1.0f : 0.0f,
-                                cmd->extended_buttons & kExtendedButtonCodeInventoryNext ? 1.0f : 0.0f}});
-    else
-        COALSetVector(ui_vm, "player", "inventory_event_handler",
-                      cmd->extended_buttons & kExtendedButtonCodeInventoryPrevious ? 1 : 0,
-                      cmd->extended_buttons & kExtendedButtonCodeInventoryUse ? 1 : 0,
-                      cmd->extended_buttons & kExtendedButtonCodeInventoryNext ? 1 : 0);
-#else
     LuaSetVector3(LuaGetGlobalVM(), "player", "inventory_event_handler",
                   HMM_Vec3{{cmd->extended_buttons & kExtendedButtonCodeInventoryPrevious ? 1.0f : 0.0f,
                             cmd->extended_buttons & kExtendedButtonCodeInventoryUse ? 1.0f : 0.0f,
                             cmd->extended_buttons & kExtendedButtonCodeInventoryNext ? 1.0f : 0.0f}});
-#endif
     // decrement jump_wait_ counter
     if (player->jump_wait_ > 0)
         player->jump_wait_--;
@@ -951,9 +928,7 @@ bool PlayerThink(Player *player)
     // Adjust reverb node parameters if applicable
     if (players[console_player] == player)
     {
-        if (pc_speaker_mode)
-            sector_reverb = false;
-        else if (player->map_object_->subsector_->sector->sound_reverb)
+        if (player->map_object_->subsector_->sector->sound_reverb)
         {
             sector_reverb = true;
             player->map_object_->subsector_->sector->sound_reverb->ApplyReverb(&reverb_node);

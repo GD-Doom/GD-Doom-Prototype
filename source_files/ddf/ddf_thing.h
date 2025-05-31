@@ -822,7 +822,7 @@ class MapObjectDefinition
 
     BitSet side_;
     int    playernum_;
-    int    yalign_;    // -AJA- 2007/08/08: sprite Y alignment in bbox
+    int    yalign_; // -AJA- 2007/08/08: sprite Y alignment in bbox
 
     // breathing support: lung_capacity is how many tics we can last
     // underwater.  gasp_start is how long underwater before we gasp

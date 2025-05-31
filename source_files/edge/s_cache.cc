@@ -40,9 +40,7 @@
 #include "m_random.h"
 #include "p_mobj.h"
 #include "r_defs.h"
-#ifdef EDGE_CLASSIC
 #include "s_doom.h"
-#endif
 #include "s_mp3.h"
 #include "s_ogg.h"
 #include "s_sound.h"
@@ -52,8 +50,7 @@
 #include "w_files.h"
 #include "w_wad.h"
 
-extern int  sound_device_frequency;
-extern bool pc_speaker_mode;
+extern int sound_device_frequency;
 
 static std::vector<SoundData *> sound_effects_cache;
 
@@ -66,16 +63,10 @@ static void LoadSilence(SoundData *buf)
 
     EPI_CLEAR_MEMORY(buf->data_, float, length * 2);
 }
-#ifdef EDGE_CLASSIC
 static bool LoadDoom(SoundData *buf, const uint8_t *lump, int length)
 {
     return LoadDoomSound(buf, lump, length);
 }
-static bool LoadPCSpeaker(SoundData *buf, const uint8_t *lump, int length)
-{
-    return LoadPCSpeakerSound(buf, lump, length);
-}
-#endif
 static bool LoadWav(SoundData *buf, const uint8_t *lump, int length)
 {
     return LoadWAVSound(buf, lump, length);
@@ -105,76 +96,41 @@ static bool DoCacheLoad(SoundEffectDefinition *def, SoundData *buf)
     epi::File  *F;
     SoundFormat fmt = kSoundUnknown;
 
-    if (pc_speaker_mode)
+    if (def->pack_name_ != "")
     {
-        if (!epi::GetExtension(def->pc_speaker_sound_).empty())
+        F = OpenFileFromPack(def->pack_name_);
+        if (!F)
         {
-            F = OpenFileFromPack(def->pc_speaker_sound_);
-            if (!F)
-            {
-                std::string open_name = epi::PathAppendIfNotAbsolute(game_directory, def->pc_speaker_sound_);
-                F                     = epi::FileOpen(open_name, epi::kFileAccessRead | epi::kFileAccessBinary);
-            }
-            if (!F)
-            {
-                DebugOrError("SFX Loader: Missing sound: '%s'\n", def->pc_speaker_sound_.c_str());
-                return false;
-            }
-            fmt = SoundFilenameToFormat(def->pc_speaker_sound_);
+            DebugOrError("SFX Loader: Missing sound in EPK: '%s'\n", def->pack_name_.c_str());
+            return false;
         }
-        else // Assume bare name is a lump reference
+        fmt = SoundFilenameToFormat(def->pack_name_);
+    }
+    else if (def->file_name_ != "")
+    {
+        // Why is this composed with the app dir? - Dasho
+        std::string fn = epi::PathAppendIfNotAbsolute(game_directory, def->file_name_);
+        F              = epi::FileOpen(fn, epi::kFileAccessRead | epi::kFileAccessBinary);
+        if (!F)
         {
-            int lump = -1;
-            lump     = CheckLumpNumberForName(def->pc_speaker_sound_.c_str());
-            if (lump < 0)
-            {
-                // Just write a debug message for SFX lumps; this prevents spam
-                // amongst the various IWADs
-                DebugOrError("SFX Loader: Missing sound lump: %s\n", def->pc_speaker_sound_.c_str());
-                return false;
-            }
-            F = LoadLumpAsFile(lump);
-            EPI_ASSERT(F);
+            DebugOrError("SFX Loader: Can't Find File '%s'\n", fn.c_str());
+            return false;
         }
+        fmt = SoundFilenameToFormat(def->file_name_);
     }
     else
     {
-        if (def->pack_name_ != "")
+        int lump = -1;
+        lump     = CheckLumpNumberForName(def->lump_name_.c_str());
+        if (lump < 0)
         {
-            F = OpenFileFromPack(def->pack_name_);
-            if (!F)
-            {
-                DebugOrError("SFX Loader: Missing sound in EPK: '%s'\n", def->pack_name_.c_str());
-                return false;
-            }
-            fmt = SoundFilenameToFormat(def->pack_name_);
+            // Just write a debug message for SFX lumps; this prevents spam
+            // amongst the various IWADs
+            DebugOrError("SFX Loader: Missing sound lump: %s\n", def->lump_name_.c_str());
+            return false;
         }
-        else if (def->file_name_ != "")
-        {
-            // Why is this composed with the app dir? - Dasho
-            std::string fn = epi::PathAppendIfNotAbsolute(game_directory, def->file_name_);
-            F              = epi::FileOpen(fn, epi::kFileAccessRead | epi::kFileAccessBinary);
-            if (!F)
-            {
-                DebugOrError("SFX Loader: Can't Find File '%s'\n", fn.c_str());
-                return false;
-            }
-            fmt = SoundFilenameToFormat(def->file_name_);
-        }
-        else
-        {
-            int lump = -1;
-            lump     = CheckLumpNumberForName(def->lump_name_.c_str());
-            if (lump < 0)
-            {
-                // Just write a debug message for SFX lumps; this prevents spam
-                // amongst the various IWADs
-                DebugOrError("SFX Loader: Missing sound lump: %s\n", def->lump_name_.c_str());
-                return false;
-            }
-            F = LoadLumpAsFile(lump);
-            EPI_ASSERT(F);
-        }
+        F = LoadLumpAsFile(lump);
+        EPI_ASSERT(F);
     }
 
     // Load the data into the buffer
@@ -197,8 +153,7 @@ static bool DoCacheLoad(SoundEffectDefinition *def, SoundData *buf)
         return false;
     }
 
-    if ((pc_speaker_mode && epi::GetExtension(def->pc_speaker_sound_).empty()) ||
-        (def->pack_name_ == "" && def->file_name_ == ""))
+    if (def->pack_name_ == "" && def->file_name_ == "")
     {
         // for lumps, we must detect the format from the lump contents
         fmt = DetectSoundFormat(data, length);
@@ -217,20 +172,9 @@ static bool DoCacheLoad(SoundEffectDefinition *def, SoundData *buf)
     case kSoundMP3:
         OK = LoadMP3(buf, data, length);
         break;
-#ifdef EDGE_CLASSIC
-    // Double-check first byte here because pack filename detection could
-    // return kSoundPCSpeaker for either
-    case kSoundPCSpeaker:
-        if (data[0] == 0x3)
-            OK = LoadDoom(buf, data, length);
-        else
-            OK = LoadPCSpeaker(buf, data, length);
-        break;
-
     case kSoundDoom:
         OK = LoadDoom(buf, data, length);
         break;
-#endif
     default:
         OK = false;
         break;
@@ -243,14 +187,6 @@ static bool DoCacheLoad(SoundEffectDefinition *def, SoundData *buf)
 
 SoundData *SoundCacheLoad(SoundEffectDefinition *def)
 {
-    bool pc_speaker_skip = false;
-
-    if (pc_speaker_mode)
-    {
-        if (def->pc_speaker_sound_.empty())
-            pc_speaker_skip = true;
-    }
-
     for (int i = 0; i < (int)sound_effects_cache.size(); i++)
     {
         if (sound_effects_cache[i]->definition_data_ == (void *)def)
@@ -266,9 +202,7 @@ SoundData *SoundCacheLoad(SoundEffectDefinition *def)
 
     buf->definition_data_ = def;
 
-    if (pc_speaker_skip)
-        LoadSilence(buf);
-    else if (!DoCacheLoad(def, buf))
+    if (!DoCacheLoad(def, buf))
         LoadSilence(buf);
 
     return buf;

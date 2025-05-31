@@ -33,10 +33,8 @@
 #include "i_system.h"
 #include "m_misc.h"
 #include "s_flac.h"
-#include "s_midi.h"
-#ifdef EDGE_CLASSIC
 #include "s_m4p.h"
-#endif
+#include "s_midi.h"
 #include "s_mp3.h"
 #include "s_ogg.h"
 #include "s_sound.h"
@@ -54,7 +52,6 @@ static AbstractMusicPlayer *music_player;
 
 int         entry_playing = -1;
 static bool entry_looped;
-bool        pc_speaker_mode = false;
 
 void ChangeMusic(int entry_number, bool loop)
 {
@@ -148,26 +145,6 @@ void ChangeMusic(int entry_number, bool loop)
 
     SoundFormat fmt = kSoundUnknown;
 
-#ifdef EDGE_CLASSIC
-    // IMF Music is the outlier in that it must be predefined in DDFPLAY with
-    // the appropriate IMF frequency, as there is no way of determining this
-    // from file information alone
-    if (play->type_ == kDDFMusicIMF280 || play->type_ == kDDFMusicIMF560 || play->type_ == kDDFMusicIMF700)
-        fmt = kSoundIMF;
-    else
-    {
-        if (play->infotype_ == kDDFMusicDataLump)
-        {
-            // lumps must use auto-detection based on their contents
-            fmt = DetectSoundFormat(data, length);
-        }
-        else
-        {
-            // for FILE and PACK, use the file extension
-            fmt = SoundFilenameToFormat(play->info_);
-        }
-    }
-#else
     if (play->infotype_ == kDDFMusicDataLump)
     {
         // lumps must use auto-detection based on their contents
@@ -178,7 +155,7 @@ void ChangeMusic(int entry_number, bool loop)
         // for FILE and PACK, use the file extension
         fmt = SoundFilenameToFormat(play->info_);
     }
-#endif
+
     // NOTE: players are responsible for freeing 'data'
 
     switch (fmt)
@@ -195,17 +172,11 @@ void ChangeMusic(int entry_number, bool loop)
         delete F;
         music_player = PlayFLACMusic(data, length, loop);
         break;
-#ifdef EDGE_CLASSIC
-    case kSoundM4P:
+    case kSoundTracker:
         delete F;
-        music_player = PlayM4PMusic(data, length, loop);
-        break;
-    case kSoundIMF:
-        delete F;
-        music_player = PlayIMFMusic(data, length, loop, play->type_);
+        music_player = PlayTrackerMusic(data, length, loop);
         break;
     case kSoundMUS:
-#endif
     case kSoundMIDI:
         delete F;
         music_player = PlayMIDIMusic(data, length, loop);

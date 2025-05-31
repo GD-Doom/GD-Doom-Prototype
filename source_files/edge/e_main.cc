@@ -89,9 +89,6 @@
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "version.h"
-#ifdef EDGE_CLASSIC
-#include "vm_coal.h"
-#endif
 #include "w_epk.h"
 #include "w_files.h"
 #include "w_sprite.h"
@@ -652,14 +649,7 @@ void EdgeDisplay(void)
         {
         case kGameStateLevel:
             PaletteTicker();
-#ifdef EDGE_CLASSIC
-            if (LuaUseLuaHUD())
-                LuaRunHUD();
-            else
-                COALRunHUD();
-#else
             LuaRunHUD();
-#endif
             if (need_save_screenshot)
             {
                 // don't draw menu in save game shots
@@ -2260,10 +2250,6 @@ void EdgeShutdown(void)
             ClosePackFile(df);
         delete df;
     }
-#ifdef EDGE_CLASSIC
-    if (GetCOALDetected())
-        ShutdownCOAL();
-#endif
 }
 
 #ifdef EDGE_MEMORY_CHECK
@@ -2349,9 +2335,7 @@ static void EdgeStartup(void)
 
     DDFCleanUp();
     SetLanguage();
-#ifdef EDGE_CLASSIC
     ReadUMAPINFOLumps();
-#endif
 
 #ifdef EDGE_EXTRA_CHECKS
     LogDebug("String Hash Registry:\n\n");
@@ -2392,21 +2376,8 @@ static void EdgeStartup(void)
     InitializeSound();
     NetworkInitialize();
     CheatInitialize();
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-    {
-        LuaInit();
-        LuaLoadScripts();
-    }
-    else
-    {
-        InitializeCOAL();
-        COALLoadScripts();
-    }
-#else
     LuaInit();
     LuaLoadScripts();
-#endif
 }
 
 static void InitialState(void)

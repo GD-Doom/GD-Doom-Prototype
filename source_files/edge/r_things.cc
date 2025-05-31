@@ -28,9 +28,6 @@
 #include <map>
 
 #include "AlmostEquals.h"
-#ifdef EDGE_CLASSIC
-#include "coal.h"
-#endif
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "edge_profiling.h"
@@ -62,15 +59,7 @@
 #include "r_texgl.h"
 #include "r_units.h"
 #include "script/compat/lua_compat.h"
-#ifdef EDGE_CLASSIC
-#include "vm_coal.h"
-#endif
 #include "w_sprite.h"
-
-#ifdef EDGE_CLASSIC
-extern coal::VM *ui_vm;
-extern double    COALGetFloat(coal::VM *vm, const char *mod_name, const char *var_name);
-#endif
 
 extern bool erraticism_active;
 
@@ -396,27 +385,10 @@ static void RenderPSprite(PlayerSprite *psp, int which, Player *player, RegionPr
     float tx2 = tx1 + w;
 
     float ty1 = -psp_y + image->ScaledOffsetY() - ((h - image->ScaledHeightActual()) * 0.5f);
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-    {
-        // Lobo 2022: Apply sprite Y offset, mainly for Heretic weapons.
-        if ((state->flags & kStateFrameFlagWeapon) && (player->ready_weapon_ >= 0))
-            ty1 += LuaGetFloat(LuaGetGlobalVM(), "hud", "universal_y_adjust") +
-                   player->weapons_[player->ready_weapon_].info->y_adjust_;
-    }
-    else
-    {
-        // Lobo 2022: Apply sprite Y offset, mainly for Heretic weapons.
-        if ((state->flags & kStateFrameFlagWeapon) && (player->ready_weapon_ >= 0))
-            ty1 += COALGetFloat(ui_vm, "hud", "universal_y_adjust") +
-                   player->weapons_[player->ready_weapon_].info->y_adjust_;
-    }
-#else
     // Lobo 2022: Apply sprite Y offset, mainly for Heretic weapons.
     if ((state->flags & kStateFrameFlagWeapon) && (player->ready_weapon_ >= 0))
         ty1 += LuaGetFloat(LuaGetGlobalVM(), "hud", "universal_y_adjust") +
                player->weapons_[player->ready_weapon_].info->y_adjust_;
-#endif
     float ty2 = ty1 + h;
 
     float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t; // screen coords
@@ -1129,13 +1101,13 @@ static bool RenderThing(DrawThing *dthing, bool solid)
             }
         }
     }
-       
+
     if (gzb >= gzt)
         return false;
 
     bsp_mirror_set.Height(gzb);
     bsp_mirror_set.Height(gzt);
-   
+
     dthing->top    = gzt;
     dthing->bottom = gzb;
 

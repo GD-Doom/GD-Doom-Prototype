@@ -89,7 +89,7 @@ Function-like macros should be replaced with true functions (preferably inline).
 
 Macros that must still be created after considering the above rules should begin with 
 the name of the library in question (in the case of EDGE-Classic this would be 
-AJBSP_, COAL_, DDF_, DEHACKED_, EDGE_, or EPI_).
+AJBSP_, DDF_, DEHACKED_, EDGE_, or EPI_).
 
 Macros provided by, or required for, dependencies are acceptable to use as-is.
 

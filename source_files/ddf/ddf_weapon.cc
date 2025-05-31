@@ -108,7 +108,7 @@ static const DDFCommandList weapon_commands[] = {
     DDF_FIELD("SWAYING", dummy_weapon, swaying_, DDFMainGetPercent),
     DDF_FIELD("IDLE_WAIT", dummy_weapon, idle_wait_, DDFMainGetTime),
     DDF_FIELD("IDLE_CHANCE", dummy_weapon, idle_chance_, DDFMainGetPercent),
-  
+
     // -AJA- backwards compatibility cruft...
     DDF_FIELD("SECOND_ATTACK", dummy_weapon, attack_[1], DDFMainRefAttack),
 
@@ -177,7 +177,7 @@ static const DDFActionCode weapon_actions[] = {{"NOTHING", nullptr, nullptr},
                                                {"KICK", A_WeaponKick, DDFStateGetFloat},
                                                {"CHECKRELOAD", A_CheckReload, nullptr},
                                                {"PLAYSOUND", A_WeaponPlaySound, DDFStateGetSound},
-                                               {"KILLSOUND", A_WeaponKillSound, nullptr},                                               
+                                               {"KILLSOUND", A_WeaponKillSound, nullptr},
                                                {"JUMP", A_WeaponJump, DDFStateGetJump},
                                                {"UNZOOM", A_WeaponUnzoom, nullptr},
 

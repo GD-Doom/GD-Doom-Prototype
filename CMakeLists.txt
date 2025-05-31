@@ -34,9 +34,6 @@ if (NOT EDGE_SOKOL_GL AND NOT EDGE_SOKOL_D3D11 AND NOT EDGE_SOKOL_GLES3)
   endif()
 endif()
 
-# Optional Features
-option(EDGE_CLASSIC "Enable default features for EDGE-Classic" ON)
-
 # Development 
 option(EDGE_SANITIZE "Enable code sanitizing" OFF)
 option(EDGE_SANITIZE_THREADS "Enable thread sanitizing (No-op with MSVC)" OFF)

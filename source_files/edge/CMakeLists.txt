@@ -27,6 +27,7 @@ set (EDGE_SOURCE_FILES
   im_filter.cc
   im_data.cc
   im_funcs.cc
+  l_deh.cc
   m_argv.cc
   m_bbox.cc
   m_cheat.cc
@@ -54,6 +55,7 @@ set (EDGE_SOURCE_FILES
   p_user.cc
   p_forces.cc
   p_telept.cc
+  p_umapinfo.cc
   p_weapon.cc
   rad_act.cc
   rad_pars.cc
@@ -78,7 +80,10 @@ set (EDGE_SOURCE_FILES
   r_texgl.cc
   s_blit.cc
   s_cache.cc
+  s_doom.cc
   s_flac.cc
+  s_m4p.cc
+  s_midi.cc
   s_mp3.cc
   s_music.cc
   s_ogg.cc
@@ -126,25 +131,6 @@ endif()
 
 list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
 
-if (EDGE_CLASSIC)
-  list (APPEND 
-    EDGE_SOURCE_FILES
-    l_deh.cc
-    p_umapinfo.cc
-    s_doom.cc
-    s_m4p.cc
-    s_midi_ec.cc
-    vm_coal.cc
-    vm_hud.cc
-    vm_player.cc    
-  )
-else()
-  list (APPEND
-    EDGE_SOURCE_FILES 
-    s_midi.cc  
-  )
-endif()
-
 if (EMSCRIPTEN)
   list (APPEND EDGE_SOURCE_FILES i_web.cc)
 else()
@@ -175,6 +161,7 @@ target_include_directories(edge-classic PRIVATE ./)
 set (EDGE_LINK_LIBRARIES
   ajbsp
   ddf
+  dehacked
   epi
   edge_tracy
   ${SDL2_LIBRARIES}
@@ -182,6 +169,7 @@ set (EDGE_LINK_LIBRARIES
   fluidlite
   HandmadeMath
   lua
+  m4p
   miniaudio
   minivorbis
   miniz
@@ -192,16 +180,6 @@ set (EDGE_LINK_LIBRARIES
 
 if (NOT EMSCRIPTEN)
   list (APPEND EDGE_LINK_LIBRARIES thread)
-endif()
-
-if (EDGE_CLASSIC)
-  list (APPEND
-    EDGE_LINK_LIBRARIES
-    coal
-    dehacked
-    m4p
-    opalmidi
-  )
 endif()
 
 if (EDGE_PROFILING)

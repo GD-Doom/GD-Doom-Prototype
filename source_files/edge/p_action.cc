@@ -5451,7 +5451,7 @@ void A_PainChanceSet(MapObject *mo)
 
 void A_ScaleSet(MapObject *mo)
 {
-    float valueSprite = mo->info_->scale_;       // grab the default scale for this thing as a fallback
+    float valueSprite = mo->info_->scale_; // grab the default scale for this thing as a fallback
 
     const State *st = mo->state_;
 
@@ -5459,7 +5459,7 @@ void A_ScaleSet(MapObject *mo)
     {
         valueSprite = ((float *)st->action_par)[0];
     }
-    mo->scale_       = valueSprite;
+    mo->scale_ = valueSprite;
 }
 
 void A_Gravity(MapObject *mo)

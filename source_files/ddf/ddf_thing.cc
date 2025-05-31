@@ -165,7 +165,7 @@ const DDFCommandList thing_commands[] = {
     DDF_FIELD("SPRITE_SCALE", dummy_mobj, scale_, DDFMainGetFloat),
     DDF_FIELD("SPRITE_ASPECT", dummy_mobj, aspect_, DDFMainGetFloat),
     DDF_FIELD("SPRITE_YALIGN", dummy_mobj, yalign_,
-              DDFMobjGetYAlign),  // -AJA- 2007/08/08
+              DDFMobjGetYAlign), // -AJA- 2007/08/08
     DDF_FIELD("BOUNCE_SPEED", dummy_mobj, bounce_speed_, DDFMainGetFloat),
     DDF_FIELD("BOUNCE_UP", dummy_mobj, bounce_up_, DDFMainGetFloat),
     DDF_FIELD("SIGHT_SLOPE", dummy_mobj, sight_slope_, DDFMainGetSlope),

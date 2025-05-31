@@ -28,16 +28,11 @@
 #include "epi_filesystem.h"
 #include "epi_str_compare.h"
 #include "epi_str_util.h"
-#ifdef EDGE_CLASSIC
 #include "l_deh.h"
-#endif
 #include "miniz.h"
 #include "r_image.h"
 #include "script/compat/lua_compat.h"
 #include "snd_types.h"
-#ifdef EDGE_CLASSIC
-#include "vm_coal.h"
-#endif
 #include "w_files.h"
 #include "w_wad.h"
 
@@ -666,7 +661,6 @@ static void ProcessDDFInPack(PackFile *pack)
                 DDFAddFile(type, data, source);
                 continue;
             }
-#ifdef EDGE_CLASSIC
             if (ent.HasExtension(".deh") || ent.HasExtension(".bex"))
             {
                 LogPrint("Converting DEH file%s: %s\n", pack->is_folder_ ? "" : " in EPK", ent.name_.c_str());
@@ -679,79 +673,10 @@ static void ProcessDDFInPack(PackFile *pack)
 
                 continue;
             }
-#endif
         }
     }
 }
-#ifdef EDGE_CLASSIC
-static void ProcessCOALAPIInPack(PackFile *pack)
-{
-    DataFile *df = pack->parent_;
 
-    std::string bare_filename = epi::GetFilename(df->name_);
-    if (bare_filename.empty())
-        bare_filename = df->name_;
-
-    std::string source = "coal_api.ec";
-    source += " in ";
-    source += bare_filename;
-
-    for (size_t dir = 0; dir < pack->directories_.size(); dir++)
-    {
-        for (size_t entry = 0; entry < pack->directories_[dir].entries_.size(); entry++)
-        {
-            PackEntry &ent = pack->directories_[dir].entries_[entry];
-            if (epi::GetFilename(ent.name_) == "coal_api.ec")
-            {
-                int            length   = -1;
-                const uint8_t *raw_data = pack->LoadEntry(dir, entry, length);
-                std::string    data((const char *)raw_data);
-                delete[] raw_data;
-                COALAddScript(0, data, source);
-                return; // Should only be present once
-            }
-        }
-    }
-    FatalError("coal_api.ec not found in edge_defs; unable to initialize COAL!\n");
-}
-
-static void ProcessCOALHUDInPack(PackFile *pack)
-{
-    DataFile *df = pack->parent_;
-
-    std::string bare_filename = epi::GetFilename(df->name_);
-    if (bare_filename.empty())
-        bare_filename = df->name_;
-
-    std::string source = "coal_hud.ec";
-    source += " in ";
-    source += bare_filename;
-
-    for (size_t dir = 0; dir < pack->directories_.size(); dir++)
-    {
-        for (size_t entry = 0; entry < pack->directories_[dir].entries_.size(); entry++)
-        {
-            PackEntry  &ent    = pack->directories_[dir].entries_[entry];
-            std::string ent_fn = epi::GetFilename(ent.name_);
-            if (epi::StringCaseCompareASCII(ent_fn, "coal_hud.ec") == 0 ||
-                epi::StringCaseCompareASCII(epi::GetStem(ent_fn), "COALHUDS") == 0)
-            {
-                if (epi::StringPrefixCaseCompareASCII(bare_filename, "edge_defs") != 0)
-                {
-                    SetCOALDetected(true);
-                }
-
-                int            length   = -1;
-                const uint8_t *raw_data = pack->LoadEntry(dir, entry, length);
-                std::string    data((const char *)raw_data);
-                delete[] raw_data;
-                COALAddScript(0, data, source);
-                return; // Should only be present once
-            }
-        }
-    }
-}
-#endif
 static void ProcessLuaAPIInPack(PackFile *pack)
 {
     DataFile *df = pack->parent_;
@@ -798,12 +723,6 @@ static void ProcessLuaHUDInPack(PackFile *pack)
             PackEntry &ent = pack->directories_[dir].entries_[entry];
             if (epi::StringCaseCompareASCII(epi::GetFilename(ent.name_), "edge_hud.lua") == 0)
             {
-#ifdef EDGE_CLASSIC // This part only matters if in a potentially mixed Lua/COAL environment
-                if (epi::StringPrefixCaseCompareASCII(bare_filename, "edge_defs") != 0)
-                {
-                    LuaSetLuaHUDDetected(true);
-                }
-#endif
                 int            length   = -1;
                 const uint8_t *raw_data = pack->LoadEntry(dir, entry, length);
                 std::string    data((const char *)raw_data);
@@ -1344,15 +1263,7 @@ void ProcessAllInPack(DataFile *df, size_t file_index)
     // after all files loaded so that pack substitutions can work properly
     ProcessDDFInPack(df->pack_);
 
-    // COAL
-#ifdef EDGE_CLASSIC
-    // parse COALAPI only from edge_defs folder or `edge_defs.epk`
-    if ((df->kind_ == kFileKindEFolder || df->kind_ == kFileKindEEPK) && file_index == 0)
-        ProcessCOALAPIInPack(df->pack_);
-    ProcessCOALHUDInPack(df->pack_);
-#endif
     // LUA
-
     // parse lua api  only from edge_defs folder or `edge_defs.epk`
     if ((df->kind_ == kFileKindEFolder || df->kind_ == kFileKindEEPK) && file_index == 0)
         ProcessLuaAPIInPack(df->pack_);

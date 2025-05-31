@@ -359,9 +359,7 @@ static void S_PlaySound(int idx, const SoundEffectDefinition *def, int category,
         ma_sound_set_max_distance(&chan->channel_sound_,
                                   chan->boss_ ? kBossSoundClipDistance : kMaximumSoundClipDistance);
         ma_sound_set_position(&chan->channel_sound_, pos->x, pos->z, -pos->y);
-        if (pc_speaker_mode)
-            ma_node_attach_output_bus(&chan->channel_sound_, 0, &sfx_node, 0);
-        else if (vacuum_sound_effects)
+        if (vacuum_sound_effects)
             ma_node_attach_output_bus(&chan->channel_sound_, 0, &vacuum_node, 0);
         else if (submerged_sound_effects)
             ma_node_attach_output_bus(&chan->channel_sound_, 0, &underwater_node, 0);
@@ -373,9 +371,7 @@ static void S_PlaySound(int idx, const SoundEffectDefinition *def, int category,
     else
     {
         ma_sound_set_attenuation_model(&chan->channel_sound_, ma_attenuation_model_none);
-        if (pc_speaker_mode)
-            ma_node_attach_output_bus(&chan->channel_sound_, 0, &sfx_node, 0);
-        else if (category != kCategoryUi)
+        if (category != kCategoryUi)
         {
             if (vacuum_sound_effects)
                 ma_node_attach_output_bus(&chan->channel_sound_, 0, &vacuum_node, 0);

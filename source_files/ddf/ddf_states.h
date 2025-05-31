@@ -29,8 +29,8 @@
 
 enum StateFrameFlag
 {
-    kStateFrameFlagWeapon   = (1 << 0),
-    kStateFrameFlagFast     = (1 << 1)  // MBF21: Specific frame is twice as fast on Nightmare
+    kStateFrameFlagWeapon = (1 << 0),
+    kStateFrameFlagFast   = (1 << 1) // MBF21: Specific frame is twice as fast on Nightmare
 };
 
 struct State
