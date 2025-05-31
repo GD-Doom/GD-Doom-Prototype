@@ -116,7 +116,7 @@ static void RecurseSound(Sector *sec, int soundblocks, int player)
             continue;
 
         // -AJA- 1999/07/19: Gaps are now stored in line_t.
-        if (check->gap_number == 0)
+        if (!check->has_gap)
             continue; // closed door
 
         // -AJA- 2001/11/11: handle closed Sliding doors

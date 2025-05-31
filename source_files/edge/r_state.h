@@ -51,9 +51,6 @@ extern Sector *level_sectors;
 extern int        total_level_subsectors;
 extern Subsector *level_subsectors;
 
-extern int         total_level_extrafloors;
-extern Extrafloor *level_extrafloors;
-
 extern int      total_level_nodes;
 extern BSPNode *level_nodes;
 

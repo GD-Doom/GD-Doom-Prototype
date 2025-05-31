@@ -482,50 +482,6 @@ static float ScaleFactorForPlane(MapSurface &surf, float line_len, bool use_heig
         return surf.image->ScaledWidthActual() / line_len;
 }
 
-static void P_EFTransferTrans(Sector *ctrl, Sector *sec, Line *line, const ExtraFloorDefinition *ef, float trans)
-{
-    int i;
-
-    // floor and ceiling
-
-    if (ctrl->floor.translucency > trans)
-        ctrl->floor.translucency = trans;
-
-    if (ctrl->ceiling.translucency > trans)
-        ctrl->ceiling.translucency = trans;
-
-    // sides
-
-    if (!(ef->type_ & kExtraFloorTypeThick))
-        return;
-
-    if (ef->type_ & (kExtraFloorTypeSideUpper | kExtraFloorTypeSideLower))
-    {
-        for (i = 0; i < sec->line_count; i++)
-        {
-            Line *L = sec->lines[i];
-            Side *S = nullptr;
-
-            if (L->front_sector == sec)
-                S = L->side[1];
-            else if (L->back_sector == sec)
-                S = L->side[0];
-
-            if (!S)
-                continue;
-
-            if (ef->type_ & kExtraFloorTypeSideUpper)
-                S->top.translucency = trans;
-            else // kExtraFloorTypeSideLower
-                S->bottom.translucency = trans;
-        }
-
-        return;
-    }
-
-    line->side[0]->middle.translucency = trans;
-}
-
 //
 // Lobo:2021 Setup our special debris linetype.
 //
@@ -1346,8 +1302,6 @@ static bool P_ActivateSpecialLine(Line *line, const LineType *special, int tag, 
 
     // Don't let monsters activate crossable special lines that they
     // wouldn't otherwise cross (for now, the edge of a high dropoff)
-    // Note: I believe this assumes no 3D floors, but I think it's a
-    // very particular situation anyway - Dasho
     if (trig == kLineTriggerWalkable && line->back_sector && thing &&
         (thing->info_->extended_flags_ & kExtendedFlagMonster) &&
         !(thing->flags_ & (kMapObjectFlagTeleport | kMapObjectFlagDropOff | kMapObjectFlagFloat)))
@@ -1789,24 +1743,34 @@ static inline void PlayerInProperties(Player *player, float bz, float tz, float 
         }
     }
 
-    if ((special->special_flags_ & kSectorFlagAirLess) && mouth_z >= floor_height && mouth_z <= ceiling_height)
+    // GD-DOOM: New swim check
+    if (special->special_flags_ & kSectorFlagDeepWater)
     {
-        player->airless_ = true;
-    }
-
-    if ((special->special_flags_ & kSectorFlagSwimming) && mouth_z >= floor_height && mouth_z <= ceiling_height)
-    {
+        player->airless_  = true;
         player->swimming_ = true;
         *swim_special     = special;
         if (special->special_flags_ & kSectorFlagSubmergedSFX)
             submerged_sound_effects = true;
     }
-
-    if ((special->special_flags_ & kSectorFlagSwimming) && player->map_object_->z >= floor_height &&
-        player->map_object_->z <= ceiling_height)
+    else
     {
-        player->wet_feet_ = true;
-        HitLiquidFloor(player->map_object_);
+        if ((special->special_flags_ & kSectorFlagAirLess) && mouth_z >= floor_height && mouth_z <= ceiling_height)
+        {
+            player->airless_ = true;
+        }
+        if ((special->special_flags_ & kSectorFlagSwimming) && mouth_z >= floor_height && mouth_z <= ceiling_height)
+        {
+            player->swimming_ = true;
+            *swim_special     = special;
+            if (special->special_flags_ & kSectorFlagSubmergedSFX)
+                submerged_sound_effects = true;
+        }
+        if ((special->special_flags_ & kSectorFlagSwimming) && player->map_object_->z >= floor_height &&
+            player->map_object_->z <= ceiling_height)
+        {
+            player->wet_feet_ = true;
+            HitLiquidFloor(player->map_object_);
+        }
     }
 
     if (special->special_flags_ & kSectorFlagVacuumSFX)
@@ -1901,9 +1865,8 @@ static inline void PlayerInProperties(Player *player, float bz, float tz, float 
 //
 void PlayerInSpecialSector(Player *player, Sector *sec, bool should_choke)
 {
-    Extrafloor *S, *L, *C;
-    float       floor_h;
-    float       ceil_h;
+    float floor_h;
+    float ceil_h;
 
     float bz = player->map_object_->z;
     float tz = player->map_object_->z + player->map_object_->height_;
@@ -1919,36 +1882,8 @@ void PlayerInSpecialSector(Player *player, Sector *sec, bool should_choke)
     player->airless_    = false;
     player->wet_feet_   = false;
 
-    // traverse extrafloor list
     floor_h = sec->floor_height;
     ceil_h  = sec->ceiling_height;
-
-    S = sec->bottom_extrafloor;
-    L = sec->bottom_liquid;
-
-    while (S || L)
-    {
-        if (!L || (S && S->bottom_height < L->bottom_height))
-        {
-            C = S;
-            S = S->higher;
-        }
-        else
-        {
-            C = L;
-            L = L->higher;
-        }
-
-        EPI_ASSERT(C);
-
-        // ignore "hidden" liquids
-        if (C->bottom_height < floor_h || C->bottom_height > sec->ceiling_height)
-            continue;
-
-        PlayerInProperties(player, bz, tz, floor_h, C->top_height, C->properties, &swim_special, should_choke);
-
-        floor_h = C->top_height;
-    }
 
     if (sec->floor_vertex_slope)
         floor_h = player->map_object_->floor_z_;
@@ -1956,7 +1891,10 @@ void PlayerInSpecialSector(Player *player, Sector *sec, bool should_choke)
     if (sec->ceiling_vertex_slope)
         ceil_h = player->map_object_->ceiling_z_;
 
-    PlayerInProperties(player, bz, tz, floor_h, ceil_h, sec->active_properties, &swim_special, should_choke);
+    if (sec->has_deep_water && tz < sec->deep_water_height)
+        PlayerInProperties(player, bz, tz, floor_h, ceil_h, &sec->deep_water_properties, &swim_special, should_choke);
+    else
+        PlayerInProperties(player, bz, tz, floor_h, ceil_h, sec->active_properties, &swim_special, should_choke);
 
     // breathing support: handle gasping when leaving the water
     if ((was_underwater && !player->underwater_) || (was_airless && !player->airless_))
@@ -2499,38 +2437,6 @@ void SpawnMapSpecials1(void)
         if (special->portal_effect_ != kPortalEffectTypeNone)
         {
             P_PortalEffect(&level_lines[i]);
-        }
-
-        // Extrafloor creation
-        if (special->ef_.type_ != kExtraFloorTypeNone && level_lines[i].tag > 0)
-        {
-            Sector *ctrl = level_lines[i].front_sector;
-
-            for (Sector *tsec = FindSectorFromTag(level_lines[i].tag); tsec; tsec = tsec->tag_next)
-            {
-                // the OLD method of Boom deep water (the BOOMTEX flag)
-                if (special->ef_.type_ & kExtraFloorTypeBoomTex)
-                {
-                    if (ctrl->floor_height <= tsec->floor_height)
-                    {
-                        tsec->properties.colourmap = ctrl->properties.colourmap;
-                        continue;
-                    }
-                }
-
-                AddExtraFloor(tsec, &level_lines[i]);
-
-                // transfer any translucency
-                if (special->translucency_ <= 0.99f)
-                {
-                    P_EFTransferTrans(ctrl, tsec, &level_lines[i], &special->ef_, special->translucency_);
-                }
-
-                // update the line gaps & things:
-                RecomputeGapsAroundSector(tsec);
-
-                FloodExtraFloors(tsec);
-            }
         }
 
         // Detail slopes

@@ -562,8 +562,8 @@ static bool BSPCheckBBox(const float *bspcoord)
     return !OcclusionTest(angle_R, angle_L);
 }
 
-static inline void AddNewDrawFloor(DrawSubsector *dsub, Extrafloor *ef, float floor_height, float ceiling_height,
-                                   float top_h, MapSurface *floor, MapSurface *ceil, RegionProperties *props)
+static inline void AddNewDrawFloor(DrawSubsector *dsub, float floor_height, float ceiling_height, float top_h,
+                                   MapSurface *floor, MapSurface *ceil, RegionProperties *props)
 {
     DrawFloor *dfloor;
 
@@ -575,7 +575,6 @@ static inline void AddNewDrawFloor(DrawSubsector *dsub, Extrafloor *ef, float fl
     dfloor->render_previous = nullptr;
     dfloor->floor           = nullptr;
     dfloor->ceiling         = nullptr;
-    dfloor->extrafloor      = nullptr;
     dfloor->properties      = nullptr;
     dfloor->things          = nullptr;
 
@@ -584,7 +583,6 @@ static inline void AddNewDrawFloor(DrawSubsector *dsub, Extrafloor *ef, float fl
     dfloor->top_height     = top_h;
     dfloor->floor          = floor;
     dfloor->ceiling        = ceil;
-    dfloor->extrafloor     = ef;
     dfloor->properties     = props;
 
     // link it in, height order
@@ -717,46 +715,15 @@ static void BSPWalkSubsector(int num)
         ceil_s = &sub->deep_water_reference->ceiling;
     }
 
-    // the OLD method of Boom deep water (the BOOMTEX flag)
-    Extrafloor *boom_ef = sector->bottom_liquid ? sector->bottom_liquid : sector->bottom_extrafloor;
-    if (boom_ef && (boom_ef->extrafloor_definition->type_ & kExtraFloorTypeBoomTex))
-        floor_s = &boom_ef->extrafloor_line->front_sector->floor;
-
-    // add in each extrafloor, traversing strictly upwards
-
-    Extrafloor *S = sector->bottom_extrafloor;
-    Extrafloor *L = sector->bottom_liquid;
-
-    while (S || L)
+    // GD-DOOM deep water
+    if (sector->has_deep_water)
     {
-        Extrafloor *C = nullptr;
-
-        if (!L || (S && S->bottom_height < L->bottom_height))
-        {
-            C = S;
-            S = S->higher;
-        }
-        else
-        {
-            C = L;
-            L = L->higher;
-        }
-
-        EPI_ASSERT(C);
-
-        // ignore liquids in the middle of THICK solids, or below real
-        // floor or above real ceiling
-        //
-        if (C->bottom_height < floor_h || C->bottom_height > sector->interpolated_ceiling_height)
-            continue;
-
-        AddNewDrawFloor(K, C, floor_h, C->bottom_height, C->top_height, floor_s, C->bottom, C->properties);
-
-        floor_s = C->top;
-        floor_h = C->top_height;
+        AddNewDrawFloor(K, floor_h, sector->deep_water_height, sector->deep_water_height, floor_s,
+                        &sector->deep_water_surface, &sector->deep_water_properties);
+        AddNewDrawFloor(K, sector->deep_water_height, ceil_h, ceil_h, &sector->deep_water_surface, ceil_s, props);
     }
-
-    AddNewDrawFloor(K, nullptr, floor_h, ceil_h, ceil_h, floor_s, ceil_s, props);
+    else
+        AddNewDrawFloor(K, floor_h, ceil_h, ceil_h, floor_s, ceil_s, props);
 
     K->floors[0]->is_lowest                     = true;
     K->floors[K->floors.size() - 1]->is_highest = true;

@@ -89,6 +89,7 @@ BAMAngle          PointToAngle(float x1, float y1, float x2, float y2, bool prec
 float             PointToDistance(float x1, float y1, float x2, float y2);
 Subsector        *PointInSubsector(float x, float y);
 RegionProperties *GetPointProperties(Subsector *sub, float z);
+RegionProperties *GetViewPointProperties(Subsector *sub, float z);
 
 //
 // REFRESH - the actual rendering functions.

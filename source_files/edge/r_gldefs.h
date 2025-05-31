@@ -123,8 +123,6 @@ struct DrawFloor
 
     MapSurface *floor, *ceiling;
 
-    Extrafloor *extrafloor;
-
     // properties used herein
     RegionProperties *properties;
 

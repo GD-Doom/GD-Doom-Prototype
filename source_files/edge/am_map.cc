@@ -904,39 +904,6 @@ static void CollectGridLines()
 }
 
 //
-// Checks whether the two sectors' regions are similiar.  If they are
-// different enough, a line will be drawn on the automap.
-//
-// -AJA- 1999/12/07: written.
-//
-static bool CheckSimiliarRegions(Sector *front, Sector *back)
-{
-    Extrafloor *F, *B;
-
-    if (front->tag == back->tag)
-        return true;
-
-    // Note: doesn't worry about liquids
-
-    F = front->bottom_extrafloor;
-    B = back->bottom_extrafloor;
-
-    while (F && B)
-    {
-        if (!AlmostEquals(F->top_height, B->top_height))
-            return false;
-
-        if (!AlmostEquals(F->bottom_height, B->bottom_height))
-            return false;
-
-        F = F->higher;
-        B = B->higher;
-    }
-
-    return (F || B) ? false : true;
-}
-
-//
 // Determines visible lines, draws them.
 //
 static void AddWall(const Line *line)
@@ -1060,13 +1027,6 @@ static void AddWall(const Line *line)
             {
                 // ceiling level change
                 l->color = am_colors[kAutomapColorCeil];
-                DrawMLine(l);
-            }
-            else if ((front->extrafloor_used > 0 || back->extrafloor_used > 0) &&
-                     (front->extrafloor_used != back->extrafloor_used || !CheckSimiliarRegions(front, back)))
-            {
-                // -AJA- 1999/10/09: extra floor change.
-                l->color = am_colors[kAutomapColorLedge];
                 DrawMLine(l);
             }
             else if (show_walls)

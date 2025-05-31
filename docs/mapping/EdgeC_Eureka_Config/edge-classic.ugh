@@ -103,22 +103,12 @@ thing 7103 m -  48 FATTH  "EC: Mancubus mkII"
 linegroup b "Hubs"
 linegroup w "Sliding Door"
 
-line 400 y "-- EC: 3D Floor"          :tag
-line 401 y "-- EC: 3D Floor /upper"   :tag
-line 402 y "-- EC: 3D Floor /lower"   :tag
-
 line 403 y "-- EC: Liquid"            :tag
 line 404 y "-- EC: Liquid 80%"        :tag
 line 405 y "-- EC: Liquid 60%"        :tag
 line 406 y "-- EC: Liquid 40%"        :tag
 line 407 y "-- EC: Liquid 20%"        :tag
 line 408 y "-- EC: Liquid  0%"        :tag
-
-line 413 y "-- EC: Thin 3D floor"     :tag
-line 414 y "-- EC: Thin 3D floor 80%" :tag
-line 415 y "-- EC: Thin 3D floor 60%" :tag
-line 416 y "-- EC: Thin 3D floor 40%" :tag
-line 417 y "-- EC: Thin 3D floor 20%" :tag
 
 line 422 a "-- EC: Scroll right"
 line 423 a "-- EC: Scroll up"
@@ -277,11 +267,6 @@ line 596 d "DR EC: Fire key door"
 line 597 d "D1 EC: Fire key door"
 line 598 d "DR EC: Water key door"
 line 599 d "D1 EC: Water key door"
-
-line 600 y "-- EC: Thick 3D floor (dummy texture) 80%" :tag
-line 601 y "-- EC: Thick 3D floor (dummy texture) 60%" :tag
-line 602 y "-- EC: Thick 3D floor (dummy texture) 40%" :tag
-line 603 y "-- EC: Thick 3D floor (dummy texture) 20%" :tag
 
 line 800 r "-- EC: Align F1"              :tag
 line 801 r "-- EC: Align F2"              :tag

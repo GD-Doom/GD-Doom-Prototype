@@ -28,7 +28,7 @@
 //   as used by function in p_map.c.
 //   BLOCKMAP Iterator functions,
 //   and some PIT_* functions to use for iteration.
-//   Gap/extrafloor utility functions.
+//   Gap utility functions.
 //   Touch Node code.
 //
 //
@@ -317,240 +317,71 @@ int ThingOnLineSide(const MapObject *mo, Line *ld)
 //  GAP UTILITY FUNCTIONS
 //
 
-static int GapRemoveSolid(VerticalGap *dest, int d_num, float z1, float z2)
+static bool GapConstruct(VerticalGap *gap, Sector *sec, MapObject *thing, float floor_slope_z = 0,
+                         float ceiling_slope_z = 0)
 {
-    int         d;
-    int         new_num = 0;
-    VerticalGap new_gaps[100];
-
-#ifdef DEVELOPERS
-    if (z1 > z2)
-        FatalError("RemoveSolid: z1 > z2");
-#endif
-
-    for (d = 0; d < d_num; d++)
-    {
-        if (dest[d].ceiling <= dest[d].floor)
-            continue; // ignore empty gaps.
-
-        if (z1 <= dest[d].floor && z2 >= dest[d].ceiling)
-            continue; // completely blocks it.
-
-        if (z1 >= dest[d].ceiling || z2 <= dest[d].floor)
-        {
-            // no intersection.
-
-            new_gaps[new_num].floor   = dest[d].floor;
-            new_gaps[new_num].ceiling = dest[d].ceiling;
-            new_num++;
-            continue;
-        }
-
-        // partial intersections.
-
-        if (z1 > dest[d].floor)
-        {
-            new_gaps[new_num].floor   = dest[d].floor;
-            new_gaps[new_num].ceiling = z1;
-            new_num++;
-        }
-
-        if (z2 < dest[d].ceiling)
-        {
-            new_gaps[new_num].floor   = z2;
-            new_gaps[new_num].ceiling = dest[d].ceiling;
-            new_num++;
-        }
-    }
-
-    memmove(dest, new_gaps, new_num * sizeof(VerticalGap));
-
-    return new_num;
-}
-
-static int GapConstruct(VerticalGap *gaps, Sector *sec, MapObject *thing, float floor_slope_z = 0,
-                        float ceiling_slope_z = 0)
-{
-    Extrafloor *ef;
-
-    int num = 1;
+    EPI_UNUSED(thing); // Maybe for WaterWalker + new swimmable liquid? - Dasho
 
     // early out for FUBAR sectors
     if (sec->floor_height >= sec->ceiling_height)
-        return 0;
+        return false;
 
-    gaps[0].floor   = sec->floor_height + floor_slope_z;
-    gaps[0].ceiling = sec->ceiling_height - ceiling_slope_z;
+    gap->floor   = sec->floor_height + floor_slope_z;
+    gap->ceiling = sec->ceiling_height - ceiling_slope_z;
 
-    for (ef = sec->bottom_extrafloor; ef; ef = ef->higher)
-    {
-        num = GapRemoveSolid(gaps, num, ef->bottom_height, ef->top_height);
-    }
-
-    // -- handle WATER WALKERS --
-
-    if (!thing || !(thing->extended_flags_ & kExtendedFlagWaterWalker))
-        return num;
-
-    for (ef = sec->bottom_liquid; ef; ef = ef->higher)
-    {
-        if (ef->extrafloor_definition && (ef->extrafloor_definition->type_ & kExtraFloorTypeWater))
-        {
-            num = GapRemoveSolid(gaps, num, ef->bottom_height, ef->top_height);
-        }
-    }
-
-    return num;
+    return true;
 }
 
-static int GapSightConstruct(VerticalGap *gaps, Sector *sec)
+static bool GapSightConstruct(VerticalGap *gap, Sector *sec)
 {
-    Extrafloor *ef;
-
-    int num = 1;
-
     // early out for closed or FUBAR sectors
     if (sec->ceiling_height <= sec->floor_height)
-        return 0;
+        return false;
 
-    gaps[0].floor   = sec->floor_height;
-    gaps[0].ceiling = sec->ceiling_height;
+    gap->floor   = sec->floor_height;
+    gap->ceiling = sec->ceiling_height;
 
-    for (ef = sec->bottom_extrafloor; ef; ef = ef->higher)
-    {
-        if (!ef->extrafloor_definition || !(ef->extrafloor_definition->type_ & kExtraFloorTypeSeeThrough))
-            num = GapRemoveSolid(gaps, num, ef->bottom_height, ef->top_height);
-    }
-
-    for (ef = sec->bottom_liquid; ef; ef = ef->higher)
-    {
-        if (!ef->extrafloor_definition || !(ef->extrafloor_definition->type_ & kExtraFloorTypeSeeThrough))
-            num = GapRemoveSolid(gaps, num, ef->bottom_height, ef->top_height);
-    }
-
-    return num;
+    return true;
 }
 
-static int GapRestrict(VerticalGap *dest, int d_num, VerticalGap *src, int s_num)
+static bool GapRestrict(VerticalGap *dest, bool d_gap, VerticalGap *src, bool s_gap)
 {
-    int   d, s;
-    float f, c;
+    bool        has_new_gap = false;
+    VerticalGap new_gap;
 
-    int         new_num = 0;
-    VerticalGap new_gaps[100];
-
-    for (s = 0; s < s_num; s++)
+    if (s_gap)
     {
         // ignore empty gaps.
-        if (src[s].ceiling <= src[s].floor)
-            continue;
-
-        for (d = 0; d < d_num; d++)
+        if (src->ceiling <= src->floor)
+        {
+            // nothing
+        }
+        else if (d_gap)
         {
             // ignore empty gaps.
-            if (dest[d].ceiling <= dest[d].floor)
-                continue;
-
-            f = HMM_MAX(src[s].floor, dest[d].floor);
-            c = HMM_MIN(src[s].ceiling, dest[d].ceiling);
-
-            if (f < c)
+            if (dest->ceiling <= dest->floor)
             {
-                new_gaps[new_num].ceiling = c;
-                new_gaps[new_num].floor   = f;
-                new_num++;
+                // nothing
+            }
+            else
+            {
+                float f = HMM_MAX(src->floor, dest->floor);
+                float c = HMM_MIN(src->ceiling, dest->ceiling);
+
+                if (f < c)
+                {
+                    new_gap.ceiling = c;
+                    new_gap.floor   = f;
+                    has_new_gap     = true;
+                }
             }
         }
     }
 
-    memmove(dest, new_gaps, new_num * sizeof(VerticalGap));
+    if (has_new_gap)
+        memmove(dest, &new_gap, sizeof(VerticalGap));
 
-    return new_num;
-}
-
-//
-// FindThingGap
-//
-// Find the best gap that the thing could fit in, given a certain Z
-// position (z1 is foot, z2 is head).  Assuming at least two gaps exist,
-// the best gap is chosen as follows:
-//
-// 1. if the thing fits in one of the gaps without moving vertically,
-//    then choose that gap.
-//
-// 2. if there is only *one* gap which the thing could fit in, then
-//    choose that gap.
-//
-// 3. if there is multiple gaps which the thing could fit in, choose
-//    the gap whose floor is closest to the thing's current Z.
-//
-// 4. if there is no gaps which the thing could fit in, do the same.
-//
-// Returns the gap number, or -1 if there are no gaps at all.
-//
-int FindThingGap(VerticalGap *gaps, int gap_num, float z1, float z2)
-{
-    int   i;
-    float dist;
-
-    int fit_num  = 0;
-    int fit_last = -1;
-
-    int   fit_closest = -1;
-    float fit_mindist = FLT_MAX;
-
-    int   nofit_closest = -1;
-    float nofit_mindist = FLT_MAX;
-
-    // check for trivial gaps...
-
-    if (gap_num == 0)
-    {
-        return -1;
-    }
-    else if (gap_num == 1)
-    {
-        return 0;
-    }
-
-    // There are 2 or more gaps.  Now it gets interesting :-)
-
-    for (i = 0; i < gap_num; i++)
-    {
-        if (z1 >= gaps[i].floor && z2 <= gaps[i].ceiling)
-        { // [1]
-            return i;
-        }
-
-        dist = HMM_ABS(z1 - gaps[i].floor);
-
-        if (z2 - z1 <= gaps[i].ceiling - gaps[i].floor)
-        { // [2]
-            fit_num++;
-
-            fit_last = i;
-            if (dist < fit_mindist)
-            { // [3]
-                fit_mindist = dist;
-                fit_closest = i;
-            }
-        }
-        else
-        {
-            if (dist < nofit_mindist)
-            { // [4]
-                nofit_mindist = dist;
-                nofit_closest = i;
-            }
-        }
-    }
-
-    if (fit_num == 1)
-        return fit_last;
-    else if (fit_num > 1)
-        return fit_closest;
-    else
-        return nofit_closest;
+    return has_new_gap;
 }
 
 //
@@ -563,28 +394,26 @@ int FindThingGap(VerticalGap *gaps, int gap_num, float z1, float z2)
 float ComputeThingGap(MapObject *thing, Sector *sec, float z, float *f, float *c, float floor_slope_z,
                       float ceiling_slope_z)
 {
-    VerticalGap temp_gaps[100];
+    VerticalGap temp_gap;
     int         temp_num;
 
-    temp_num = GapConstruct(temp_gaps, sec, thing, floor_slope_z, ceiling_slope_z);
+    temp_num = GapConstruct(&temp_gap, sec, thing, floor_slope_z, ceiling_slope_z);
 
     if (AlmostEquals(z, kOnFloorZ))
-        z = sec->floor_height;
+        z = sec->floor_height + floor_slope_z;
 
     if (AlmostEquals(z, kOnCeilingZ))
-        z = sec->ceiling_height - thing->height_;
+        z = sec->ceiling_height - thing->height_ - ceiling_slope_z;
 
-    temp_num = FindThingGap(temp_gaps, temp_num, z, z + thing->height_);
-
-    if (temp_num < 0)
+    if (temp_num == 0)
     {
         // thing is stuck in a closed door.
         *f = *c = sec->floor_height;
         return *f;
     }
 
-    *f = temp_gaps[temp_num].floor;
-    *c = temp_gaps[temp_num].ceiling;
+    *f = temp_gap.floor;
+    *c = temp_gap.ceiling;
 
     return z;
 }
@@ -602,11 +431,11 @@ void ComputeGaps(Line *ld)
     Sector *front = ld->front_sector;
     Sector *back  = ld->back_sector;
 
-    int         temp_num;
-    VerticalGap temp_gaps[100];
+    bool        has_temp_gap;
+    VerticalGap temp_gap;
 
-    ld->blocked    = true;
-    ld->gap_number = 0;
+    ld->blocked = true;
+    ld->has_gap = false;
 
     if (!front || !back)
     {
@@ -635,6 +464,8 @@ void ComputeGaps(Line *ld)
 
     // FIXME: strictly speaking this is not correct, as the front or
     // back sector may be filled up with thick opaque extrafloors.
+
+    // TODO Dasho - Should this still hold true with extrafloors gone?
     ld->blocked = false;
 
     // handle horizontal sliders
@@ -655,272 +486,10 @@ void ComputeGaps(Line *ld)
 
     // handle normal gaps ("movement" gaps)
 
-    ld->gap_number = GapConstruct(ld->gaps, front, nullptr);
-    temp_num       = GapConstruct(temp_gaps, back, nullptr);
+    ld->has_gap  = GapConstruct(ld->gap, front, nullptr);
+    has_temp_gap = GapConstruct(&temp_gap, back, nullptr);
 
-    ld->gap_number = GapRestrict(ld->gaps, ld->gap_number, temp_gaps, temp_num);
-}
-
-//
-// DumpExtraFloors
-//
-#ifdef DEVELOPERS
-void DumpExtraFloors(const sector_t *sec)
-{
-    const extrafloor_t *ef;
-
-    LogDebug("EXTRAFLOORS IN Sector %d  (%d used, %d max)\n", (int)(sec - sectors), sec->extrafloor_used,
-             sec->extrafloor_maximum);
-
-    LogDebug("  Basic height: %1.1f .. %1.1f\n", sec->floor_height, sec->ceiling_height);
-
-    for (ef = sec->bottom_extrafloor; ef; ef = ef->higher)
-    {
-        LogDebug("  Solid %s: %1.1f .. %1.1f\n",
-                 (ef->extrafloor_definition->type & kExtraFloorTypeThick) ? "Thick" : "Thin", ef->bottom_height,
-                 ef->top_height);
-    }
-
-    for (ef = sec->bottom_liquid; ef; ef = ef->higher)
-    {
-        LogDebug("  Liquid %s: %1.1f .. %1.1f\n",
-                 (ef->extrafloor_definition->type & kExtraFloorTypeThick) ? "Thick" : "Thin", ef->bottom_height,
-                 ef->top_height);
-    }
-}
-#endif
-
-//
-// CheckExtrafloorFit
-//
-// Check if a solid extrafloor fits.
-//
-ExtrafloorFit CheckExtrafloorFit(Sector *sec, float z1, float z2)
-{
-    Extrafloor *ef;
-
-    if (z2 > sec->ceiling_height)
-        return kFitStuckInCeiling;
-
-    if (z1 < sec->floor_height)
-        return kFitStuckInFloor;
-
-    for (ef = sec->bottom_extrafloor; ef && ef->higher; ef = ef->higher)
-    {
-        float bottom = ef->bottom_height;
-        float top    = ef->top_height;
-
-        EPI_ASSERT(top >= bottom);
-
-        // here is another solid extrafloor, check for overlap
-        if (z2 > bottom && z1 < top)
-            return kFitStuckInExtraFloor;
-    }
-
-    return kFitOk;
-}
-
-void AddExtraFloor(Sector *sec, Line *line)
-{
-    Sector                     *ctrl = line->front_sector;
-    const ExtraFloorDefinition *ef_info;
-
-    MapSurface *top, *bottom;
-    Extrafloor *newbie, *cur;
-
-    bool          liquid;
-    ExtrafloorFit errcode;
-
-    EPI_ASSERT(line->special);
-    EPI_ASSERT(line->special->ef_.type_ & kExtraFloorTypePresent);
-
-    ef_info = &line->special->ef_;
-
-    //
-    // -- create new extrafloor --
-    //
-
-    EPI_ASSERT(sec->extrafloor_used <= sec->extrafloor_maximum);
-
-    if (sec->extrafloor_used == sec->extrafloor_maximum)
-        FatalError("INTERNAL ERROR: extrafloor overflow in sector %d\n", (int)(sec - level_sectors));
-
-    newbie = sec->extrafloor_first + sec->extrafloor_used;
-    sec->extrafloor_used++;
-
-    EPI_CLEAR_MEMORY(newbie, Extrafloor, 1);
-
-    bottom = &ctrl->floor;
-    top    = (ef_info->type_ & kExtraFloorTypeThick) ? &ctrl->ceiling : bottom;
-
-    // Handle the BOOMTEX flag (Boom compatibility)
-    if (ef_info->type_ & kExtraFloorTypeBoomTex)
-    {
-        bottom = &ctrl->ceiling;
-        top    = &sec->floor;
-    }
-
-    newbie->bottom_height = ctrl->floor_height;
-    newbie->top_height    = (ef_info->type_ & kExtraFloorTypeThick) ? ctrl->ceiling_height : newbie->bottom_height;
-
-    if (newbie->top_height < newbie->bottom_height)
-        FatalError("Bad Extrafloor in sector #%d: "
-                   "z range is %1.0f / %1.0f\n",
-                   (int)(sec - level_sectors), newbie->bottom_height, newbie->top_height);
-
-    newbie->sector = sec;
-    newbie->top    = top;
-    newbie->bottom = bottom;
-
-    newbie->properties            = &ctrl->properties;
-    newbie->extrafloor_definition = ef_info;
-    newbie->extrafloor_line       = line;
-
-    // Insert into the dummy's linked list
-    newbie->control_sector_next = ctrl->control_floors;
-    ctrl->control_floors        = newbie;
-
-    //
-    // -- handle liquid extrafloors --
-    //
-
-    liquid = (ef_info->type_ & kExtraFloorTypeLiquid) ? true : false;
-
-    if (liquid)
-    {
-        // find place to link into.  cur will be the next higher liquid,
-        // or nullptr if this is the highest.
-
-        for (cur = sec->bottom_liquid; cur; cur = cur->higher)
-        {
-            if (cur->bottom_height > newbie->bottom_height)
-                break;
-        }
-
-        newbie->higher = cur;
-        newbie->lower  = cur ? cur->lower : sec->top_liquid;
-
-        if (newbie->higher)
-            newbie->higher->lower = newbie;
-        else
-            sec->top_liquid = newbie;
-
-        if (newbie->lower)
-            newbie->lower->higher = newbie;
-        else
-            sec->bottom_liquid = newbie;
-
-        return;
-    }
-
-    //
-    // -- handle solid extrafloors --
-    //
-
-    // check if fits
-    errcode = CheckExtrafloorFit(sec, newbie->bottom_height, newbie->top_height);
-
-    switch (errcode)
-    {
-    case kFitOk:
-        break;
-
-    case kFitStuckInCeiling:
-        LogWarning("Extrafloor with z range of %1.0f / %1.0f is stuck "
-                   "in sector #%d's ceiling.\n",
-                   newbie->bottom_height, newbie->top_height, (int)(sec - level_sectors));
-        break;
-
-    case kFitStuckInFloor:
-        LogWarning("Extrafloor with z range of %1.0f / %1.0f is stuck "
-                   "in sector #%d's floor.\n",
-                   newbie->bottom_height, newbie->top_height, (int)(sec - level_sectors));
-        break;
-
-    case kFitStuckInExtraFloor:
-        LogWarning("Extrafloor with z range of %1.0f / %1.0f is stuck "
-                   "in sector #%d in another extrafloor.\n",
-                   newbie->bottom_height, newbie->top_height, (int)(sec - level_sectors));
-        break;
-
-    default:
-        break;
-    }
-
-    // find place to link into.  cur will be the next higher extrafloor,
-    // or nullptr if this is the highest.
-
-    for (cur = sec->bottom_extrafloor; cur; cur = cur->higher)
-    {
-        if (cur->bottom_height > newbie->bottom_height)
-            break;
-    }
-
-    newbie->higher = cur;
-    newbie->lower  = cur ? cur->lower : sec->top_extrafloor;
-
-    if (newbie->higher)
-        newbie->higher->lower = newbie;
-    else
-        sec->top_extrafloor = newbie;
-
-    if (newbie->lower)
-        newbie->lower->higher = newbie;
-    else
-        sec->bottom_extrafloor = newbie;
-}
-
-void FloodExtraFloors(Sector *sector)
-{
-    Extrafloor *S, *L, *C;
-
-    RegionProperties *props;
-    RegionProperties *flood_p = nullptr, *last_p = nullptr;
-
-    sector->active_properties = &sector->properties;
-
-    // traverse downwards, stagger both lists
-    S = sector->top_extrafloor;
-    L = sector->top_liquid;
-
-    while (S || L)
-    {
-        if (!L || (S && S->bottom_height > L->bottom_height))
-        {
-            C = S;
-            S = S->lower;
-        }
-        else
-        {
-            C = L;
-            L = L->lower;
-        }
-
-        EPI_ASSERT(C);
-
-        props = &C->extrafloor_line->front_sector->properties;
-
-        if (C->extrafloor_definition->type_ & kExtraFloorTypeFlooder)
-        {
-            C->properties = last_p = flood_p = props;
-
-            if ((C->extrafloor_definition->type_ & kExtraFloorTypeLiquid) && C->bottom_height >= sector->ceiling_height)
-                sector->active_properties = flood_p;
-
-            continue;
-        }
-
-        if (C->extrafloor_definition->type_ & kExtraFloorTypeNoShade)
-        {
-            if (!last_p)
-                last_p = props;
-
-            C->properties = last_p;
-            continue;
-        }
-
-        C->properties = last_p = flood_p ? flood_p : props;
-    }
+    ld->has_gap = GapRestrict(ld->gap, ld->has_gap, &temp_gap, has_temp_gap);
 }
 
 void RecomputeGapsAroundSector(Sector *sec)
@@ -936,11 +505,11 @@ void RecomputeGapsAroundSector(Sector *sec)
 
     if (sec->ceiling_height <= sec->floor_height)
     {
-        sec->sight_gap_number = 0;
+        sec->has_sight_gap = false;
         return;
     }
 
-    sec->sight_gap_number = GapSightConstruct(sec->sight_gaps, sec);
+    sec->has_sight_gap = GapSightConstruct(sec->sight_gap, sec);
 }
 
 static inline bool CheckBoundingBoxOverlap(float *bspcoord, float *test)

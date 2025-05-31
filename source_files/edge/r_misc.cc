@@ -227,6 +227,7 @@ Subsector *PointInSubsector(float x, float y)
 
 RegionProperties *GetPointProperties(Subsector *sub, float z)
 {
+    EPI_UNUSED(z); // Probably for new swimmable water - Dasho
     if (sub->sector->height_sector)
     {
         if (view_height_zone == kHeightZoneA && view_z > sub->sector->height_sector->interpolated_ceiling_height)
@@ -243,46 +244,16 @@ RegionProperties *GetPointProperties(Subsector *sub, float z)
         }
     }
     else
-    {
-        Extrafloor *S, *L, *C;
-        float       floor_h;
-        // traverse extrafloors upwards
-
-        floor_h = sub->sector->floor_height;
-
-        S = sub->sector->bottom_extrafloor;
-        L = sub->sector->bottom_liquid;
-
-        while (S || L)
-        {
-            if (!L || (S && S->bottom_height < L->bottom_height))
-            {
-                C = S;
-                S = S->higher;
-            }
-            else
-            {
-                C = L;
-                L = L->higher;
-            }
-
-            EPI_ASSERT(C);
-
-            // ignore liquids in the middle of THICK solids, or below real
-            // floor or above real ceiling
-            //
-            if (C->bottom_height < floor_h || C->bottom_height > sub->sector->ceiling_height)
-                continue;
-
-            if (z < C->top_height)
-                return C->properties;
-
-            floor_h = C->top_height;
-        }
-
-        // extrafloors were exhausted, must be top area
         return sub->sector->active_properties;
-    }
+}
+
+RegionProperties *GetViewPointProperties(Subsector *sub, float z)
+{
+    // Review if vert slopes or Boom heights matter here - Dasho
+    if (sub->sector->has_deep_water && z < sub->sector->deep_water_height)
+        return &sub->sector->deep_water_properties;
+    else
+        return sub->sector->active_properties;
 }
 
 //----------------------------------------------------------------------------

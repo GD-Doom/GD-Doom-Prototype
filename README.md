@@ -60,8 +60,8 @@ An optional texture pack to enhance the experience can be found [here.](https://
 # Notable Improvements over EDGE 1.35
 
 - Uncapped framerate
-- Updated renderer with Direct3D11, GLES3, and GL 3.3 paths in addition to the legacy GL 1.3 renderer
-- Multithreaded BSP traversal (when using new renderer)
+- Updated renderer with Direct3D11, GLES3, and GL 3.3 paths
+- Multithreaded BSP traversal
 - Support for Dehacked code pointers up to and including MBF21
 - DEHEXTRA compatibility
 - DSDehacked compatibility
@@ -69,12 +69,11 @@ An optional texture pack to enhance the experience can be found [here.](https://
 - UDMF map support
 - Improved sound mixer with floating-point samples and OpenAL spatialization/attenuation models
 - A soundfont-capable MIDI player (SF2/SF3 support)
-- OPL emulation with external OP2/AIL/TMB/WOPL instrument support
-- Many more music and sound formats (PC Speaker, IMF, MP3, OGG, FLAC, IT/S3M/XM/MOD/FT)
+- Many more music and sound formats (MP3, OGG, FLAC, IT/S3M/XM/MOD/FT)
 - UMAPINFO compatibility
 - Migration from SDL1 to SDL2 (longevity and improved gamepad support)
-- Lua as the primary scripting language, with a COAL compatibility layer for ease of migration
-- Expanded DDF, RTS, and COAL features
+- Lua as the primary scripting language
+- Expanded DDF, and RTS features
 - Widescreen statusbar, intermission, and title screens
 - Replaced GLBSP with AJBSP as the internal nodebuilder
 - Inventory system

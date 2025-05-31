@@ -1717,7 +1717,7 @@ static MapObject *DoLaunchProjectile(MapObject *source, float tx, float ty, floa
 
     if (source->player_)
         projz += (source->player_->view_z_ - source->player_->standard_view_height_);
-    else if (cur_source_sec->sink_depth > 0 && !cur_source_sec->extrafloor_used && !cur_source_sec->height_sector &&
+    else if (cur_source_sec->sink_depth > 0 && !cur_source_sec->height_sector &&
              AlmostEquals(source->z, cur_source_sec->floor_height))
         projz -= (source->height_ * 0.5 * cur_source_sec->sink_depth);
 
@@ -1765,7 +1765,7 @@ static MapObject *DoLaunchProjectile(MapObject *source, float tx, float ty, floa
 
             Sector *cur_target_sec = target->subsector_->sector;
 
-            if (cur_target_sec->sink_depth > 0 && !cur_target_sec->extrafloor_used && !cur_target_sec->height_sector &&
+            if (cur_target_sec->sink_depth > 0 && !cur_target_sec->height_sector &&
                 AlmostEquals(target->z, cur_target_sec->floor_height))
                 tz -= (target->height_ * 0.5 * cur_target_sec->sink_depth);
         }
@@ -1795,7 +1795,7 @@ static MapObject *DoLaunchProjectile(MapObject *source, float tx, float ty, floa
 
             Sector *cur_target_sec = target->subsector_->sector;
 
-            if (cur_target_sec->sink_depth > 0 && !cur_target_sec->extrafloor_used && !cur_target_sec->height_sector &&
+            if (cur_target_sec->sink_depth > 0 && !cur_target_sec->height_sector &&
                 AlmostEquals(target->z, cur_target_sec->floor_height))
                 tz -= (target->height_ * 0.5 * cur_target_sec->sink_depth);
         }

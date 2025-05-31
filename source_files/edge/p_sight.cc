@@ -32,7 +32,7 @@
 //  The difference is that we remember where abouts the intercepts
 //  occur, and if the basic LOS check succeeds (e.g. no one-sided
 //  lines blocking view) then we use the intercept list to check for
-//  extrafloors that block the view.
+//  slopes that block the view.
 //
 
 #include <math.h>
@@ -80,9 +80,6 @@ struct LineOfSight
     // bounding box on LOS line (idea pinched from PrBOOM).
     float bounding_box[4];
 
-    // true if one of the sectors contained extrafloors
-    bool saw_extrafloors;
-
     // true if one of the sectors contained vertex slopes
     bool saw_vertex_slopes;
 };
@@ -117,7 +114,7 @@ static inline void AddSightIntercept(float frac, Sector *sec)
 // CrossSubsector
 //
 // Returns false if LOS is blocked by the given subsector, otherwise
-// true.  Note: extrafloors are not checked here.
+// true.
 //
 static bool CrossSubsector(Subsector *sub)
 {
@@ -255,7 +252,6 @@ static bool CrossSubsector(Subsector *sub)
 // CheckSightBSP
 //
 // Returns false if LOS is blocked by the given node, otherwise true.
-// Note: extrafloors are not checked here.
 //
 static bool CheckSightBSP(unsigned int bspnum)
 {
@@ -301,9 +297,6 @@ static bool CheckSightBSP(unsigned int bspnum)
         LogDebug("  Subsec %d  SEC %d\n", bspnum, sub->sector - sectors);
 #endif
 
-        if (sub->sector->extrafloor_used > 0)
-            sight_check.saw_extrafloors = true;
-
         if (sub->sector->floor_vertex_slope || sub->sector->ceiling_vertex_slope)
             sight_check.saw_vertex_slopes = true;
 
@@ -323,11 +316,9 @@ static bool CheckSightBSP(unsigned int bspnum)
 //
 // CheckSightIntercepts
 //
-// Returns false if LOS is blocked by extrafloors, otherwise true.
 //
 static bool CheckSightIntercepts(float slope)
 {
-    int     i, j;
     Sector *sec;
 
     float last_h = sight_check.source_z;
@@ -337,7 +328,7 @@ static bool CheckSightIntercepts(float slope)
     LogDebug("INTERCEPTS  slope %1.0f\n", slope);
 #endif
 
-    for (i = 0; i < (int)wall_intercepts.size(); i++, last_h = cur_h)
+    for (int i = 0; i < (int)wall_intercepts.size(); i++, last_h = cur_h)
     {
         bool blocked = true;
 
@@ -348,13 +339,13 @@ static bool CheckSightIntercepts(float slope)
                  wall_intercepts[i].along, wall_intercepts[i].sector - sectors, last_h, cur_h);
 #endif
 
-        // check all the sight gaps.
+        // check the sight gap.
         sec = wall_intercepts[i].sector;
 
-        for (j = 0; j < sec->sight_gap_number; j++)
+        if (sec->has_sight_gap)
         {
-            float z1 = sec->sight_gaps[j].floor;
-            float z2 = sec->sight_gaps[j].ceiling;
+            float z1 = sec->sight_gap->floor;
+            float z2 = sec->sight_gap->ceiling;
 
 #if (EDGE_DEBUG_SIGHT >= 3)
             LogDebug("    SIGHT GAP [%d] = %1.1f .. %1.1f\n", j, z1, z2);
@@ -377,12 +368,9 @@ static bool CheckSightIntercepts(float slope)
 //
 // CheckSightSameSubsector
 //
-// When the subsector is the same, we only need to check whether a
-// non-SeeThrough extrafloor gets in the way.
 //
 static bool CheckSightSameSubsector(MapObject *src, MapObject *dest)
 {
-    int     j;
     Sector *sec;
 
     float lower_z;
@@ -406,10 +394,10 @@ static bool CheckSightSameSubsector(MapObject *src, MapObject *dest)
     // check all the sight gaps.
     sec = src->subsector_->sector;
 
-    for (j = 0; j < sec->sight_gap_number; j++)
+    if (sec->has_sight_gap)
     {
-        float z1 = sec->sight_gaps[j].floor;
-        float z2 = sec->sight_gaps[j].ceiling;
+        float z1 = sec->sight_gap->floor;
+        float z2 = sec->sight_gap->ceiling;
 
         if (z1 <= lower_z && upper_z <= z2)
             return true;
@@ -505,23 +493,21 @@ bool CheckSight(MapObject *src, MapObject *dest)
 
     wall_intercepts.clear(); // FIXME
 
-    sight_check.saw_extrafloors   = false;
     sight_check.saw_vertex_slopes = false;
 
     // initial pass -- check for basic blockage & create intercepts
     if (!CheckSightBSP(root_node))
         return false;
 
-    // no extrafloors or vertslopes encountered ?  Then the checks made by
+    // no vertslopes encountered ?  Then the checks made by
     // CheckSightBSP are sufficient.  (-AJA- double check this)
     //
-    if (!sight_check.saw_extrafloors && !sight_check.saw_vertex_slopes)
+    if (!sight_check.saw_vertex_slopes)
         return true;
-
-    // Leveraging the existing hitscan attack code is easier than trying to
-    // wrangle this stuff
-    if (sight_check.saw_vertex_slopes)
+    else
     {
+        // Leveraging the existing hitscan attack code is easier than trying to
+        // wrangle this stuff
         float objslope;
         AimLineAttack(src, sight_check.angle, 64000, &objslope);
         LineAttack(src, sight_check.angle, 64000, objslope, 0, nullptr, nullptr, nullptr);
@@ -536,8 +522,7 @@ bool CheckSight(MapObject *src, MapObject *dest)
     }
 
     // Enter the HackMan...  The new sight code only tests LOS to one
-    // destination height.  (The old code kept track of angles -- but
-    // this approach is not well suited for extrafloors).  The number of
+    // destination height. The number of
     // points we test depends on the destination: 5 for players, 3 for
     // monsters, 1 for everything else.
 
@@ -613,15 +598,15 @@ bool CheckSightToPoint(MapObject *src, float x, float y, float z)
 
     wall_intercepts.clear();
 
-    sight_check.saw_extrafloors = false;
-
     if (!CheckSightBSP(root_node))
         return false;
 
-#if 1
-    if (!sight_check.saw_extrafloors)
-        return true;
-#endif
+    // #if 1
+    //     if (!sight_check.saw_extrafloors)
+    //         return true;
+    // #endif
+
+    return true; // Dasho - Not sure if we need the stuff below this for slopes still
 
     float slope = z - sight_check.source_z;
 
@@ -629,23 +614,6 @@ bool CheckSightToPoint(MapObject *src, float x, float y, float z)
         return false;
 
     return CheckSightIntercepts(slope);
-}
-
-//
-// P_CheckSightApproxVert
-//
-// Quickly check that object t1 can vertically see object t2.  Only
-// takes extrafloors into account.  Mainly used so that archviles
-// don't resurrect monsters that are completely out of view in another
-// vertical region.  Returns true if sight possible, false otherwise.
-//
-bool QuickVerticalSightCheck(MapObject *src, MapObject *dest)
-{
-    EPI_ASSERT(src->info_);
-
-    sight_check.source_z = src->z + src->height_ * src->info_->viewheight_;
-
-    return CheckSightSameSubsector(src, dest);
 }
 
 //--- editor settings ---
