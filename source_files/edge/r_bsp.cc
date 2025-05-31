@@ -56,7 +56,6 @@
 #include "r_things.h"
 #include "r_units.h"
 
-#ifdef EDGE_SOKOL
 #ifndef EDGE_WEB
 #define BSP_MULTITHREAD
 #endif
@@ -67,8 +66,6 @@ static void BSPQueueSkyPlane(Subsector *sub, float h);
 static void BSPQueueRenderBatch(RenderBatch *batch);
 
 static RenderBatch *current_batch = nullptr;
-
-#endif
 
 #ifdef BSP_MULTITHREAD
 #define THREAD_U64 uint64_t
@@ -412,11 +409,7 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
     {
         if (f_fh < b_fh)
         {
-#ifdef EDGE_SOKOL
             BSPQueueSkyWall(seg, f_fh, b_fh);
-#else
-            RenderSkyWall(seg, f_fh, b_fh);
-#endif
         }
     }
 
@@ -424,11 +417,7 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
     {
         if (f_ch < fsector->sky_height && (!bsector || !EDGE_IMAGE_IS_SKY(*b_ceil) || b_fh >= f_ch))
         {
-#ifdef EDGE_SOKOL
             BSPQueueSkyWall(seg, f_ch, fsector->sky_height);
-#else
-            RenderSkyWall(seg, f_ch, fsector->sky_height);
-#endif
         }
         else if (bsector && EDGE_IMAGE_IS_SKY(*b_ceil))
         {
@@ -436,11 +425,7 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
 
             if (b_ch <= max_f && max_f < fsector->sky_height)
             {
-#ifdef EDGE_SOKOL
                 BSPQueueSkyWall(seg, max_f, fsector->sky_height);
-#else
-                RenderSkyWall(seg, max_f, fsector->sky_height);
-#endif
             }
         }
     }
@@ -448,11 +433,7 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
     else if (!debug_hall_of_mirrors.d_ && bsector && EDGE_IMAGE_IS_SKY(*b_ceil) && seg->sidedef->top.image == nullptr &&
              b_ch < f_ch)
     {
-#ifdef EDGE_SOKOL
         BSPQueueSkyWall(seg, b_ch, f_ch);
-#else
-        RenderSkyWall(seg, b_ch, f_ch);
-#endif
     }
 }
 
@@ -675,20 +656,12 @@ static void BSPWalkSubsector(int num)
     {
         if (EDGE_IMAGE_IS_SKY(sub->sector->floor) && view_z > sub->sector->interpolated_floor_height)
         {
-#ifdef EDGE_SOKOL
             BSPQueueSkyPlane(sub, sub->sector->interpolated_floor_height);
-#else
-            RenderSkyPlane(sub, sub->sector->interpolated_floor_height);
-#endif
         }
 
         if (EDGE_IMAGE_IS_SKY(sub->sector->ceiling) && view_z < sub->sector->sky_height)
         {
-#ifdef EDGE_SOKOL
             BSPQueueSkyPlane(sub, sub->sector->sky_height);
-#else
-            RenderSkyPlane(sub, sub->sector->sky_height);
-#endif
         }
     }
 
@@ -726,19 +699,12 @@ static void BSPWalkSubsector(int num)
         }
         if (EDGE_IMAGE_IS_SKY(*floor_s) && view_z > floor_h)
         {
-#ifdef EDGE_SOKOL
             BSPQueueSkyPlane(sub, floor_h);
-#else
-            RenderSkyPlane(sub, floor_h);
-#endif
         }
+
         if (EDGE_IMAGE_IS_SKY(*ceil_s) && view_z < sub->sector->sky_height)
         {
-#ifdef EDGE_SOKOL
             BSPQueueSkyPlane(sub, sub->sector->sky_height);
-#else
-            RenderSkyPlane(sub, sub->sector->sky_height);
-#endif
         }
     }
     // -AJA- 2004/04/22: emulate the Deep-Water TRICK
@@ -838,11 +804,7 @@ static void BSPWalkSubsector(int num)
                 bsp_mirror_set.PushSubsector(active_mirrors - 1, K);
             else
             {
-#ifdef EDGE_SOKOL
                 BSPQueueDrawSubsector(K);
-#else
-                draw_subsector_list.push_back(K);
-#endif
             }
         }
     }
@@ -864,11 +826,7 @@ static void BSPWalkSubsector(int num)
             bsp_mirror_set.PushSubsector(active_mirrors - 1, K);
         else
         {
-#ifdef EDGE_SOKOL
             BSPQueueDrawSubsector(K);
-#else
-            draw_subsector_list.push_back(K);
-#endif
         }
     }
 }
@@ -930,8 +888,6 @@ void BSPWalkNode(unsigned int bspnum)
     if (BSPCheckBBox(node->bounding_boxes[side ^ 1]))
         BSPWalkNode(node->children[side ^ 1]);
 }
-
-#ifdef EDGE_SOKOL
 
 #ifdef BSP_MULTITHREAD
 
@@ -1168,5 +1124,4 @@ RenderBatch *BSPReadRenderBatch()
     return &render_batches[render_batch_travese++];
 }
 
-#endif
 #endif

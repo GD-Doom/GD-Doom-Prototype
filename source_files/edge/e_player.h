@@ -293,9 +293,6 @@ class Player
     // the button.  Holds -1 if not fired or after changing weapons.
     int remember_attack_state_[4];
 
-    // last frame for weapon models
-    int weapon_last_frame_;
-
     EventTicCommand input_commands_[kBackupTics];
 
     int in_tic_; /* tic number of next input command expected */

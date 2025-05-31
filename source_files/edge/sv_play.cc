@@ -204,9 +204,6 @@ static SaveField sv_fields_playerweapon[] = {
                     SaveGamePutInteger),
     EDGE_SAVE_FIELD(dummy_weapon, clip_size[3], "fa_clip_size", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
                     SaveGamePutInteger),
-    EDGE_SAVE_FIELD(dummy_weapon, model_skin, "model_skin", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
-                    SaveGamePutInteger),
-
     {0, nullptr, 0, {kSaveFieldInvalid, 0, nullptr}, nullptr, nullptr, nullptr}};
 
 SaveStruct sv_struct_playerweapon = {
@@ -413,7 +410,6 @@ void SaveGamePlayerCreateElems(int num_elems)
         p->remember_attack_state_[1] = -1;
         p->remember_attack_state_[2] = -1;
         p->remember_attack_state_[3] = -1;
-        p->weapon_last_frame_        = -1;
 
         for (int j = 0; j < kTotalPlayerSpriteTypes; j++)
         {
@@ -423,9 +419,6 @@ void SaveGamePlayerCreateElems(int num_elems)
 
         for (int k = 0; k < kTotalWeaponKeys; k++)
             p->key_choices_[k] = KWeaponSelectionNone;
-
-        for (int w = 0; w < kMaximumWeapons; w++)
-            p->weapons_[w].model_skin = 1;
     }
 }
 

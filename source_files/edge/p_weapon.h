@@ -89,8 +89,6 @@ struct PlayerWeapon
 
     // reload clip counts
     int reload_count[4];
-
-    int model_skin;
 };
 
 //--- editor settings ---

@@ -232,7 +232,6 @@ void Player::Reborn()
     remember_attack_state_[1] = -1;
     remember_attack_state_[2] = -1;
     remember_attack_state_[3] = -1;
-    weapon_last_frame_        = -1;
 }
 
 //

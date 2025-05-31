@@ -166,12 +166,6 @@ const DDFCommandList thing_commands[] = {
     DDF_FIELD("SPRITE_ASPECT", dummy_mobj, aspect_, DDFMainGetFloat),
     DDF_FIELD("SPRITE_YALIGN", dummy_mobj, yalign_,
               DDFMobjGetYAlign),  // -AJA- 2007/08/08
-    DDF_FIELD("MODEL_SKIN", dummy_mobj, model_skin_,
-              DDFMainGetNumeric), // -AJA- 2007/10/16
-    DDF_FIELD("MODEL_SCALE", dummy_mobj, model_scale_, DDFMainGetFloat),
-    DDF_FIELD("MODEL_ASPECT", dummy_mobj, model_aspect_, DDFMainGetFloat),
-    DDF_FIELD("MODEL_BIAS", dummy_mobj, model_bias_, DDFMainGetFloat),
-    DDF_FIELD("MODEL_ROTATE", dummy_mobj, model_rotate_, DDFMainGetNumeric),
     DDF_FIELD("BOUNCE_SPEED", dummy_mobj, bounce_speed_, DDFMainGetFloat),
     DDF_FIELD("BOUNCE_UP", dummy_mobj, bounce_up_, DDFMainGetFloat),
     DDF_FIELD("SIGHT_SLOPE", dummy_mobj, sight_slope_, DDFMainGetSlope),
@@ -337,7 +331,6 @@ const DDFActionCode thing_actions[] = {{"NOTHING", nullptr, nullptr},
                                        {"DLIGHT_FADE", A_DLightFade, DDFStateGetInteger},
                                        {"DLIGHT_RANDOM", A_DLightRandom, DDFStateGetIntPair},
                                        {"DLIGHT_COLOUR", A_DLightColour, DDFStateGetRGB},
-                                       {"SET_SKIN", A_SetSkin, DDFStateGetInteger},
 
                                        {"FACE", A_FaceDir, DDFStateGetSlope},
                                        {"TURN", A_TurnDir, DDFStateGetAngle},
@@ -696,16 +689,6 @@ void ThingParseField(const char *field, const char *contents, int index, bool is
         return;
     }
 
-    // handle the "MODEL_ROTATE" command
-    if (DDFCompareName(field, "MODEL_ROTATE") == 0)
-    {
-        if (DDFMainParseField(thing_commands, field, contents, (uint8_t *)dynamic_mobj))
-        {
-            dynamic_mobj->model_rotate_ *= kBAMAngle1; // apply the rotation
-            return;
-        }
-    }
-
     if (DDFMainParseField(thing_commands, field, contents, (uint8_t *)dynamic_mobj))
         return;
 
@@ -770,9 +753,6 @@ static void ThingFinishEntry(void)
     {
         DDFWarnError("Bad CHOKE_DAMAGE.VAL value %f in DDF.\n", dynamic_mobj->choke_damage_.nominal_);
     }
-
-    if (dynamic_mobj->model_skin_ < 0 || dynamic_mobj->model_skin_ > 9)
-        DDFError("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n", dynamic_mobj->model_skin_);
 
     if (dynamic_mobj->dlight_.radius_ > 512)
     {
@@ -2479,12 +2459,6 @@ void MapObjectDefinition::CopyDetail(const MapObjectDefinition &src)
     aspect_ = src.aspect_;
     yalign_ = src.yalign_;
 
-    model_skin_   = src.model_skin_;
-    model_scale_  = src.model_scale_;
-    model_aspect_ = src.model_aspect_;
-    model_bias_   = src.model_bias_;
-    model_rotate_ = src.model_rotate_;
-
     bounce_speed_  = src.bounce_speed_;
     bounce_up_     = src.bounce_up_;
     sight_slope_   = src.sight_slope_;
@@ -2655,12 +2629,6 @@ void MapObjectDefinition::Default()
     scale_        = 1.0f;
     aspect_       = 1.0f;
     yalign_       = SpriteYAlignmentBottomUp;
-
-    model_skin_   = 1;
-    model_scale_  = 1.0f;
-    model_aspect_ = 1.0f;
-    model_bias_   = 0.0f;
-    model_rotate_ = 0;
 
     bounce_speed_  = 0.5f;
     bounce_up_     = 0.5f;

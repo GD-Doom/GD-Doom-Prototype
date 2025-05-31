@@ -1201,7 +1201,6 @@ bool AddWeapon(Player *player, WeaponDefinition *info, int *index)
     player->weapons_[slot].clip_size[1] = 0;
     player->weapons_[slot].clip_size[2] = 0;
     player->weapons_[slot].clip_size[3] = 0;
-    player->weapons_[slot].model_skin   = info->model_skin_;
 
     UpdateAvailWeapons(player);
 

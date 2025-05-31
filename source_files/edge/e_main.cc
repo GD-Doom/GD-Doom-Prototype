@@ -94,7 +94,6 @@
 #endif
 #include "w_epk.h"
 #include "w_files.h"
-#include "w_model.h"
 #include "w_sprite.h"
 #include "w_texture.h"
 #include "w_wad.h"
@@ -2380,7 +2379,6 @@ static void EdgeStartup(void)
     PrecacheSounds();
     InitializeSprites();
     ProcessTXHINamespaces();
-    InitializeModels();
 
     // Must be done after palette/images/sprites/models are initialized so that
     // color matching can be done properly

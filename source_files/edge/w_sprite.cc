@@ -594,9 +594,6 @@ void InitializeSprites(void)
     {
         State *st = &states[stnum];
 
-        if (st->flags & kStateFrameFlagModel)
-            continue;
-
         if (st->sprite == 0)
             continue;
 
@@ -622,9 +619,6 @@ void InitializeSprites(void)
     for (int st_kk = 1; st_kk < num_states; st_kk++)
     {
         State *st = &states[st_kk];
-
-        if (st->flags & kStateFrameFlagModel)
-            continue;
 
         if (st->sprite == 0)
             continue;
@@ -683,9 +677,6 @@ bool CheckSpritesExist(const std::vector<StateRange> &group)
         {
             if (states[i].sprite == 0)
                 continue;
-
-            if (states[i].flags & kStateFrameFlagModel) // Lobo 2024: check 3d models too?
-                return true;
 
             if (sprites[states[i].sprite]->frames_)
                 return true;

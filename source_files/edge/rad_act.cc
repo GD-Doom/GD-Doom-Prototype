@@ -1346,15 +1346,6 @@ static void ScriptSetPlayerSprite(Player *p, int position, int stnum, WeaponDefi
 
     State *st = &states[stnum];
 
-    // model interpolation stuff
-    if (psp->state && (st->flags & kStateFrameFlagModel) && (psp->state->flags & kStateFrameFlagModel) &&
-        (st->sprite == psp->state->sprite) && st->tics > 1)
-    {
-        p->weapon_last_frame_ = psp->state->frame;
-    }
-    else
-        p->weapon_last_frame_ = -1;
-
     psp->state      = st;
     psp->tics       = st->tics;
     psp->next_state = (st->nextstate == 0) ? nullptr : (states + st->nextstate);
@@ -1495,10 +1486,6 @@ void P_ActReplace(MapObject *mo, const MapObjectDefinition *newThing)
 
         mo->target_visibility_ = mo->info_->translucency_;
         mo->current_attack_    = nullptr;
-        mo->model_skin_        = mo->info_->model_skin_;
-        mo->model_last_frame_  = -1;
-        mo->model_scale_       = mo->info_->model_scale_;
-        mo->model_aspect_      = mo->info_->model_aspect_;
         mo->scale_             = mo->info_->scale_;
         mo->aspect_            = mo->info_->aspect_;
 
