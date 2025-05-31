@@ -107,12 +107,8 @@ static float plane_z_bob; // for floor/ceiling bob DDFSECT stuff
 
 MirrorSet render_mirror_set(kMirrorSetRender);
 
-#ifndef EDGE_SOKOL
-extern std::list<DrawSubsector *> draw_subsector_list;
-#else
 // Sky items from previous frame, delayed a frame so can render the BSP as we traverse it
 static std::list<RenderItem *> deferred_sky_items;
-#endif
 
 static void EmulateFloodPlane(const DrawFloor *dfloor, const Sector *flood_ref, int face_dir, float h1, float h2);
 
@@ -1995,9 +1991,7 @@ void           RendererEndFrame()
 
 void RendererShutdownLevel()
 {
-#ifdef EDGE_SOKOL
     deferred_sky_items.clear();
-#endif
     ShutdownSky();
 }
 
@@ -2054,8 +2048,6 @@ void RenderTrueBSP(void)
         if (pmov->sector)
             UpdateSectorInterpolation(pmov->sector);
     }
-
-#ifdef EDGE_SOKOL
 
     render_state->Enable(GL_DEPTH_TEST);
 
@@ -2184,27 +2176,6 @@ void RenderTrueBSP(void)
     }
 
     FinishUnitBatch();
-
-#else
-
-    draw_subsector_list.clear();
-
-    render_backend->SetupMatrices3D();
-    render_state->Clear(GL_DEPTH_BUFFER_BIT);
-    render_state->Enable(GL_DEPTH_TEST);
-
-    // needed for drawing the sky
-    BeginSky();
-
-    // walk the bsp tree
-    BSPWalkNode(root_node);
-
-    FlushSky();
-    FinishSky();
-
-    RenderSubList(draw_subsector_list);
-
-#endif
 
     // Add lines seen during render to the automap
     if (!newly_seen_lines.empty())

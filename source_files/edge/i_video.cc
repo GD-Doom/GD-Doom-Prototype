@@ -313,14 +313,6 @@ static bool InitializeWindow(DisplayMode *mode)
 #endif
     }
 
-#ifndef EDGE_SOKOL
-    int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-
-    if (!version || (GLAD_VERSION_MAJOR(version) && GLAD_VERSION_MINOR(version) < 3))
-        FatalError("System only supports GL %d.%d. Minimum GL version 1.3 required!\n", GLAD_VERSION_MAJOR(version),
-                   GLAD_VERSION_MINOR(version));
-#endif
-
     return true;
 }
 
@@ -373,9 +365,6 @@ bool SetScreenSize(DisplayMode *mode)
 #endif
 
     render_state->ClearColor(kRGBABlack);
-#ifndef EDGE_SOKOL
-    render_state->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#endif
 
 #ifndef SOKOL_D3D11
     SDL_GL_SwapWindow(program_window);
@@ -388,9 +377,7 @@ void StartFrame(void)
 {
     ec_frame_stats.Clear();
     render_state->ClearColor(kRGBABlack);
-#ifndef EDGE_SOKOL
-    render_state->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#endif
+
     if (draw_culling.d_)
         renderer_far_clip.f_ = draw_culling_distance.f_;
     else

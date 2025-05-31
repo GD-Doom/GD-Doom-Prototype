@@ -18,7 +18,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Rendering Options
 
 # Sokol Renderer
-set (EDGE_SOKOL ON)
 option(EDGE_SOKOL_GL "Sokol GL" OFF)
 option(EDGE_SOKOL_GLES3 "Sokol GLES3" OFF)
 option(EDGE_SOKOL_D3D11 "Sokol D3D11" OFF)

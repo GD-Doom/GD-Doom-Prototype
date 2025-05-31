@@ -12,8 +12,6 @@ void BSPWalkNode(unsigned int);
 
 void UpdateSectorInterpolation(Sector *sector);
 
-#ifdef EDGE_SOKOL
-
 constexpr int32_t kRenderItemBatchSize = 16;
 
 enum kRenderType
@@ -45,5 +43,3 @@ struct RenderBatch
 void         BSPTraverse();
 bool         BSPTraversing();
 RenderBatch *BSPReadRenderBatch();
-
-#endif

@@ -122,14 +122,12 @@ GLuint UploadTexture(ImageData *img, int flags, int max_pix)
      * assigned to it.
      */
 
-#ifdef EDGE_SOKOL
     // Only OpenGL supports RGB format for textures, so promote to RGBA
     if (img->depth_ == 3)
     {
         img->SetAlpha(255);
     }
-#endif
-
+    
     EPI_ASSERT(img->depth_ == 3 || img->depth_ == 4);
 
     bool clamp  = (flags & kUploadClamp) ? true : false;

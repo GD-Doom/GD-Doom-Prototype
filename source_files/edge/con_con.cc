@@ -1425,7 +1425,6 @@ void ConsoleStart(void)
     StartupProgressMessage("Starting console...");
 }
 
-#ifdef EDGE_SOKOL
 static char *GetHumanSize(uint32_t bytes, char *hrbytes)
 {
     const char *suffix[] = {"B", "KB", "MB", "GB", "TB"};
@@ -1443,7 +1442,6 @@ static char *GetHumanSize(uint32_t bytes, char *hrbytes)
     snprintf(hrbytes, 128, "%u %s", bytes, suffix[i]);
     return (hrbytes);
 }
-#endif
 
 void ConsoleShowFPS(void)
 {
@@ -1504,9 +1502,7 @@ void ConsoleShowFPS(void)
     if (abs(debug_fps.d_) >= 3)
     {
         y -= (FNSZ * 4);
-#ifdef EDGE_SOKOL
         y -= (FNSZ * 7);
-#endif
     }
 
     SolidBox(x, y, current_screen_width, current_screen_height, kRGBABlack, 0.5);
@@ -1560,8 +1556,6 @@ void ConsoleShowFPS(void)
         console_verts += AddText(x, y, textbuf, kRGBAWebGray, console_glvert);
         y -= FNSZ;
 
-#ifdef EDGE_SOKOL
-
         FrameStats stats;
         render_backend->GetFrameStats(stats);
 
@@ -1595,8 +1589,6 @@ void ConsoleShowFPS(void)
         stbsp_sprintf(textbuf, "%s buffer size", hrbytes);
         console_verts += AddText(x, y, textbuf, kRGBAWebGray, console_glvert);
         y -= FNSZ;
-
-#endif
     }
     EndRenderUnit(console_verts);
     FinishUnitBatch();

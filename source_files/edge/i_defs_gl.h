@@ -26,11 +26,7 @@
 #pragma once
 
 #pragma once
-#ifdef EDGE_SOKOL
 #include "render/sokol/sokol_gl_defines.h"
-#else
-#include <glad/gl.h>
-#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
