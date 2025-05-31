@@ -75,7 +75,7 @@ struct DrawThing
 
     // actual map object
     MapObject *map_object;
-    
+
     float map_x, map_y, map_z; // map_z only used for models
 
     // vertical extent of sprite (world coords)

@@ -60,20 +60,13 @@
 #include "epi_str_compare.h"
 #include "epi_str_util.h"
 #include "i_system.h"
-#ifdef EDGE_CLASSIC
 #include "l_deh.h"
-#endif
 #include "m_misc.h"
-#ifdef EDGE_CLASSIC
 #include "p_umapinfo.h" //Lobo 2022
-#endif
 #include "r_image.h"
 #include "rad_trig.h"
 #include "script/compat/lua_compat.h"
 #include "stb_sprintf.h"
-#ifdef EDGE_CLASSIC
-#include "vm_coal.h"
-#endif
 #include "w_epk.h"
 #include "w_files.h"
 #include "w_texture.h"
@@ -132,9 +125,6 @@ class WadFile
     // DeHackEd support
     std::vector<int> dehacked_lumps_;
 
-    // COAL scripts
-    int coal_huds_;
-
     // LUA scripts
     int lua_huds_;
 
@@ -150,8 +140,8 @@ class WadFile
   public:
     WadFile()
         : sprite_lumps_(), flat_lumps_(), patch_lumps_(), colormap_lumps_(), tx_lumps_(), hires_lumps_(), xgl_lumps_(),
-          level_markers_(), skin_markers_(), wadtex_(), dehacked_lumps_(), coal_huds_(-1), lua_huds_(-1),
-          umapinfo_lump_(-1), animated_(-1), switches_(-1), md5_string_()
+          level_markers_(), skin_markers_(), wadtex_(), dehacked_lumps_(), lua_huds_(-1), umapinfo_lump_(-1),
+          animated_(-1), switches_(-1), md5_string_()
     {
         for (int d = 0; d < kTotalDDFTypes; d++)
             ddf_lumps_[d] = -1;
@@ -576,13 +566,6 @@ static void AddLump(DataFile *df, const char *raw_name, int pos, int size, int f
             wad->dehacked_lumps_.push_back(lump);
         return;
     }
-    else if (strcmp(info.name, "COALHUDS") == 0)
-    {
-        lump_p->kind = kLumpDDFRTS;
-        if (wad != nullptr)
-            wad->coal_huds_ = lump;
-        return;
-    }
     else if (strcmp(info.name, "LUAHUDS") == 0)
     {
         lump_p->kind = kLumpDDFRTS;
@@ -590,7 +573,6 @@ static void AddLump(DataFile *df, const char *raw_name, int pos, int size, int f
             wad->lua_huds_ = lump;
         return;
     }
-#ifdef EDGE_CLASSIC
     else if (strcmp(info.name, "UMAPINFO") == 0)
     {
         lump_p->kind = kLumpNormal;
@@ -598,7 +580,6 @@ static void AddLump(DataFile *df, const char *raw_name, int pos, int size, int f
             wad->umapinfo_lump_ = lump;
         return;
     }
-#endif
     else if (strcmp(info.name, "ANIMATED") == 0)
     {
         lump_p->kind = kLumpDDFRTS;
@@ -997,7 +978,6 @@ void ProcessFixersForWAD(DataFile *df)
         }
     }
 }
-#ifdef EDGE_CLASSIC
 void ProcessDehackedInWad(DataFile *df)
 {
     for (const int deh_lump : df->wad_->dehacked_lumps_)
@@ -1020,7 +1000,6 @@ void ProcessDehackedInWad(DataFile *df)
         delete[] data;
     }
 }
-#endif
 static void ProcessDDFInWad(DataFile *df)
 {
     std::string bare_filename = epi::GetFilename(df->name_);
@@ -1043,29 +1022,6 @@ static void ProcessDDFInWad(DataFile *df)
         }
     }
 }
-#ifdef EDGE_CLASSIC
-static void ProcessCOALInWad(DataFile *df)
-{
-    std::string bare_filename = epi::GetFilename(df->name_);
-
-    const WadFile *wad = df->wad_;
-
-    if (wad->coal_huds_ >= 0)
-    {
-        int lump = wad->coal_huds_;
-
-        SetCOALDetected(true);
-
-        std::string data   = LoadLumpAsString(lump);
-        std::string source = GetLumpNameFromIndex(lump);
-
-        source += " in ";
-        source += bare_filename;
-
-        COALAddScript(0, data, source);
-    }
-}
-#endif
 static void ProcessLuaInWad(DataFile *df)
 {
     std::string bare_filename = epi::GetFilename(df->name_);
@@ -1074,10 +1030,7 @@ static void ProcessLuaInWad(DataFile *df)
 
     if (wad->lua_huds_ >= 0)
     {
-        int lump = wad->lua_huds_;
-#ifdef EDGE_CLASSIC // This part only matters if in a potentially mixed Lua/COAL environment
-        LuaSetLuaHUDDetected(true);
-#endif
+        int         lump   = wad->lua_huds_;
         std::string data   = LoadLumpAsString(lump);
         std::string source = GetLumpNameFromIndex(lump);
 
@@ -1210,14 +1163,10 @@ void ProcessWad(DataFile *df, size_t file_index)
     LogDebug("   md5hash = %s\n", wad->md5_string_.c_str());
 
     delete[] raw_info;
-#ifdef EDGE_CLASSIC
+
     ProcessDehackedInWad(df);
-#endif
     ProcessBoomStuffInWad(df);
     ProcessDDFInWad(df);
-#ifdef EDGE_CLASSIC
-    ProcessCOALInWad(df);
-#endif
     ProcessLuaInWad(df);
 }
 
@@ -1270,7 +1219,7 @@ std::string BuildXGLNodesForWAD(DataFile *df)
 
     return xwa_filename;
 }
-#ifdef EDGE_CLASSIC
+
 void ReadUMAPINFOLumps(void)
 {
     for (auto df : data_files)
@@ -1788,7 +1737,7 @@ void ReadUMAPINFOLumps(void)
         FreeMapList();
     }
 }
-#endif
+
 epi::File *LoadLumpAsFile(int lump)
 {
     EPI_ASSERT(IsLumpIndexValid(lump));

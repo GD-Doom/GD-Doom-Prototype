@@ -882,8 +882,6 @@ class MIDIPlayer : public AbstractMusicPlayer
     {
         if (status_ == kPlaying)
         {
-            if (pc_speaker_mode)
-                Stop();
             if (ma_sound_at_end(&midi_stream)) // This should only be true if finished and not set to looping
                 Stop();
         }

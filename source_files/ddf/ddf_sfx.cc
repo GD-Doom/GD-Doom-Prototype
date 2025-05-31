@@ -31,22 +31,18 @@ SoundEffectDefinitionContainer sfxdefs;
 
 static SoundEffectDefinition dummy_sfx;
 
-static const DDFCommandList sfx_commands[] = {
-    DDF_FIELD("LUMP_NAME", dummy_sfx, lump_name_, DDFMainGetLumpName),
-    DDF_FIELD("PACK_NAME", dummy_sfx, pack_name_, DDFMainGetString),
-    DDF_FIELD("FILE_NAME", dummy_sfx, file_name_, DDFMainGetString),
-    DDF_FIELD("PC_SPEAKER_LUMP", dummy_sfx, pc_speaker_sound_,
-              DDFMainGetString), // Kept for backwards compat
-    DDF_FIELD("PC_SPEAKER_SOUND", dummy_sfx, pc_speaker_sound_, DDFMainGetString),
-    DDF_FIELD("SINGULAR", dummy_sfx, singularity_, DDFMainGetNumeric),
-    DDF_FIELD("PRIORITY", dummy_sfx, priority_, DDFMainGetNumeric),
-    DDF_FIELD("VOLUME", dummy_sfx, volume_, DDFMainGetPercent),
-    DDF_FIELD("LOOP", dummy_sfx, looping_, DDFMainGetBoolean),
-    DDF_FIELD("PRECIOUS", dummy_sfx, precious_, DDFMainGetBoolean),
-    DDF_FIELD("MAX_DISTANCE", dummy_sfx, max_distance_, DDFMainGetFloat),
-    DDF_FIELD("DEH_SOUND_ID", dummy_sfx, deh_sound_id_, DDFMainGetNumeric),
+static const DDFCommandList sfx_commands[] = {DDF_FIELD("LUMP_NAME", dummy_sfx, lump_name_, DDFMainGetLumpName),
+                                              DDF_FIELD("PACK_NAME", dummy_sfx, pack_name_, DDFMainGetString),
+                                              DDF_FIELD("FILE_NAME", dummy_sfx, file_name_, DDFMainGetString),
+                                              DDF_FIELD("SINGULAR", dummy_sfx, singularity_, DDFMainGetNumeric),
+                                              DDF_FIELD("PRIORITY", dummy_sfx, priority_, DDFMainGetNumeric),
+                                              DDF_FIELD("VOLUME", dummy_sfx, volume_, DDFMainGetPercent),
+                                              DDF_FIELD("LOOP", dummy_sfx, looping_, DDFMainGetBoolean),
+                                              DDF_FIELD("PRECIOUS", dummy_sfx, precious_, DDFMainGetBoolean),
+                                              DDF_FIELD("MAX_DISTANCE", dummy_sfx, max_distance_, DDFMainGetFloat),
+                                              DDF_FIELD("DEH_SOUND_ID", dummy_sfx, deh_sound_id_, DDFMainGetNumeric),
 
-    {nullptr, nullptr, 0, nullptr}};
+                                              {nullptr, nullptr, 0, nullptr}};
 
 //
 //  DDF PARSE ROUTINES
@@ -116,23 +112,6 @@ static void SoundFinishEntry(void)
     if (dynamic_sfx->lump_name_.empty() && dynamic_sfx->file_name_.empty() && dynamic_sfx->pack_name_.empty())
     {
         DDFError("Missing LUMP_NAME or PACK_NAME for sound.\n");
-    }
-
-    // If modified via Dehacked, see if the lump in use has an equivalent PC Speaker Sound from our stock
-    // definitions, and apply it if found - Dasho
-    if (dynamic_sfx->deh_sound_id_)
-    {
-        for (std::vector<SoundEffectDefinition *>::reverse_iterator iter = sfxdefs.rbegin(), iter_end = sfxdefs.rend();
-             iter != iter_end; iter++)
-        {
-            SoundEffectDefinition *def = (SoundEffectDefinition *)*iter;
-            if (!def->pc_speaker_sound_.empty() &&
-                epi::StringCaseCompareASCII(dynamic_sfx->lump_name_, def->lump_name_) == 0)
-            {
-                dynamic_sfx->pc_speaker_sound_ = def->pc_speaker_sound_;
-                break;
-            }
-        }
     }
 }
 
@@ -212,10 +191,9 @@ SoundEffectDefinition::~SoundEffectDefinition()
 //
 void SoundEffectDefinition::CopyDetail(const SoundEffectDefinition &src)
 {
-    lump_name_        = src.lump_name_;
-    pc_speaker_sound_ = src.pc_speaker_sound_;
-    file_name_        = src.file_name_;
-    pack_name_        = src.pack_name_;
+    lump_name_ = src.lump_name_;
+    file_name_ = src.file_name_;
+    pack_name_ = src.pack_name_;
 
     // clear the internal SoundEffect (ID would be wrong)
     normal_.sounds[0] = 0;
@@ -236,7 +214,6 @@ void SoundEffectDefinition::CopyDetail(const SoundEffectDefinition &src)
 void SoundEffectDefinition::Default()
 {
     lump_name_.clear();
-    pc_speaker_sound_.clear();
     file_name_.clear();
     pack_name_.clear();
 

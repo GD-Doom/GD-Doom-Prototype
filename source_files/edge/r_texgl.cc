@@ -127,7 +127,7 @@ GLuint UploadTexture(ImageData *img, int flags, int max_pix)
     {
         img->SetAlpha(255);
     }
-    
+
     EPI_ASSERT(img->depth_ == 3 || img->depth_ == 4);
 
     bool clamp  = (flags & kUploadClamp) ? true : false;

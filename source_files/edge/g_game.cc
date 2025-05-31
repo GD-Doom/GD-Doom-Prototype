@@ -62,9 +62,6 @@
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "version.h"
-#ifdef EDGE_CLASSIC
-#include "vm_coal.h"
-#endif
 #include "w_wad.h"
 
 GameState game_state = kGameStateNothing;
@@ -289,7 +286,7 @@ void DoLoadLevel(void)
 
             SpawnInitialPlayers();
 
-            // Need to investigate if COALBeginLevel() needs to go here too now
+            // Need to investigate if LuaBeginLevel() needs to go here too now
             // - Dasho
 
             RemoveOldAvatars();
@@ -302,14 +299,7 @@ void DoLoadLevel(void)
     LoadLevel_Bits();
 
     SpawnInitialPlayers();
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-        LuaBeginLevel();
-    else
-        COALBeginLevel();
-#else
     LuaBeginLevel();
-#endif
 }
 
 //
@@ -850,14 +840,7 @@ static void GameDoLoadGame(void)
     HUDStart();
 
     SetPalette(kPaletteNormal, 0);
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-        LuaLoadGame();
-    else
-        COALLoadGame();
-#else
     LuaLoadGame();
-#endif
 }
 
 //
@@ -943,14 +926,7 @@ static bool GameSaveGameToFile(const std::string &filename, const char *descript
 
 static void GameDoSaveGame(void)
 {
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-        LuaSaveGame();
-    else
-        COALSaveGame();
-#else
     LuaSaveGame();
-#endif
 
     std::string fn(SaveFilename("current", "head"));
 
@@ -1079,14 +1055,7 @@ static void GameDoNewGame(void)
 
     delete defer_params;
     defer_params = nullptr;
-#ifdef EDGE_CLASSIC
-    if (LuaUseLuaHUD())
-        LuaNewGame();
-    else
-        COALNewGame();
-#else
     LuaNewGame();
-#endif
 
     // -AJA- 2003/10/09: support for pre-level briefing screen on first map.
     //       FIXME: kludgy. All this game logic desperately needs rethinking.

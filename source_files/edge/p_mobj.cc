@@ -2304,19 +2304,19 @@ MapObject *CreateMapObject(float x, float y, float z, const MapObjectDefinition 
              z);
 #endif
 
-    mobj->info_             = info;
-    mobj->x                 = x;
-    mobj->y                 = y;
-    mobj->radius_           = info->radius_;
-    mobj->height_           = info->height_;
-    mobj->scale_            = info->scale_;
-    mobj->aspect_           = info->aspect_;
-    mobj->flags_            = info->flags_;
-    mobj->health_           = info->spawn_health_;
-    mobj->spawn_health_     = info->spawn_health_;
-    mobj->speed_            = info->speed_;
-    mobj->fuse_             = info->fuse_;
-    mobj->side_             = info->side_;
+    mobj->info_         = info;
+    mobj->x             = x;
+    mobj->y             = y;
+    mobj->radius_       = info->radius_;
+    mobj->height_       = info->height_;
+    mobj->scale_        = info->scale_;
+    mobj->aspect_       = info->aspect_;
+    mobj->flags_        = info->flags_;
+    mobj->health_       = info->spawn_health_;
+    mobj->spawn_health_ = info->spawn_health_;
+    mobj->speed_        = info->speed_;
+    mobj->fuse_         = info->fuse_;
+    mobj->side_         = info->side_;
     mobj->wait_until_dead_tags_.clear();
 
     mobj->pain_chance_ = info->pain_chance_;

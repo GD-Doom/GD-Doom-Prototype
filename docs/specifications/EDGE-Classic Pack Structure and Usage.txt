@@ -73,14 +73,13 @@ will be considered to come 'after' the pack itself for load order purposes. To a
 only store maps and their associated lumps within pack WADs. The alternative to this would be to store ALL in-game resources within a pack WAD, 
 with documentation and other miscellany outside of it.
 
-COAL, DDF, Lua and RTS scripts can be placed in any location within a pack, but the filenames must adhere to EDGE's historical standards. For ease
+DDF, Lua and RTS scripts can be placed in any location within a pack, but the filenames must adhere to EDGE's historical standards. For ease
 in converting mods that were previously in WAD form, filenames consisting of the lump name from the table below + any file extension will be
-considered valid as well (i.e., COALHUDS.dat, DDFATK.txt, etc.):
+considered valid as well (i.e., DDFATK.txt, etc.):
 
 Lump Name            Filename Equivalent
 ---------            -------------------
 
-COALHUDS             coal_hud.ec
 DDFANIM              anims.ddf
 DDFATK               attacks.ddf
 DDFCOLM              colmap.ddf
