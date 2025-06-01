@@ -758,9 +758,7 @@ static inline void AddRegionProperties(const MapObject *mo, float bz, float tz, 
 //
 // P_CalcFullProperties
 //
-// Calculates the properties (gravity etc..) acting on an object,
-// especially when the object is in multiple extrafloors with
-// different properties.
+// Calculates the properties (gravity etc..) acting on an object
 //
 // Only used for players for now (too expensive to be used by
 // everything).
@@ -769,8 +767,7 @@ void CalculateFullRegionProperties(const MapObject *mo, RegionProperties *new_p)
 {
     Sector *sector = mo->subsector_->sector;
 
-    Extrafloor *S, *L, *C;
-    float       floor_h;
+    float floor_h;
 
     float bz = mo->z;
     float tz = bz + mo->height_;
@@ -791,40 +788,10 @@ void CalculateFullRegionProperties(const MapObject *mo, RegionProperties *new_p)
 
     new_p->friction = -1.0f;
 
-    S = sector->bottom_extrafloor;
-    L = sector->bottom_liquid;
-
-    while (S || L)
-    {
-        if (!L || (S && S->bottom_height < L->bottom_height))
-        {
-            C = S;
-            S = S->higher;
-        }
-        else
-        {
-            C = L;
-            L = L->higher;
-        }
-
-        EPI_ASSERT(C);
-
-        // ignore "hidden" liquids
-        if (C->bottom_height < floor_h || C->bottom_height > sector->ceiling_height)
-            continue;
-
-        if (bz < C->bottom_height)
-        {
-            if (new_p->friction < 0.0f || C->properties->friction < new_p->friction)
-                new_p->friction = C->properties->friction;
-        }
-
-        AddRegionProperties(mo, bz, tz, new_p, floor_h, C->top_height, C->properties, false);
-
-        floor_h = C->top_height;
-    }
-
-    AddRegionProperties(mo, bz, tz, new_p, floor_h, sector->ceiling_height, sector->active_properties, true);
+    if (sector->has_deep_water && tz < sector->deep_water_height)
+        AddRegionProperties(mo, bz, tz, new_p, floor_h, sector->ceiling_height, &sector->deep_water_properties, true);
+    else
+        AddRegionProperties(mo, bz, tz, new_p, floor_h, sector->ceiling_height, sector->active_properties, true);
 
     // Safety net in case we are not touching the floor of any sectors
     if (new_p->friction < 0.0f)
@@ -1008,11 +975,9 @@ static void P_XYMovement(MapObject *mo, const RegionProperties *props)
             {
                 float ground_h;
 
-                int i = FindThingGap(block_line->gaps, block_line->gap_number, mo->z + mo->height_,
-                                     mo->z + 2 * mo->height_);
-                if (i >= 0)
+                if (block_line->has_gap)
                 {
-                    ground_h = block_line->gaps[i].floor;
+                    ground_h = block_line->gap->floor;
                 }
                 else
                 {
@@ -2109,41 +2074,10 @@ FlatDefinition *P_IsThingOnLiquidFloor(MapObject *thing)
 {
     FlatDefinition *current_flatdef = nullptr;
 
-    if (thing->flags_ & kMapObjectFlagFloat)
+    if ((thing->flags_ & kMapObjectFlagFloat) || thing->z > thing->floor_z_) // are we actually touching the floor
         return current_flatdef;
 
-    // If no 3D floors, just return the flat
-    if (thing->subsector_->sector->extrafloor_used == 0)
-    {
-        if (thing->z > thing->floor_z_) // are we actually touching the floor
-            return current_flatdef;
-
-        current_flatdef = flatdefs.Find(thing->subsector_->sector->floor.image->name_.c_str());
-    }
-    // Start from the lowest exfloor and check if the player is standing on it,
-    // then return the control sector's flat
-    else
-    {
-        float       player_floor_height = thing->floor_z_;
-        Extrafloor *floor_checker       = thing->subsector_->sector->bottom_extrafloor;
-        Extrafloor *liquid_checker      = thing->subsector_->sector->bottom_liquid;
-        for (Extrafloor *ef = floor_checker; ef; ef = ef->higher)
-        {
-            if (AlmostEquals(player_floor_height, ef->top_height))
-                current_flatdef = flatdefs.Find(ef->extrafloor_line->front_sector->floor.image->name_.c_str());
-        }
-        for (Extrafloor *ef = liquid_checker; ef; ef = ef->higher)
-        {
-            if (AlmostEquals(player_floor_height, ef->top_height))
-                current_flatdef = flatdefs.Find(ef->extrafloor_line->front_sector->floor.image->name_.c_str());
-        }
-        // if (!current_flatdef)
-        //	current_flatdef =
-        // flatdefs.Find(thing->subsector_->sector->floor.image->name); //
-        // Fallback if nothing else satisfies these conditions
-    }
-
-    return current_flatdef;
+    return flatdefs.Find(thing->subsector_->sector->floor.image->name_.c_str());
 }
 
 //---------------------------------------------------------------------------

@@ -135,67 +135,6 @@ enum AppearsFlag
     kAppearsWhenDefault     = 0xFFFF
 };
 
-enum ExtraFloorType
-{
-    kExtraFloorTypeNone = 0x0000,
-    // keeps the value from being zero
-    kExtraFloorTypePresent = 0x0001,
-    // floor is thick, has sides.  When clear: surface only
-    kExtraFloorTypeThick = 0x0002,
-    // floor is liquid, i.e. non-solid.  When clear: solid
-    kExtraFloorTypeLiquid = 0x0004,
-    // can monsters see through this extrafloor ?
-    kExtraFloorTypeSeeThrough = 0x0010,
-    // things with the WATERWALKER tag will not fall through.
-    // Also, certain player sounds (pain, death) can be overridden when
-    // in a water region.  Scope for other "waterish" effects...
-    kExtraFloorTypeWater = 0x0020,
-    // the region properties will "flood" all lower regions (unless it
-    // finds another flooder).
-    kExtraFloorTypeFlooder = 0x0040,
-    // the properties (lighting etc..) below are not transferred from
-    // the dummy sector, they'll be the same as the above region.
-    kExtraFloorTypeNoShade = 0x0080,
-    // take the side texture for THICK floors from the upper part of the
-    // sidedef where the thick floor is drawn (instead of tagging line).
-    kExtraFloorTypeSideUpper = 0x0100,
-    // like above, but use the lower part.
-    kExtraFloorTypeSideLower = 0x0200,
-    // this controls the Y offsets on normal THICK floors.
-    kExtraFloorTypeSideMidY = 0x0800,
-    // Boom compatibility flag (for linetype 242)
-    kExtraFloorTypeBoomTex = 0x1000
-};
-
-constexpr ExtraFloorType kExtraFloorThinDefaults   = ((ExtraFloorType)(kExtraFloorTypePresent | 0));
-constexpr ExtraFloorType kExtraFloorThickDefaults  = ((ExtraFloorType)(kExtraFloorTypePresent | kExtraFloorTypeThick));
-constexpr ExtraFloorType kExtraFloorLiquidDefaults = ((ExtraFloorType)(kExtraFloorTypePresent | kExtraFloorTypeLiquid));
-
-enum ExtraFloorControl
-{
-    // remove an extra floor
-    kExtraFloorControlNone = 0,
-    kExtraFloorControlRemove
-};
-
-class ExtraFloorDefinition
-{
-  public:
-    ExtraFloorDefinition();
-    ExtraFloorDefinition(const ExtraFloorDefinition &rhs);
-    ~ExtraFloorDefinition();
-
-  private:
-    void Copy(const ExtraFloorDefinition &src);
-
-  public:
-    void                  Default(void);
-    ExtraFloorDefinition &operator=(const ExtraFloorDefinition &src);
-
-    ExtraFloorType    type_;
-    ExtraFloorControl control_;
-};
-
 class PlaneMoverDefinition
 {
   public:
@@ -696,9 +635,6 @@ class LineType
     // Activation only possible from right side of line
     bool singlesided_;
 
-    // -AJA- 1999/06/21: Extra floor handling
-    ExtraFloorDefinition ef_;
-
     // -AJA- 1999/06/30: TRANSLUCENT MID-TEXTURES
     float translucency_;
 
@@ -786,7 +722,10 @@ enum SectorFlag
     kSectorFlagSubmergedSFX = 0x0080,
 
     // sounds will be heavily muffled in this sector
-    kSectorFlagVacuumSFX = 0x0100
+    kSectorFlagVacuumSFX = 0x0100,
+
+    // GD-DOOM: flag to mark when player is in deep water
+    kSectorFlagDeepWater = 0x0200,
 };
 
 class SectorType

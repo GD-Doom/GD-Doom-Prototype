@@ -147,6 +147,11 @@ void StringHash::RegisterKnownStrings()
     StringHash::Register("ROTATIONCEILING");
     StringHash::Register("GRAVITY");
     StringHash::Register("REVERBPRESET");
+    StringHash::Register("LIQUIDHEIGHT");
+    StringHash::Register("LIQUIDCOLOR");
+    StringHash::Register("LIQUIDTEXTURE");
+    StringHash::Register("LIQUIDLIGHT");
+    StringHash::Register("LIQUIDTRANS");
     StringHash::Register("HEIGHT");
     StringHash::Register("ANGLE");
     StringHash::Register("TYPE");

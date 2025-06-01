@@ -354,9 +354,6 @@ enum ThingOption
     kThingReserved        = 256,
 };
 
-constexpr int16_t kExtrafloorMask     = 0x3C00;
-constexpr uint8_t kExtrafloorBitShift = 10;
-
 //
 // Polyobject stuff
 //
@@ -448,6 +445,11 @@ EPI_KNOWN_STRINGHASH(kRotationFloor, "ROTATIONFLOOR")
 EPI_KNOWN_STRINGHASH(kRotationCeiling, "ROTATIONCEILING")
 EPI_KNOWN_STRINGHASH(kGravity, "GRAVITY")
 EPI_KNOWN_STRINGHASH(kReverbPreset, "REVERBPRESET")
+EPI_KNOWN_STRINGHASH(kLiquidHeight, "LIQUIDHEIGHT")
+EPI_KNOWN_STRINGHASH(kLiquidColor, "LIQUIDCOLOR")
+EPI_KNOWN_STRINGHASH(kLiquidTexture, "LIQUIDTEXTURE")
+EPI_KNOWN_STRINGHASH(kLiquidLight, "LIQUIDLIGHT")
+EPI_KNOWN_STRINGHASH(kLiquidTrans, "LIQUIDTRANS")
 
 // things
 EPI_KNOWN_STRINGHASH(kHeight, "HEIGHT")

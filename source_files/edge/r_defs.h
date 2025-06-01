@@ -166,49 +166,6 @@ struct MapSurface
     bool fog_wall = false;
 };
 
-//
-// ExtraFloor
-//
-// Stores information about a single extrafloor within a sector.
-//
-// -AJA- 2001/07/11: added this, replaces vert_region.
-//
-struct Extrafloor
-{
-    // links in chain.  These are sorted by increasing heights, using
-    // bottom_h as the reference.  This is important, especially when a
-    // liquid extrafloor overlaps a solid one: using this rule, the
-    // liquid region will be higher than the solid one.
-    struct Extrafloor *higher;
-    struct Extrafloor *lower;
-
-    struct Sector *sector;
-
-    // top and bottom heights of the extrafloor.  For non-THICK
-    // extrafloors, these are the same.  These are generally the same as
-    // in the dummy sector, EXCEPT during the process of moving the
-    // extrafloor.
-    float top_height, bottom_height;
-
-    // top/bottom surfaces of the extrafloor
-    MapSurface *top;
-    MapSurface *bottom;
-
-    // properties used for stuff below us
-    RegionProperties *properties;
-
-    // type of extrafloor this is.  Only nullptr for unused extrafloors.
-    // This value is cached pointer to extrafloor_line->special->ef.
-    const ExtraFloorDefinition *extrafloor_definition;
-
-    // extrafloor linedef (frontsector == control sector).  Only nullptr
-    // for unused extrafloors.
-    struct Line *extrafloor_line;
-
-    // link in dummy sector's controlling list
-    struct Extrafloor *control_sector_next;
-};
-
 // Vertical gap between a floor & a ceiling.
 // -AJA- 1999/07/19.
 //
@@ -242,29 +199,7 @@ struct Sector
 
     int tag;
 
-    // set of extrafloors (in the global `extrafloors' array) that this
-    // sector can use.  At load time we can deduce the maximum number
-    // needed for extrafloors, even if they dynamically come and go.
-    //
-    short       extrafloor_maximum;
-    short       extrafloor_used;
-    Extrafloor *extrafloor_first;
-
-    // -AJA- 2001/07/11: New multiple extrafloor code.
-    //
-    // Now the FLOORS ARE IMPLIED.  Unlike before, the floor below an
-    // extrafloor is NOT stored in each extrafloor_t -- you must scan
-    // down to find them, and use the sector's floor if you hit nullptr.
-    Extrafloor *bottom_extrafloor;
-    Extrafloor *top_extrafloor;
-
-    // Liquid extrafloors are now kept in a separate list.  For many
-    // purposes (especially moving sectors) they otherwise just get in
-    // the way.
-    Extrafloor *bottom_liquid;
-    Extrafloor *top_liquid;
-
-    // properties that are active for this sector (top-most extrafloor).
+    // properties that are active for this sector
     // This may be different than the sector's actual properties (the
     // "props" field) due to flooders.
     RegionProperties *active_properties;
@@ -283,13 +218,16 @@ struct Sector
     HMM_Vec2 floor_vertex_slope_high_low;
     HMM_Vec2 ceiling_vertex_slope_high_low;
 
-    // linked list of extrafloors that this sector controls.  nullptr means
-    // that this sector is not a controller.
-    Extrafloor *control_floors;
-
     // killough 3/7/98: support flat heights drawn at another sector's heights
     struct Sector *height_sector;
     struct Side   *height_sector_side;
+
+    // Dasho - Directly store our deep water - a simplified
+    // version of Boom heights - in the sector info via UDMF
+    bool             has_deep_water;
+    MapSurface       deep_water_surface;
+    RegionProperties deep_water_properties;
+    float            deep_water_height;
 
     // movement thinkers, for quick look-up
     struct PlaneMover *floor_move;
@@ -320,14 +258,9 @@ struct Sector
     // sky height for GL renderer
     float sky_height;
 
-    // keep track of vertical sight gaps within the sector.  This is
-    // just a much more convenient form of the info in the extrafloor
-    // list.
-    //
-    short maximum_gaps;
-    short sight_gap_number;
-
-    VerticalGap *sight_gaps;
+    // keep track of vertical sight gap within the sector.
+    bool         has_sight_gap;
+    VerticalGap *sight_gap;
 
     // if == valid_count, already checked
     int valid_count;
@@ -440,10 +373,8 @@ struct Line
     // one of the sectors changes height.  The pointer here points into
     // the single global array `vertgaps'.
     //
-    short maximum_gaps;
-    short gap_number;
-
-    VerticalGap *gaps;
+    bool         has_gap;
+    VerticalGap *gap;
 
     const LineType *slide_door;
 

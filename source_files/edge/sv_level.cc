@@ -25,7 +25,6 @@
 //    line_t         [LINE]
 //
 //    region_properties_t  [RPRP]
-//    extrafloor_t         [EXFL]
 //    sector_t             [SECT]
 //
 
@@ -53,12 +52,6 @@ int   SV_LineGetIndex(Line *elem);
 void *SV_LineFindByIndex(int index);
 void  SV_LineCreateElems(int num_elems);
 void  SV_LineFinaliseElems(void);
-
-int   SV_ExfloorCountElems(void);
-int   SV_ExfloorGetIndex(Extrafloor *elem);
-void *SV_ExfloorFindByIndex(int index);
-void  SV_ExfloorCreateElems(int num_elems);
-void  SV_ExfloorFinaliseElems(void);
 
 int   SV_SectorCountElems(void);
 int   SV_SectorGetIndex(Sector *elem);
@@ -274,66 +267,6 @@ SaveStruct sv_struct_regprops = {
 
 //----------------------------------------------------------------------------
 //
-//  EXTRAFLOOR STRUCTURE
-//
-static Extrafloor dummy_extrafloor;
-
-static SaveField sv_fields_exfloor[] = {
-    EDGE_SAVE_FIELD(dummy_extrafloor, higher, "higher", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
-    EDGE_SAVE_FIELD(dummy_extrafloor, lower, "lower", 1, kSaveFieldIndex, 4, "extrafloors", SaveGameSectorGetExtrafloor,
-                    SaveGameSectorPutExtrafloor),
-    EDGE_SAVE_FIELD(dummy_extrafloor, sector, "sector", 1, kSaveFieldIndex, 4, "sectors", SaveGameGetSector,
-                    SaveGamePutSector),
-    EDGE_SAVE_FIELD(dummy_extrafloor, top_height, "top_h", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetFloat,
-                    SaveGamePutFloat),
-    EDGE_SAVE_FIELD(dummy_extrafloor, bottom_height, "bottom_h", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetFloat,
-                    SaveGamePutFloat),
-    EDGE_SAVE_FIELD(dummy_extrafloor, top, "top", 1, kSaveFieldString, 0, nullptr, SaveGameLevelGetSurfPtr,
-                    SaveGameLevelPutSurfPtr),
-    EDGE_SAVE_FIELD(dummy_extrafloor, bottom, "bottom", 1, kSaveFieldString, 0, nullptr, SaveGameLevelGetSurfPtr,
-                    SaveGameLevelPutSurfPtr),
-    EDGE_SAVE_FIELD(dummy_extrafloor, properties, "p", 1, kSaveFieldString, 0, nullptr, SaveGameSectorGetPropRef,
-                    SaveGameSectorPutPropRef),
-    EDGE_SAVE_FIELD(dummy_extrafloor, extrafloor_line, "ef_line", 1, kSaveFieldIndex, 4, "lines", SaveGameGetLine,
-                    SaveGamePutLine),
-    EDGE_SAVE_FIELD(dummy_extrafloor, control_sector_next, "ctrl_next", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
-
-    // NOT HERE:
-    //   - sector: can be regenerated.
-    //   - ef_info: cached value, regenerated from extrafloor_line.
-
-    {0, nullptr, 0, {kSaveFieldInvalid, 0, nullptr}, nullptr, nullptr, nullptr}};
-
-SaveStruct sv_struct_exfloor = {
-    nullptr,                         // link in list
-    "extrafloor_t",                  // structure name
-    "exfl",                          // start marker
-    sv_fields_exfloor,               // field descriptions
-    (const char *)&dummy_extrafloor, // dummy base
-    true,                            // define_me
-    nullptr                          // pointer to known struct
-};
-
-SaveArray sv_array_exfloor = {
-    nullptr,                 // link in list
-    "extrafloors",           // array name
-    &sv_struct_exfloor,      // array type
-    true,                    // define_me
-    true,                    // allow_hub
-
-    SV_ExfloorCountElems,    // count routine
-    SV_ExfloorFindByIndex,   // index routine
-    SV_ExfloorCreateElems,   // creation routine
-    SV_ExfloorFinaliseElems, // finalisation routine
-
-    nullptr,                 // pointer to known array
-    0                        // loaded size
-};
-
-//----------------------------------------------------------------------------
-//
 //  SECTOR STRUCTURE
 //
 static Sector dummy_sector;
@@ -361,21 +294,9 @@ static SaveField sv_fields_sector[] = {
     EDGE_SAVE_FIELD(dummy_sector, active_properties, "p", 1, kSaveFieldString, 0, nullptr, SaveGameSectorGetPropRef,
                     SaveGameSectorPutPropRef),
 
-    EDGE_SAVE_FIELD(dummy_sector, extrafloor_used, "exfloor_used", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
-                    SaveGamePutInteger),
-    EDGE_SAVE_FIELD(dummy_sector, control_floors, "control_floors", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
     EDGE_SAVE_FIELD(dummy_sector, sound_player, "sound_player", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetInteger,
                     SaveGamePutInteger),
 
-    EDGE_SAVE_FIELD(dummy_sector, bottom_extrafloor, "bottom_ef", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
-    EDGE_SAVE_FIELD(dummy_sector, top_extrafloor, "top_ef", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
-    EDGE_SAVE_FIELD(dummy_sector, bottom_liquid, "bottom_liq", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
-    EDGE_SAVE_FIELD(dummy_sector, top_liquid, "top_liq", 1, kSaveFieldIndex, 4, "extrafloors",
-                    SaveGameSectorGetExtrafloor, SaveGameSectorPutExtrafloor),
     EDGE_SAVE_FIELD(dummy_sector, old_stored, "old_stored", 1, kSaveFieldNumeric, 4, nullptr, SaveGameGetBoolean,
                     SaveGamePutBoolean),
 
@@ -533,65 +454,6 @@ void SV_LineFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-int SV_ExfloorCountElems(void)
-{
-    return total_level_extrafloors;
-}
-
-void *SV_ExfloorFindByIndex(int index)
-{
-    if (index < 0 || index >= total_level_extrafloors)
-    {
-        LogWarning("LOADGAME: Invalid Extrafloor: %d\n", index);
-        index = 0;
-    }
-
-    return level_extrafloors + index;
-}
-
-int SV_ExfloorGetIndex(Extrafloor *elem)
-{
-    EPI_ASSERT(level_extrafloors <= elem && elem < (level_extrafloors + total_level_extrafloors));
-
-    return elem - level_extrafloors;
-}
-
-void SV_ExfloorCreateElems(int num_elems)
-{
-    /* nothing much to do -- extrafloors are created from level load, and
-     * defaults are initialised there.
-     */
-
-    if (num_elems != total_level_extrafloors)
-        FatalError("LOADGAME: Extrafloor MISMATCH !  (%d != %d)\n", num_elems, total_level_extrafloors);
-}
-
-void SV_ExfloorFinaliseElems(void)
-{
-    int i;
-
-    // need to regenerate the ef_info fields
-    for (i = 0; i < total_level_extrafloors; i++)
-    {
-        Extrafloor *ef = level_extrafloors + i;
-
-        // skip unused extrafloors
-        if (ef->extrafloor_line == nullptr)
-            continue;
-
-        if (!ef->extrafloor_line->special || !(ef->extrafloor_line->special->ef_.type_ & kExtraFloorTypePresent))
-        {
-            LogWarning("LOADGAME: Missing Extrafloor Special !\n");
-            ef->extrafloor_definition = &linetypes.Lookup(0)->ef_;
-            continue;
-        }
-
-        ef->extrafloor_definition = &ef->extrafloor_line->special->ef_;
-    }
-}
-
-//----------------------------------------------------------------------------
-
 extern std::vector<PlaneMover *> active_planes;
 
 int SV_SectorCountElems(void)
@@ -636,7 +498,6 @@ void SV_SectorFinaliseElems(void)
 
         RecomputeGapsAroundSector(sec);
         ///---	P_RecomputeTilesInSector(sec);
-        FloodExtraFloors(sec);
 
         // check for animation
         if (sec->floor.scroll.X || sec->floor.scroll.Y || sec->ceiling.scroll.X || sec->ceiling.scroll.Y ||
@@ -1090,25 +951,6 @@ void SaveGamePutSector(void *storage, int index)
     Sector *elem = ((Sector **)storage)[index];
 
     int swizzle = (elem == nullptr) ? 0 : SV_SectorGetIndex(elem) + 1;
-
-    SaveChunkPutInteger(swizzle);
-}
-
-bool SaveGameSectorGetExtrafloor(void *storage, int index)
-{
-    Extrafloor **dest = (Extrafloor **)storage + index;
-
-    int swizzle = SaveChunkGetInteger();
-
-    *dest = (Extrafloor *)((swizzle == 0) ? nullptr : SV_ExfloorFindByIndex(swizzle - 1));
-    return true;
-}
-
-void SaveGameSectorPutExtrafloor(void *storage, int index)
-{
-    Extrafloor *elem = ((Extrafloor **)storage)[index];
-
-    int swizzle = (elem == nullptr) ? 0 : SV_ExfloorGetIndex(elem) + 1;
 
     SaveChunkPutInteger(swizzle);
 }

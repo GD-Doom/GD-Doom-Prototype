@@ -68,12 +68,10 @@ extern SaveStruct sv_struct_surface;
 extern SaveStruct sv_struct_side;
 extern SaveStruct sv_struct_line;
 extern SaveStruct sv_struct_regprops;
-extern SaveStruct sv_struct_exfloor;
 extern SaveStruct sv_struct_sector;
 
 extern SaveArray sv_array_side;
 extern SaveArray sv_array_line;
-extern SaveArray sv_array_exfloor;
 extern SaveArray sv_array_sector;
 
 // sv_misc.c
@@ -238,12 +236,10 @@ void InitializeSaveSystem(void)
     AddKnownStruct(&sv_struct_side);
     AddKnownStruct(&sv_struct_line);
     AddKnownStruct(&sv_struct_regprops);
-    AddKnownStruct(&sv_struct_exfloor);
     AddKnownStruct(&sv_struct_sector);
 
     AddKnownArray(&sv_array_side);
     AddKnownArray(&sv_array_line);
-    AddKnownArray(&sv_array_exfloor);
     AddKnownArray(&sv_array_sector);
 
     // sv_misc.c

@@ -319,9 +319,6 @@ void SaveGamePutLine(void *storage, int index);
 bool SaveGameGetSector(void *storage, int index);
 void SaveGamePutSector(void *storage, int index);
 
-bool SaveGameSectorGetExtrafloor(void *storage, int index);
-void SaveGameSectorPutExtrafloor(void *storage, int index);
-
 bool SaveGameGetRADScript(void *storage, int index);
 void SaveGamePutRADScript(void *storage, int index);
 

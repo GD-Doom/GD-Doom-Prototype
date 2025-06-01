@@ -275,7 +275,7 @@ static bool CheckAbsoluteLineCallback(Line *ld, void *data)
     if (move_check.mover->player_ && ld->special && (ld->special->portal_effect_ & kPortalEffectTypeStandard))
         return true;
 
-    if (!ld->back_sector || ld->gap_number == 0)
+    if (!ld->back_sector || !ld->has_gap)
         return false; // one sided line
 
     if (move_check.extended_flags & kExtendedFlagCrossBlockingLines)
@@ -312,18 +312,18 @@ static bool CheckAbsoluteLineCallback(Line *ld, void *data)
         }
     }
 
-    // does the thing fit in one of the line gaps ?
-    for (int i = 0; i < ld->gap_number; i++)
+    // does the thing fit into the line gap ?
+    if (ld->has_gap)
     {
         // -AJA- FIXME: this kOnFloorZ stuff is a DIRTY HACK!
         if (AlmostEquals(move_check.z, kOnFloorZ) || AlmostEquals(move_check.z, kOnCeilingZ))
         {
-            if (move_check.mover->height_ <= (ld->gaps[i].ceiling - ld->gaps[i].floor))
+            if (move_check.mover->height_ <= (ld->gap->ceiling - ld->gap->floor))
                 return true;
         }
         else
         {
-            if (ld->gaps[i].floor <= move_check.z && move_check.z + move_check.mover->height_ <= ld->gaps[i].ceiling)
+            if (ld->gap->floor <= move_check.z && move_check.z + move_check.mover->height_ <= ld->gap->ceiling)
                 return true;
         }
     }
@@ -797,29 +797,19 @@ static bool CheckRelativeLineCallback(Line *ld, void *data)
         return true;
     }
 
-    // CHOOSE GAP
-    //
-    // If this line borders a sector with multiple floors, then there will
-    // be multiple gaps and we must choose one here, based on the thing's
-    // current position (esp. Z).
-
-    int i = FindThingGap(ld->gaps, ld->gap_number, move_check.z, move_check.z + move_check.mover->height_);
-
-    // gap has been chosen. apply it.
-
-    if (i >= 0)
+    if (ld->has_gap)
     {
-        if (ld->gaps[i].floor >= move_check.floor_z && !move_check.subsector->sector->floor_vertex_slope)
+        if (ld->gap->floor >= move_check.floor_z && !move_check.subsector->sector->floor_vertex_slope)
         {
-            move_check.floor_z = ld->gaps[i].floor;
+            move_check.floor_z = ld->gap->floor;
             move_check.below   = nullptr;
         }
 
-        if (ld->gaps[i].ceiling < move_check.ceiling_z)
-            move_check.ceiling_z = ld->gaps[i].ceiling;
+        if (ld->gap->ceiling < move_check.ceiling_z)
+            move_check.ceiling_z = ld->gap->ceiling;
 
-        if (ld->gaps[i].floor < move_check.dropoff)
-            move_check.dropoff = ld->gaps[i].floor;
+        if (ld->gap->floor < move_check.dropoff)
+            move_check.dropoff = ld->gap->floor;
     }
     else
     {
@@ -1351,21 +1341,25 @@ static bool PTR_SlideTraverse(PathIntercept *in, void *dataptr)
     {
         // -AJA- 1999/07/19: Gaps are now stored in line_t.
 
-        for (int i = 0; i < ld->gap_number; i++)
+        if (ld->has_gap)
         {
             // check if it can fit in the space
-            if (slide_map_object->height_ > ld->gaps[i].ceiling - ld->gaps[i].floor)
-                continue;
-
+            if (slide_map_object->height_ > ld->gap->ceiling - ld->gap->floor)
+            {
+                // nothing
+            }
             // check slide mobj is not too high
-            if (slide_map_object->z + slide_map_object->height_ > ld->gaps[i].ceiling)
-                continue;
-
+            else if (slide_map_object->z + slide_map_object->height_ > ld->gap->ceiling)
+            {
+                // nothing
+            }
             // check slide mobj can step over
-            if (slide_map_object->z + slide_map_object->info_->step_size_ < ld->gaps[i].floor)
-                continue;
-
-            return true;
+            else if (slide_map_object->z + slide_map_object->info_->step_size_ < ld->gap->floor)
+            {
+                // nothing
+            }
+            else
+                return true;
         }
     }
 
@@ -1493,7 +1487,7 @@ static bool PTR_AimTraverse(PathIntercept *in, void *dataptr)
     {
         Line *ld = in->line;
 
-        if (!(ld->flags & kLineFlagTwoSided) || ld->gap_number == 0)
+        if (!(ld->flags & kLineFlagTwoSided) || !ld->has_gap)
             return false; // stop
 
         // Crosses a two sided line.
@@ -1586,7 +1580,7 @@ static bool PTR_AimTraverse2(PathIntercept *in, void *dataptr)
     {
         Line *ld = in->line;
 
-        if (!(ld->flags & kLineFlagTwoSided) || ld->gap_number == 0)
+        if (!(ld->flags & kLineFlagTwoSided) || !ld->has_gap)
             return false; // stop
 
         // Crosses a two sided line.
@@ -2105,22 +2099,11 @@ static bool ShootTraverseCallback(PathIntercept *in, void *dataptr)
         //(1.) check if shot has hit a floor or ceiling...
         if (side)
         {
-            Extrafloor *ef;
             MapSurface *floor_s   = &side->sector->floor;
             float       floor_h   = side->sector->floor_height;
             Sector     *sec_check = nullptr;
             if (ld->side[sidenum ^ 1])
                 sec_check = ld->side[sidenum ^ 1]->sector;
-
-            // FIXME: must go in correct order
-            for (ef = side->sector->bottom_extrafloor; ef; ef = ef->higher)
-            {
-                if (!ShootCheckGap(x, y, z, floor_h, floor_s, ef->bottom_height, ef->bottom, sec_check, ld))
-                    return false;
-
-                floor_s = ef->top;
-                floor_h = ef->top_height;
-            }
 
             if (!ShootCheckGap(x, y, z, floor_h, floor_s, side->sector->ceiling_height, &side->sector->ceiling,
                                sec_check, ld))
@@ -2140,18 +2123,15 @@ static bool ShootTraverseCallback(PathIntercept *in, void *dataptr)
         // shot doesn't go through a one-sided line, since one sided lines
         // do not have a sector on the other side.
 
-        if ((ld->flags & kLineFlagTwoSided) && ld->gap_number > 0 && !(ld->flags & kLineFlagShootBlock))
+        if ((ld->flags & kLineFlagTwoSided) && ld->has_gap && !(ld->flags & kLineFlagShootBlock))
         {
             EPI_ASSERT(ld->back_sector);
 
-            // check all line gaps
-            for (int i = 0; i < ld->gap_number; i++)
+            // check line gaps
+            if (ld->gap->floor <= z && z <= ld->gap->ceiling)
             {
-                if (ld->gaps[i].floor <= z && z <= ld->gaps[i].ceiling)
-                {
-                    shoot_check.previous_z = z;
-                    return true;
-                }
+                shoot_check.previous_z = z;
+                return true;
             }
         }
 
@@ -2580,7 +2560,7 @@ static bool PTR_UseTraverse(PathIntercept *in, void *dataptr)
 
     Side *side = ld->side[sidenum];
 
-    // update open vertical range (extrafloors are NOT checked)
+    // update open vertical range
     if (side)
     {
         use_lower = HMM_MAX(use_lower, side->sector->floor_height);
@@ -2589,7 +2569,7 @@ static bool PTR_UseTraverse(PathIntercept *in, void *dataptr)
 
     if (!ld->special || ld->special->type_ == kLineTriggerShootable || ld->special->type_ == kLineTriggerWalkable)
     {
-        if (ld->gap_number == 0 || use_upper <= use_lower)
+        if (!ld->has_gap || use_upper <= use_lower)
         {
             // can't use through a wall
             StartSoundEffect(use_thing->info_->noway_sound_, GetSoundEffectCategory(use_thing), use_thing);
@@ -2895,31 +2875,14 @@ static void ChangeSectorHeights(Sector *sec, float f_dh, float c_dh)
 //
 // CheckSolidSectorMove
 //
-// Checks if the sector (and any attached extrafloors) can be moved.
+// Checks if the sector can be moved.
 // Only checks againgst hitting other solid floors, things are NOT
 // considered here.  Returns true if OK, otherwise false.
 //
 bool CheckSolidSectorMove(Sector *sec, bool is_ceiling, float dh)
 {
-    Extrafloor *ef;
-
     if (AlmostEquals(dh, 0.0f))
         return true;
-
-    //
-    // first check real sector
-    //
-
-    if (is_ceiling && dh < 0 && sec->top_extrafloor && (sec->ceiling_height - dh < sec->top_extrafloor->top_height))
-    {
-        return false;
-    }
-
-    if (!is_ceiling && dh > 0 && sec->bottom_extrafloor &&
-        (sec->floor_height + dh > sec->bottom_extrafloor->bottom_height))
-    {
-        return false;
-    }
 
     if (is_ceiling)
     {
@@ -2932,81 +2895,13 @@ bool CheckSolidSectorMove(Sector *sec, bool is_ceiling, float dh)
             sec->floor_move->destination_height = sec->ceiling_height - dh;
     }
 
-    // don't allow a dummy sector to go FUBAR
-    if (sec->control_floors)
-    {
-        if (is_ceiling && (sec->ceiling_height + dh < sec->floor_height))
-            return false;
-
-        if (!is_ceiling && (sec->floor_height + dh > sec->ceiling_height))
-            return false;
-    }
-
-    //
-    // second, check attached extrafloors
-    //
-
-    for (ef = sec->control_floors; ef; ef = ef->control_sector_next)
-    {
-        // liquids can go anywhere, anytime
-        if (ef->extrafloor_definition->type_ & kExtraFloorTypeLiquid)
-            continue;
-
-        // moving a thin extrafloor ?
-        if (!is_ceiling && !(ef->extrafloor_definition->type_ & kExtraFloorTypeThick))
-        {
-            float new_h = ef->top_height + dh;
-
-            if (dh > 0 && new_h > (ef->higher ? ef->higher->bottom_height : ef->sector->ceiling_height))
-            {
-                return false;
-            }
-
-            if (dh < 0 && new_h < (ef->lower ? ef->lower->top_height : ef->sector->floor_height))
-            {
-                return false;
-            }
-            continue;
-        }
-
-        // moving the top of a thick extrafloor ?
-        if (is_ceiling && (ef->extrafloor_definition->type_ & kExtraFloorTypeThick))
-        {
-            float new_h = ef->top_height + dh;
-
-            if (dh < 0 && new_h < ef->bottom_height)
-                return false;
-
-            if (dh > 0 && new_h > (ef->higher ? ef->higher->bottom_height : ef->sector->ceiling_height))
-            {
-                return false;
-            }
-            continue;
-        }
-
-        // moving the bottom of a thick extrafloor ?
-        if (!is_ceiling && (ef->extrafloor_definition->type_ & kExtraFloorTypeThick))
-        {
-            float new_h = ef->bottom_height + dh;
-
-            if (dh > 0 && new_h > ef->top_height)
-                return false;
-
-            if (dh < 0 && new_h < (ef->lower ? ef->lower->top_height : ef->sector->floor_height))
-            {
-                return false;
-            }
-            continue;
-        }
-    }
-
     return true;
 }
 
 //
 // SolidSectorMove
 //
-// Moves the sector and any attached extrafloors.  You MUST call
+// Moves the sector.  You MUST call
 // CheckSolidSectorMove() first to check if move is possible.
 //
 // Things are checked here, and will be moved if they overlap the
@@ -3016,8 +2911,6 @@ bool CheckSolidSectorMove(Sector *sec, bool is_ceiling, float dh)
 //
 bool SolidSectorMove(Sector *sec, bool is_ceiling, float dh, int crush, bool nocarething)
 {
-    Extrafloor *ef;
-
     if (AlmostEquals(dh, 0.0f))
         return false;
 
@@ -3034,7 +2927,6 @@ bool SolidSectorMove(Sector *sec, bool is_ceiling, float dh, int crush, bool noc
         sec->floor_height += dh;
 
     RecomputeGapsAroundSector(sec);
-    FloodExtraFloors(sec);
 
     if (!nocarething)
     {
@@ -3045,64 +2937,6 @@ bool SolidSectorMove(Sector *sec, bool is_ceiling, float dh, int crush, bool noc
         else
         {
             ChangeSectorHeights(sec, dh, 0);
-        }
-    }
-
-    //
-    // second, update attached extrafloors
-    //
-
-    for (ef = sec->control_floors; ef; ef = ef->control_sector_next)
-    {
-        if (ef->extrafloor_definition->type_ & kExtraFloorTypeThick)
-        {
-            ef->top_height    = sec->ceiling_height;
-            ef->bottom_height = sec->floor_height;
-        }
-        else
-        {
-            ef->top_height = ef->bottom_height = sec->floor_height;
-        }
-
-        RecomputeGapsAroundSector(ef->sector);
-        FloodExtraFloors(ef->sector);
-    }
-
-    if (!nocarething)
-    {
-        for (ef = sec->control_floors; ef; ef = ef->control_sector_next)
-        {
-            // liquids can go anywhere, anytime
-            if (ef->extrafloor_definition->type_ & kExtraFloorTypeLiquid)
-                continue;
-
-            // moving a thin extrafloor ?
-            if (!is_ceiling && !(ef->extrafloor_definition->type_ & kExtraFloorTypeThick))
-            {
-                if (dh > 0)
-                {
-                    ChangeSectorHeights(ef->sector, dh, 0);
-                }
-                else if (dh < 0)
-                {
-                    ChangeSectorHeights(ef->sector, 0, dh);
-                }
-                continue;
-            }
-
-            // moving the top of a thick extrafloor ?
-            if (is_ceiling && (ef->extrafloor_definition->type_ & kExtraFloorTypeThick))
-            {
-                ChangeSectorHeights(ef->sector, dh, 0);
-                continue;
-            }
-
-            // moving the bottom of a thick extrafloor ?
-            if (!is_ceiling && (ef->extrafloor_definition->type_ & kExtraFloorTypeThick))
-            {
-                ChangeSectorHeights(ef->sector, 0, dh);
-                continue;
-            }
         }
     }
 
@@ -3150,10 +2984,6 @@ static bool CorpseCheckCallback(MapObject *thing, void *data)
 
     if (fabs(thing->x - raiser_try_x) > maxdist || fabs(thing->y - raiser_try_y) > maxdist)
         return true; // not actually touching
-
-    // -AJA- don't raise corpses blocked by extrafloors
-    if (!QuickVerticalSightCheck(raiser_try_object, thing))
-        return true;
 
     // -AJA- don't raise players unless on their side
     if (thing->player_ && (raiser_try_object->info_->side_ & thing->info_->side_) == 0)
@@ -3262,18 +3092,14 @@ static bool CheckBlockingLineCallback(Line *line, void *data)
         return false;
     }
 
-    if (!(line->flags & kLineFlagTwoSided) || line->gap_number == 0)
+    if (!(line->flags & kLineFlagTwoSided) || !line->has_gap)
     {
         block_line = line;
         return false;
     }
 
-    for (int i = 0; i < line->gap_number; i++)
-    {
-        // gap with no restriction ?
-        if (line->gaps[i].floor <= mb2 && mt2 <= line->gaps[i].ceiling)
-            return true;
-    }
+    if (line->gap->floor <= mb2 && mt2 <= line->gap->ceiling)
+        return true;
 
     // Vertex slope check
     Sector *slope_sec = PointInSubsector(mx2, my2)->sector;

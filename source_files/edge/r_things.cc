@@ -916,7 +916,7 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     float   sink_mult = 0;
     float   bob_mult  = 0;
     Sector *cur_sec   = mo->subsector_->sector;
-    if (!cur_sec->extrafloor_used && !cur_sec->height_sector && AlmostEquals(mz, cur_sec->floor_height))
+    if (!cur_sec->height_sector && AlmostEquals(mz, cur_sec->floor_height))
     {
         if (!(mo->flags_ & kMapObjectFlagNoGravity))
         {

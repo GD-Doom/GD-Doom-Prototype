@@ -215,7 +215,7 @@ class MapObject : public Position
     // current subsector
     struct Subsector *subsector_ = nullptr;
 
-    // properties from extrafloor the thing is in
+    // properties from region the thing is in
     struct RegionProperties *region_properties_ = nullptr;
 
     // Uncapped stuff - Dasho

@@ -58,8 +58,6 @@ static void DDFLineGetActivators(const char *info, void *storage);
 static void DDFLineGetSecurity(const char *info, void *storage);
 static void DDFLineGetScroller(const char *info, void *storage);
 static void DDFLineGetScrollPart(const char *info, void *storage);
-static void DDFLineGetExtraFloor(const char *info, void *storage);
-static void DDFLineGetEFControl(const char *info, void *storage);
 static void DDFLineGetTeleportSpecial(const char *info, void *storage);
 static void DDFLineGetRadTrig(const char *info, void *storage);
 static void DDFLineGetSpecialFlags(const char *info, void *storage);
@@ -172,8 +170,6 @@ static const DDFCommandList linedef_commands[] = {
     DDF_FIELD("MUSIC", dummy_line, music_, DDFMainGetNumeric),
     DDF_FIELD("AUTO", dummy_line, autoline_, DDFMainGetBoolean),
     DDF_FIELD("SINGLESIDED", dummy_line, singlesided_, DDFMainGetBoolean),
-    DDF_FIELD("EXTRAFLOOR_TYPE", dummy_line, ef_.type_, DDFLineGetExtraFloor),
-    DDF_FIELD("EXTRAFLOOR_CONTROL", dummy_line, ef_.control_, DDFLineGetEFControl),
     DDF_FIELD("TRANSLUCENCY", dummy_line, translucency_, DDFMainGetPercent),
     DDF_FIELD("WHEN_APPEAR", dummy_line, appear_, DDFMainGetWhenAppear),
     DDF_FIELD("SPECIAL", dummy_line, special_flags_, DDFLineGetSpecialFlags),
@@ -185,9 +181,6 @@ static const DDFCommandList linedef_commands[] = {
     DDF_FIELD("PORTAL_TYPE", dummy_line, portal_effect_, DDFLineGetPortalEffect),
     DDF_FIELD("SLOPE_TYPE", dummy_line, slope_type_, DDFLineGetSlopeType),
     DDF_FIELD("COLOUR", dummy_line, fx_color_, DDFMainGetRGB),
-
-    // -AJA- backwards compatibility cruft...
-    DDF_FIELD("EXTRAFLOOR_TRANSLUCENCY", dummy_line, translucency_, DDFMainGetPercent),
 
     // Lobo: 2022
     DDF_FIELD("EFFECT_OBJECT", dummy_line, effectobject_ref_, DDFMainGetString),
@@ -372,24 +365,6 @@ static void LinedefFinishEntry(void)
 
     // check stuff...
 
-    if (dynamic_line->ef_.type_ != kExtraFloorTypeNone)
-    {
-        // AUTO is no longer needed for extrafloors
-        dynamic_line->autoline_ = false;
-
-        if ((dynamic_line->ef_.type_ & kExtraFloorTypeFlooder) && (dynamic_line->ef_.type_ & kExtraFloorTypeNoShade))
-        {
-            DDFWarnError("FLOODER and NOSHADE tags cannot be used together.\n");
-            dynamic_line->ef_.type_ = (ExtraFloorType)(dynamic_line->ef_.type_ & ~kExtraFloorTypeFlooder);
-        }
-
-        if (!(dynamic_line->ef_.type_ & kExtraFloorTypePresent))
-        {
-            DDFWarnError("Extrafloor type missing THIN, THICK or LIQUID.\n");
-            dynamic_line->ef_.type_ = kExtraFloorTypeNone;
-        }
-    }
-
     if (!AlmostEquals(dynamic_line->friction_, kFloatUnused) && dynamic_line->friction_ < 0.05f)
     {
         DDFWarnError("Friction value too low (%1.2f), it would prevent "
@@ -555,90 +530,6 @@ void DDFLineGetActivators(const char *info, void *storage)
     }
 
     DDFWarnError("Unknown Activator type %s\n", info);
-}
-
-static DDFSpecialFlags extrafloor_types[] = {
-    // definers:
-    {"THIN", kExtraFloorThinDefaults, 0},
-    {"THICK", kExtraFloorThickDefaults, 0},
-    {"LIQUID", kExtraFloorLiquidDefaults, 0},
-
-    // modifiers:
-    {"SEE_THROUGH", kExtraFloorTypeSeeThrough, 0},
-    {"WATER", kExtraFloorTypeWater, 0},
-    {"SHADE", kExtraFloorTypeNoShade, 1},
-    {"FLOODER", kExtraFloorTypeFlooder, 0},
-    {"SIDE_UPPER", kExtraFloorTypeSideUpper, 0},
-    {"SIDE_LOWER", kExtraFloorTypeSideLower, 0},
-    {"SIDE_MIDY", kExtraFloorTypeSideMidY, 0},
-    {"BOOMTEX", kExtraFloorTypeBoomTex, 0},
-
-    // backwards compatibility...
-    {"FALL_THROUGH", kExtraFloorTypeLiquid, 0},
-    {"SHOOT_THROUGH", 0, 0},
-    {nullptr, 0, 0}};
-
-//
-// DDFLineGetExtraFloor
-//
-// Gets the extra floor type(s).
-//
-// -AJA- 1999/06/21: written.
-// -AJA- 2000/03/27: updated for simpler system.
-//
-void DDFLineGetExtraFloor(const char *info, void *storage)
-{
-    ExtraFloorType *var = (ExtraFloorType *)storage;
-
-    if (DDFCompareName(info, "NONE") == 0)
-    {
-        *var = kExtraFloorTypeNone;
-        return;
-    }
-
-    int flag_value;
-
-    switch (DDFMainCheckSpecialFlag(info, extrafloor_types, &flag_value, true, false))
-    {
-    case kDDFCheckFlagPositive:
-        *var = (ExtraFloorType)(*var | flag_value);
-        break;
-
-    case kDDFCheckFlagNegative:
-        *var = (ExtraFloorType)(*var & ~flag_value);
-        break;
-
-    case kDDFCheckFlagUser:
-    case kDDFCheckFlagUnknown:
-        DDFWarnError("Unknown Extrafloor Type: %s\n", info);
-        break;
-    }
-}
-
-static DDFSpecialFlags ef_control_types[] = {
-    {"NONE", kExtraFloorControlNone, 0}, {"REMOVE", kExtraFloorControlRemove, 0}, {nullptr, 0, 0}};
-
-//
-// DDFLineGetEFControl
-//
-void DDFLineGetEFControl(const char *info, void *storage)
-{
-    ExtraFloorControl *var = (ExtraFloorControl *)storage;
-
-    int flag_value;
-
-    switch (DDFMainCheckSpecialFlag(info, ef_control_types, &flag_value, false, false))
-    {
-    case kDDFCheckFlagPositive:
-    case kDDFCheckFlagNegative:
-        *var = (ExtraFloorControl)flag_value;
-        break;
-
-    case kDDFCheckFlagUser:
-    case kDDFCheckFlagUnknown:
-        DDFWarnError("Unknown CONTROL_EXTRAFLOOR tag: %s", info);
-        break;
-    }
 }
 
 static constexpr int kTeleportSpecialAllSame =
@@ -1093,59 +984,6 @@ DonutDefinition &DonutDefinition::operator=(const DonutDefinition &rhs)
     return *this;
 }
 
-// --> Extrafloor definition class
-
-//
-// extrafloordef_c Constructor
-//
-ExtraFloorDefinition::ExtraFloorDefinition()
-{
-}
-
-//
-// extrafloordef_c Copy constructor
-//
-ExtraFloorDefinition::ExtraFloorDefinition(const ExtraFloorDefinition &rhs)
-{
-    Copy(rhs);
-}
-
-//
-// extrafloordef_c Destructor
-//
-ExtraFloorDefinition::~ExtraFloorDefinition()
-{
-}
-
-//
-// extrafloordef_c::Copy()
-//
-void ExtraFloorDefinition::Copy(const ExtraFloorDefinition &src)
-{
-    control_ = src.control_;
-    type_    = src.type_;
-}
-
-//
-// extrafloordef_c::Default()
-//
-void ExtraFloorDefinition::Default()
-{
-    control_ = kExtraFloorControlNone;
-    type_    = kExtraFloorTypeNone;
-}
-
-//
-// extrafloordef_c assignment operator
-//
-ExtraFloorDefinition &ExtraFloorDefinition::operator=(const ExtraFloorDefinition &rhs)
-{
-    if (&rhs != this)
-        Copy(rhs);
-
-    return *this;
-}
-
 // --> Ladder definition class
 
 //
@@ -1588,7 +1426,6 @@ void LineType::CopyDetail(const LineType &src)
     music_         = src.music_;
     autoline_      = src.autoline_;
     singlesided_   = src.singlesided_;
-    ef_            = src.ef_;
     translucency_  = src.translucency_;
     appear_        = src.appear_;
 
@@ -1647,8 +1484,6 @@ void LineType::Default(void)
     music_         = 0;
     autoline_      = false;
     singlesided_   = false;
-
-    ef_.Default();
 
     translucency_   = 1.0f;
     appear_         = kAppearsWhenDefault;

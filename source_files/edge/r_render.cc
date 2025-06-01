@@ -467,6 +467,8 @@ static inline void GreetNeighbourSector(float *hts, int &num, VertexSectorList *
     }
 }
 
+// TODO Dasho - Suspect that kWallTileMidMask is the only one we need with extrafloors gone,
+// but need to investigate
 enum WallTileFlag
 {
     kWallTileIsExtra = (1 << 0),
@@ -977,14 +979,10 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
 {
     EDGE_ZoneScoped;
 
-    Line       *ld = seg->linedef;
-    Side       *sd = ld->side[sidenum];
-    Sector     *sec, *other;
-    MapSurface *surf;
-
-    Extrafloor *S, *L, *C;
-    float       floor_h;
-    float       tex_z;
+    Line   *ld = seg->linedef;
+    Side   *sd = ld->side[sidenum];
+    Sector *sec, *other;
+    float   tex_z;
 
     bool lower_invis = false;
     bool upper_invis = false;
@@ -1211,14 +1209,6 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
             float rz2 = other->interpolated_floor_height +
                         Slope_GetHeight(other->floor_slope, seg->vertex_2->X, seg->vertex_2->Y);
 
-            // Test fix for slope walls under 3D floors having 'flickering'
-            // light levels - Dasho
-            if (dfloor->extrafloor && seg->sidedef->sector->tag == dfloor->extrafloor->sector->tag)
-            {
-                dfloor->properties->light_level              = dfloor->extrafloor->properties->light_level;
-                seg->sidedef->sector->properties.light_level = dfloor->extrafloor->properties->light_level;
-            }
-
             AddWallTile2(seg, dfloor, &sd->bottom, lz1, lz2, rz1, rz2,
                          (ld->flags & kLineFlagLowerUnpegged) ? sec->interpolated_ceiling_height
                                                               : other->interpolated_floor_height,
@@ -1360,72 +1350,6 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
             AddWallTile(seg, dfloor, &sd->middle, f2, c2, tex_z, kWallTileMidMask, f_min, c_max);
         }
     }
-
-    // -- thick extrafloor sides --
-
-    // -AJA- Don't bother drawing extrafloor sides if the front/back
-    //       sectors have the same tag (and thus the same extrafloors).
-    //
-    if (other->tag == sec->tag)
-        return;
-
-    floor_h = other->interpolated_floor_height;
-
-    S = other->bottom_extrafloor;
-    L = other->bottom_liquid;
-
-    while (S || L)
-    {
-        if (!L || (S && S->bottom_height < L->bottom_height))
-        {
-            C = S;
-            S = S->higher;
-        }
-        else
-        {
-            C = L;
-            L = L->higher;
-        }
-
-        EPI_ASSERT(C);
-
-        // ignore liquids in the middle of THICK solids, or below real
-        // floor or above real ceiling
-        //
-        if (C->bottom_height < floor_h || C->bottom_height > other->interpolated_ceiling_height)
-            continue;
-
-        if (C->extrafloor_definition->type_ & kExtraFloorTypeThick)
-        {
-            int flags = kWallTileIsExtra;
-
-            // -AJA- 1999/09/25: Better DDF control of side texture.
-            if (C->extrafloor_definition->type_ & kExtraFloorTypeSideUpper)
-                surf = &sd->top;
-            else if (C->extrafloor_definition->type_ & kExtraFloorTypeSideLower)
-                surf = &sd->bottom;
-            else
-            {
-                surf = &C->extrafloor_line->side[0]->middle;
-
-                flags |= kWallTileExtraX;
-
-                if (C->extrafloor_definition->type_ & kExtraFloorTypeSideMidY)
-                    flags |= kWallTileExtraY;
-            }
-
-            if (!surf->image && !debug_hall_of_mirrors.d_)
-                continue;
-
-            tex_z = (C->extrafloor_line->flags & kLineFlagLowerUnpegged)
-                        ? C->bottom_height + (SafeImageHeight(surf->image) / surf->y_matrix.Y)
-                        : C->top_height;
-
-            AddWallTile(seg, dfloor, surf, C->bottom_height, C->top_height, tex_z, flags, f_min, c_max);
-        }
-
-        floor_h = C->top_height;
-    }
 }
 
 static void RenderSeg(DrawFloor *dfloor, Seg *seg, bool mirror_sub = false)
@@ -1456,14 +1380,6 @@ static void RenderSeg(DrawFloor *dfloor, Seg *seg, bool mirror_sub = false)
 #if (DEBUG >= 3)
     LogDebug("   BUILD WALLS %1.1f .. %1.1f\n", f_min, c1);
 #endif
-
-    // handle TRANSLUCENT + THICK floors (a bit of a hack)
-    if (dfloor->extrafloor && !dfloor->is_highest &&
-        (dfloor->extrafloor->extrafloor_definition->type_ & kExtraFloorTypeThick) &&
-        (dfloor->extrafloor->top->translucency < 0.99f))
-    {
-        c_max = dfloor->extrafloor->top_height;
-    }
 
     ComputeWallTiles(seg, dfloor, seg->side, f_min, c_max, mirror_sub);
 
@@ -1906,7 +1822,7 @@ static void InitializeCamera(MapObject *mo, bool full_height, float expand_w)
     }
     else
         view_height_zone = kHeightZoneNone;
-    view_properties = GetPointProperties(view_subsector, view_z);
+    view_properties = GetViewPointProperties(view_subsector, view_z);
 
     if (mo->player_)
     {
