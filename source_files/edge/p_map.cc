@@ -272,9 +272,6 @@ static bool CheckAbsoluteLineCallback(Line *ld, void *data)
     // The spawning thing's position touches the given line.
     // If this should not be allowed, return false.
 
-    if (move_check.mover->player_ && ld->special && (ld->special->portal_effect_ & kPortalEffectTypeStandard))
-        return true;
-
     if (!ld->back_sector || !ld->has_gap)
         return false; // one sided line
 
@@ -472,9 +469,6 @@ static bool CheckRelativeLineCallback(Line *ld, void *data)
     // NOTE: specials are NOT sorted by order,
     // so two special lines that are only 8 pixels apart
     // could be crossed in either order.
-
-    if (move_check.mover->player_ && ld->special && (ld->special->portal_effect_ & kPortalEffectTypeStandard))
-        return true;
 
     if (!ld->back_sector)
     {

@@ -301,15 +301,11 @@ enum LineFlag
     // MBF21
     kLineFlagBlockPlayers = 0x2000,
 
-    // ----- internal flags -----
-
-    kLineFlagMirror = (1 << 16),
-
     // -AJA- These two from XDoom.
     // Dasho - Moved to internal flag range to make room for MBF21 stuff
-    kLineFlagShootBlock = (1 << 17),
+    kLineFlagShootBlock = (1 << 16),
 
-    kLineFlagSightBlock = (1 << 18),
+    kLineFlagSightBlock = (1 << 17),
 };
 
 constexpr int16_t kBoomGeneralizedLineFirst = 0x2f80;

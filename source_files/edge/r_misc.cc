@@ -263,19 +263,16 @@ static constexpr uint32_t kDefaultDrawThings     = 65536;
 static constexpr uint32_t kDefaultDrawFloors     = 65536;
 static constexpr uint32_t kDefaultDrawSegs       = 65536;
 static constexpr uint32_t kDefaultDrawSubsectors = 65536;
-static constexpr uint32_t kDefaultDrawMirrors    = 512;
 
 static std::vector<DrawThing *>     draw_things;
 static std::vector<DrawFloor *>     draw_floors;
 static std::vector<DrawSeg *>       draw_segs;
 static std::vector<DrawSubsector *> draw_subsectors;
-static std::vector<DrawMirror *>    draw_mirrors;
 
 static size_t draw_thing_position;
 static size_t draw_floor_position;
 static size_t draw_seg_position;
 static size_t draw_subsector_position;
-static size_t draw_mirror_position;
 
 static void *draw_memory_buffer = nullptr;
 
@@ -292,14 +289,12 @@ void AllocateDrawStructs(void)
     size += sizeof(DrawFloor) * kDefaultDrawFloors;
     size += sizeof(DrawSeg) * kDefaultDrawSegs;
     size += sizeof(DrawSubsector) * kDefaultDrawSubsectors;
-    size += sizeof(DrawMirror) * kDefaultDrawMirrors;
     size += sizeof(AutomapLine) * kDefaultAutomapLines;
 
     draw_things.reserve(kDefaultDrawThings);
     draw_floors.reserve(kDefaultDrawFloors);
     draw_segs.reserve(kDefaultDrawSegs);
     draw_subsectors.reserve(kDefaultDrawSubsectors);
-    draw_mirrors.reserve(kDefaultDrawMirrors);
     automap_lines.reserve(kDefaultAutomapLines);
 
     draw_memory_buffer = malloc(size);
@@ -326,11 +321,6 @@ void AllocateDrawStructs(void)
         draw_subsectors.emplace_back(new (dst) DrawSubsector());
     }
 
-    for (uint32_t i = 0; i < kDefaultDrawMirrors; i++, dst += sizeof(DrawMirror))
-    {
-        draw_mirrors.emplace_back(new (dst) DrawMirror());
-    }
-
     for (uint32_t i = 0; i < kDefaultAutomapLines; i++, dst += sizeof(AutomapLine))
     {
         automap_lines.emplace_back(new (dst) AutomapLine());
@@ -345,7 +335,6 @@ void ClearBSP(void)
     draw_floor_position     = 0;
     draw_seg_position       = 0;
     draw_subsector_position = 0;
-    draw_mirror_position    = 0;
 }
 
 void FreeBSP(void)
@@ -382,14 +371,6 @@ void FreeBSP(void)
     {
         delete draw_subsectors[i];
     }
-    for (size_t i = 0; i < kDefaultDrawMirrors; i++)
-    {
-        draw_mirrors[i]->~DrawMirror();
-    }
-    for (size_t i = kDefaultDrawMirrors; i < draw_mirrors.size(); i++)
-    {
-        delete draw_mirrors[i];
-    }
     for (size_t i = 0; i < kDefaultAutomapLines; i++)
     {
         automap_lines[i]->~AutomapLine();
@@ -403,7 +384,6 @@ void FreeBSP(void)
     draw_floors.clear();
     draw_segs.clear();
     draw_subsectors.clear();
-    draw_mirrors.clear();
     automap_lines.clear();
 
     ClearBSP();
@@ -445,14 +425,6 @@ DrawSubsector *GetDrawSub()
         draw_subsectors.push_back(new DrawSubsector());
 
     return draw_subsectors[draw_subsector_position++];
-}
-
-DrawMirror *GetDrawMirror()
-{
-    if (draw_mirror_position == draw_mirrors.size())
-        draw_mirrors.push_back(new DrawMirror());
-
-    return draw_mirrors[draw_mirror_position++];
 }
 
 //--- editor settings ---

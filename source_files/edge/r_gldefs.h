@@ -89,7 +89,6 @@ struct DrawThing
     // translated coords
     float translated_z;
     float floor_z;
-    float mir_scale;
 
     // colourmap/lighting
     RegionProperties *properties;
@@ -131,17 +130,6 @@ struct DrawFloor
     DrawThing *things;
 };
 
-struct DrawMirror
-{
-    Seg *seg = nullptr;
-
-    BAMAngle left, right;
-
-    bool is_portal = false;
-
-    std::list<DrawSubsector *> draw_subsectors;
-};
-
 struct DrawSeg // HOPEFULLY this can go away
 {
     Seg *seg;
@@ -158,8 +146,6 @@ struct DrawSubsector
     DrawFloor *render_floors;
 
     std::list<DrawSeg *> segs;
-
-    std::list<DrawMirror *> mirrors;
 
     bool visible;
     bool sorted;
@@ -183,7 +169,6 @@ DrawThing     *GetDrawThing();
 DrawFloor     *GetDrawFloor();
 DrawSeg       *GetDrawSeg();
 DrawSubsector *GetDrawSub();
-DrawMirror    *GetDrawMirror();
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

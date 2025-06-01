@@ -50,8 +50,6 @@
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_gldefs.h"
-#include "r_md2.h"
-#include "r_mdl.h"
 #include "r_modes.h"
 #include "r_state.h"
 #include "s_music.h"
