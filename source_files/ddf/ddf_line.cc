@@ -65,7 +65,6 @@ static void DDFLineGetSlideType(const char *info, void *storage);
 static void DDFLineGetLineEffect(const char *info, void *storage);
 static void DDFLineGetScrollType(const char *info, void *storage);
 static void DDFLineGetSectorEffect(const char *info, void *storage);
-static void DDFLineGetPortalEffect(const char *info, void *storage);
 static void DDFLineGetSlopeType(const char *info, void *storage);
 
 static void DDFLineMakeCrush(const char *info);
@@ -177,8 +176,7 @@ static const DDFCommandList linedef_commands[] = {
     DDF_FIELD("LINE_EFFECT", dummy_line, line_effect_, DDFLineGetLineEffect),
     DDF_FIELD("SCROLL_TYPE", dummy_line, scroll_type_, DDFLineGetScrollType),
     DDF_FIELD("LINE_PARTS", dummy_line, line_parts_, DDFLineGetScrollPart),
-    DDF_FIELD("SECTOR_EFFECT", dummy_line, sector_effect_, DDFLineGetSectorEffect),
-    DDF_FIELD("PORTAL_TYPE", dummy_line, portal_effect_, DDFLineGetPortalEffect),
+    DDF_FIELD("SECTOR_EFFECT", dummy_line, sector_effect_, DDFLineGetSectorEffect),    
     DDF_FIELD("SLOPE_TYPE", dummy_line, slope_type_, DDFLineGetSlopeType),
     DDF_FIELD("COLOUR", dummy_line, fx_color_, DDFMainGetRGB),
 
@@ -841,44 +839,6 @@ static void DDFLineGetSectorEffect(const char *info, void *storage)
     }
 }
 
-static DDFSpecialFlags portal_effect_names[] = {{"STANDARD", kPortalEffectTypeStandard, 0},
-                                                {"MIRROR", kPortalEffectTypeMirror, 0},
-                                                {"CAMERA", kPortalEffectTypeCamera, 0},
-
-                                                {nullptr, 0, 0}};
-
-//
-// Gets the portal effect flags.
-//
-static void DDFLineGetPortalEffect(const char *info, void *storage)
-{
-    PortalEffectType *var = (PortalEffectType *)storage;
-
-    int flag_value;
-
-    if (DDFCompareName(info, "NONE") == 0)
-    {
-        *var = kPortalEffectTypeNone;
-        return;
-    }
-
-    switch (DDFMainCheckSpecialFlag(info, portal_effect_names, &flag_value, true, false))
-    {
-    case kDDFCheckFlagPositive:
-        *var = (PortalEffectType)(*var | flag_value);
-        break;
-
-    case kDDFCheckFlagNegative:
-        *var = (PortalEffectType)(*var & ~flag_value);
-        break;
-
-    case kDDFCheckFlagUser:
-    case kDDFCheckFlagUnknown:
-        DDFWarnError("Unknown portal type: %s", info);
-        break;
-    }
-}
-
 static DDFSpecialFlags slope_type_names[] = {{"FAKE_FLOOR", kSlopeTypeDetailFloor, 0},
                                              {"FAKE_CEILING", kSlopeTypeDetailCeiling, 0},
 
@@ -1435,7 +1395,6 @@ void LineType::CopyDetail(const LineType &src)
     line_parts_     = src.line_parts_;
     scroll_type_    = src.scroll_type_;
     sector_effect_  = src.sector_effect_;
-    portal_effect_  = src.portal_effect_;
     slope_type_     = src.slope_type_;
     fx_color_       = src.fx_color_;
 
@@ -1493,7 +1452,6 @@ void LineType::Default(void)
     line_parts_     = kScrollingPartNone;
     scroll_type_    = BoomScrollerTypeNone;
     sector_effect_  = kSectorEffectTypeNone;
-    portal_effect_  = kPortalEffectTypeNone;
     slope_type_     = kSlopeTypeNONE;
     fx_color_       = kRGBABlack;
 

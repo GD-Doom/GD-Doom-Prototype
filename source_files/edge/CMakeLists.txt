@@ -66,7 +66,6 @@ set (EDGE_SOURCE_FILES
   r_render.cc
   r_effects.cc
   r_backend.cc
-  r_mirror.cc
   r_occlude.cc
   r_things.cc
   r_units.cc

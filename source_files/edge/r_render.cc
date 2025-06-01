@@ -49,7 +49,6 @@
 #include "r_effects.h"
 #include "r_gldefs.h"
 #include "r_image.h"
-#include "r_mirror.h"
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_occlude.h"
@@ -104,8 +103,6 @@ static bool thick_liquid = false;
 
 static float wave_now;    // value for doing wave table lookups
 static float plane_z_bob; // for floor/ceiling bob DDFSECT stuff
-
-MirrorSet render_mirror_set(kMirrorSetRender);
 
 // Sky items from previous frame, delayed a frame so can render the BSP as we traverse it
 static std::list<RenderItem *> deferred_sky_items;
@@ -353,8 +350,6 @@ static void DLIT_Wall(MapObject *mo, void *dataptr)
         float mx = mo->x;
         float my = mo->y;
 
-        render_mirror_set.Coordinate(mx, my);
-
         float dist = (mx - data->div.x) * data->div.delta_y - (my - data->div.y) * data->div.delta_x;
 
         if (dist < 0)
@@ -514,29 +509,11 @@ static void DrawWallPart(DrawFloor *dfloor, float x1, float y1, float lz1, float
         return;
     }
 
-    // must determine bbox _before_ mirror flipping
     float v_bbox[4];
 
     BoundingBoxClear(v_bbox);
     BoundingBoxAddPoint(v_bbox, x1, y1);
     BoundingBoxAddPoint(v_bbox, x2, y2);
-
-    render_mirror_set.Coordinate(x1, y1);
-    render_mirror_set.Coordinate(x2, y2);
-
-    if (render_mirror_set.Reflective())
-    {
-        float tmp_x = x1;
-        x1          = x2;
-        x2          = tmp_x;
-        float tmp_y = y1;
-        y1          = y2;
-        y2          = tmp_y;
-
-        tmp_x  = tex_x1;
-        tex_x1 = tex_x2;
-        tex_x2 = tmp_x;
-    }
 
     EPI_ASSERT(current_map);
 
@@ -561,9 +538,7 @@ static void DrawWallPart(DrawFloor *dfloor, float x1, float y1, float lz1, float
     float tx0    = tex_x1;
     float tx_mul = tex_x2 - tex_x1;
 
-    render_mirror_set.Height(tex_top_h);
-
-    float ty_mul = surf->y_matrix.Y / (total_h * render_mirror_set.ZScale());
+    float ty_mul = surf->y_matrix.Y / (total_h);
     float ty0    = image->Top() - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3)
@@ -599,9 +574,6 @@ static void DrawWallPart(DrawFloor *dfloor, float x1, float y1, float lz1, float
         vertices[v_count].X = x1;
         vertices[v_count].Y = y1;
         vertices[v_count].Z = left_h[LI];
-
-        render_mirror_set.Height(vertices[v_count].Z);
-
         v_count++;
     }
 
@@ -610,9 +582,6 @@ static void DrawWallPart(DrawFloor *dfloor, float x1, float y1, float lz1, float
         vertices[v_count].X = x2;
         vertices[v_count].Y = y2;
         vertices[v_count].Z = right_h[RI];
-
-        render_mirror_set.Height(vertices[v_count].Z);
-
         v_count++;
     }
 
@@ -974,8 +943,7 @@ static inline float SafeImageHeight(const Image *image)
         return 0;
 }
 
-static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_min, float c_max,
-                             bool mirror_sub = false)
+static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_min, float c_max)
 {
     EDGE_ZoneScoped;
 
@@ -1168,8 +1136,6 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
         {
             float zv1 = seg->vertex_1->Z;
             float zv2 = seg->vertex_2->Z;
-            if (mirror_sub)
-                std::swap(zv1, zv2);
             AddWallTile2(seg, dfloor, sd->bottom.image ? &sd->bottom : &other->floor, sec->interpolated_floor_height,
                          (zv1 < 32767.0f && zv1 > -32768.0f) ? zv1 : sec->interpolated_floor_height,
                          sec->interpolated_floor_height,
@@ -1183,8 +1149,6 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
         {
             float zv1 = seg->vertex_1->Z;
             float zv2 = seg->vertex_2->Z;
-            if (mirror_sub)
-                std::swap(zv1, zv2);
             AddWallTile2(seg, dfloor, sd->bottom.image ? &sd->bottom : &sec->floor,
                          (zv1 < 32767.0f && zv1 > -32768.0f) ? zv1 : other->interpolated_floor_height,
                          other->interpolated_floor_height,
@@ -1230,8 +1194,6 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
         {
             float zv1 = seg->vertex_1->W;
             float zv2 = seg->vertex_2->W;
-            if (mirror_sub)
-                std::swap(zv1, zv2);
             AddWallTile2(seg, dfloor, sd->top.image ? &sd->top : &other->ceiling, sec->interpolated_ceiling_height,
                          (zv1 < 32767.0f && zv1 > -32768.0f) ? zv1 : sec->interpolated_ceiling_height,
                          sec->interpolated_ceiling_height,
@@ -1242,8 +1204,6 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
         {
             float zv1 = seg->vertex_1->W;
             float zv2 = seg->vertex_2->W;
-            if (mirror_sub)
-                std::swap(zv1, zv2);
             AddWallTile2(seg, dfloor, sd->top.image ? &sd->top : &sec->ceiling, other->interpolated_ceiling_height,
                          (zv1 < 32767.0f && zv1 > -32768.0f) ? zv1 : other->interpolated_ceiling_height,
                          other->interpolated_ceiling_height,
@@ -1352,7 +1312,7 @@ static void ComputeWallTiles(Seg *seg, DrawFloor *dfloor, int sidenum, float f_m
     }
 }
 
-static void RenderSeg(DrawFloor *dfloor, Seg *seg, bool mirror_sub = false)
+static void RenderSeg(DrawFloor *dfloor, Seg *seg)
 {
     //
     // Analyses floor/ceiling heights, and add corresponding walls/floors
@@ -1381,7 +1341,7 @@ static void RenderSeg(DrawFloor *dfloor, Seg *seg, bool mirror_sub = false)
     LogDebug("   BUILD WALLS %1.1f .. %1.1f\n", f_min, c1);
 #endif
 
-    ComputeWallTiles(seg, dfloor, seg->side, f_min, c_max, mirror_sub);
+    ComputeWallTiles(seg, dfloor, seg->side, f_min, c_max);
 
     if ((sd->bottom.image == nullptr || sd->top.image == nullptr) && back_sector)
     {
@@ -1450,8 +1410,6 @@ static void RenderPlane(DrawFloor *dfloor, float h, MapSurface *surf, int face_d
     EDGE_ZoneScoped;
 
     float orig_h = h;
-
-    render_mirror_set.Height(h);
 
     int num_vert, i;
 
@@ -1549,7 +1507,6 @@ static void RenderPlane(DrawFloor *dfloor, float h, MapSurface *surf, int face_d
             float y = seg->vertex_1->Y;
             float z = h;
 
-            // must do this before mirror adjustment
             BoundingBoxAddPoint(v_bbox, x, y);
 
             if (current_subsector->sector->floor_vertex_slope && face_dir > 0)
@@ -1569,11 +1526,7 @@ static void RenderPlane(DrawFloor *dfloor, float h, MapSurface *surf, int face_d
             if (slope)
             {
                 z = orig_h + Slope_GetHeight(slope, x, y);
-
-                render_mirror_set.Height(z);
             }
-
-            render_mirror_set.Coordinate(x, y);
 
             vertices[v_count].X = x;
             vertices[v_count].Y = y;
@@ -1602,11 +1555,6 @@ static void RenderPlane(DrawFloor *dfloor, float h, MapSurface *surf, int face_d
     data.image_h    = surf->image->ScaledHeightActual();
     data.x_mat      = surf->x_matrix;
     data.y_mat      = surf->y_matrix;
-    float mir_scale = render_mirror_set.XYScale();
-    data.x_mat.X /= mir_scale;
-    data.x_mat.Y /= mir_scale;
-    data.y_mat.X /= mir_scale;
-    data.y_mat.Y /= mir_scale;
     data.normal   = {{0, 0, (view_z > h) ? 1.0f : -1.0f}};
     data.tex_id   = tex_id;
     data.pass     = 0;
@@ -1664,38 +1612,36 @@ static void RenderPlane(DrawFloor *dfloor, float h, MapSurface *surf, int face_d
     swirl_pass = 0;
 }
 
-static void RenderSubsector(DrawSubsector *dsub, bool mirror_sub = false);
+static void RenderSubsector(DrawSubsector *dsub);
 
-void RenderSubList(std::list<DrawSubsector *> &dsubs, bool for_mirror)
+void RenderSubList(std::list<DrawSubsector *> &dsubs)
 {
     // draw all solid walls and planes
     solid_mode = true;
-    // if (!for_mirror)
     render_backend->SetRenderLayer(kRenderLayerSolid, false);
     StartUnitBatch(solid_mode);
 
     std::list<DrawSubsector *>::iterator FI; // Forward Iterator
 
     for (FI = dsubs.begin(); FI != dsubs.end(); FI++)
-        RenderSubsector(*FI, for_mirror);
+        RenderSubsector(*FI);
 
     FinishUnitBatch();
 
     // draw all sprites and masked/translucent walls/planes
     solid_mode = false;
-    // if (!for_mirror)
     render_backend->SetRenderLayer(kRenderLayerTransparent, false);
     StartUnitBatch(solid_mode);
 
     std::list<DrawSubsector *>::reverse_iterator RI;
 
     for (RI = dsubs.rbegin(); RI != dsubs.rend(); RI++)
-        RenderSubsector(*RI, for_mirror);
+        RenderSubsector(*RI);
 
     FinishUnitBatch();
 }
 
-static void RenderSubsector(DrawSubsector *dsub, bool mirror_sub)
+static void RenderSubsector(DrawSubsector *dsub)
 {
     EDGE_ZoneScoped;
 
@@ -1708,16 +1654,6 @@ static void RenderSubsector(DrawSubsector *dsub, bool mirror_sub)
     current_subsector      = sub;
     current_draw_subsector = dsub;
 
-    if (solid_mode)
-    {
-        std::list<DrawMirror *>::iterator MRI;
-
-        for (MRI = dsub->mirrors.begin(); MRI != dsub->mirrors.end(); MRI++)
-        {
-            RenderMirror(*MRI);
-        }
-    }
-
     current_subsector      = sub;
     current_draw_subsector = dsub;
 
@@ -1729,7 +1665,7 @@ static void RenderSubsector(DrawSubsector *dsub, bool mirror_sub)
         for (std::list<DrawSeg *>::iterator iter = dsub->segs.begin(), iter_end = dsub->segs.end(); iter != iter_end;
              iter++)
         {
-            RenderSeg(dfloor, (*iter)->seg, mirror_sub);
+            RenderSeg(dfloor, (*iter)->seg);
         }
 
         RenderPlane(dfloor, dfloor->ceiling_height, dfloor->ceiling, -1);
@@ -2053,7 +1989,7 @@ void RenderTrueBSP(void)
             {
             case kRenderSubsector:
                 items.push_back(item);
-                RenderSubsector(item->subsector_, false);
+                RenderSubsector(item->subsector_);
                 break;
             case kRenderSkyWall:
                 // Save off item for next frame
@@ -2087,7 +2023,7 @@ void RenderTrueBSP(void)
                 continue;
             }
 
-            RenderSubsector(item->subsector_, false);
+            RenderSubsector(item->subsector_);
         }
     }
 
@@ -2253,9 +2189,6 @@ void EmulateFloodPlane(const DrawFloor *dfloor, const Sector *flood_ref, int fac
     EDGE_ZoneScoped;
 
     EPI_UNUSED(dfloor);
-
-    if (render_mirror_set.TotalActive() > 0)
-        return;
 
     const MapSurface *surf = (face_dir > 0) ? &flood_ref->floor : &flood_ref->ceiling;
 

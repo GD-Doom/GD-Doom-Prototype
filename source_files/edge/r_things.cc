@@ -49,9 +49,6 @@
 #include "r_effects.h"
 #include "r_gldefs.h"
 #include "r_image.h"
-#include "r_md2.h"
-#include "r_mdl.h"
-#include "r_mirror.h"
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_render.h"
@@ -772,14 +769,9 @@ static const Image *RendererGetThingSprite2(MapObject *mo, float mx, float my, b
         else
             ang = mo->angle_;
 
-        bsp_mirror_set.Angle(ang);
-
         BAMAngle from_view = PointToAngle(view_x, view_y, mx, my);
 
         ang = from_view - ang + kBAMAngle180;
-
-        if (bsp_mirror_set.Reflective())
-            ang = (BAMAngle)0 - ang;
 
         if (frame->rotations_ == 16)
             rot = (ang + (kBAMAngle45 / 4)) >> (kBAMAngleBits - 4);
@@ -790,9 +782,6 @@ static const Image *RendererGetThingSprite2(MapObject *mo, float mx, float my, b
     EPI_ASSERT(0 <= rot && rot < 16);
 
     (*flip) = frame->flip_[rot] ? true : false;
-
-    if (bsp_mirror_set.Reflective())
-        (*flip) = !(*flip);
 
     if (!frame->images_[rot])
     {
@@ -858,7 +847,7 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     EPI_ASSERT(mo->state_);
 
     // ignore the camera itself
-    if (mo == view_camera_map_object && bsp_mirror_set.TotalActive() == 0)
+    if (mo == view_camera_map_object)
         return;
 
     // ignore invisible things
@@ -893,8 +882,6 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
         my = mo->interpolation_from_.Y + (my - mo->interpolation_from_.Y) * along;
         mz = mo->interpolation_from_.Z + (mz - mo->interpolation_from_.Z) * along;
     }
-
-    bsp_mirror_set.Coordinate(mx, my);
 
     float tr_x = mx - view_x;
     float tr_y = my - view_y;
@@ -972,8 +959,6 @@ void BSPWalkThing(DrawSubsector *dsub, MapObject *mo)
     dthing->floor_z      = fz;
     dthing->hover_dz     = hover_dz;
     dthing->sink_mult    = sink_mult;
-
-    dthing->mir_scale = bsp_mirror_set.XYScale();
 
     RendererClipSpriteVertically(dsub, dthing);
 }
@@ -1105,16 +1090,13 @@ static bool RenderThing(DrawThing *dthing, bool solid)
     if (gzb >= gzt)
         return false;
 
-    bsp_mirror_set.Height(gzb);
-    bsp_mirror_set.Height(gzt);
-
     dthing->top    = gzt;
     dthing->bottom = gzb;
 
-    dthing->left_delta_x  = pos1 * view_sine * dthing->mir_scale;
-    dthing->left_delta_y  = pos1 * -view_cosine * dthing->mir_scale;
-    dthing->right_delta_x = pos2 * view_sine * dthing->mir_scale;
-    dthing->right_delta_y = pos2 * -view_cosine * dthing->mir_scale;
+    dthing->left_delta_x  = pos1 * view_sine;
+    dthing->left_delta_y  = pos1 * -view_cosine;
+    dthing->right_delta_x = pos2 * view_sine;
+    dthing->right_delta_y = pos2 * -view_cosine;
 
     BlendingMode blending = GetThingBlending(trans, (ImageOpacity)image->opacity_, mo->hyper_flags_);
 
@@ -1153,8 +1135,8 @@ static bool RenderThing(DrawThing *dthing, bool solid)
     z1b = z2b = dthing->bottom;
     z1t = z2t = dthing->top;
 
-    // MLook: tilt sprites so they look better
-    if (render_mirror_set.XYScale() >= 0.99)
+    // MLook: tilt sprites so they look better (This was always returning 1.0f when no mirrors active)
+    // if (render_mirror_set.XYScale() >= 0.99)
     {
         float _h    = dthing->top - dthing->bottom;
         float skew2 = _h;
@@ -1185,7 +1167,7 @@ static bool RenderThing(DrawThing *dthing, bool solid)
     float tex_y1 = 0;
     float tex_y2 = tex_y1 + (z1t - z1b);
 
-    float yscale = mo->scale_ * render_mirror_set.ZScale();
+    float yscale = mo->scale_;
 
     EPI_ASSERT(h > 0);
     tex_y1 = top * tex_y1 / (h * yscale);

@@ -476,14 +476,6 @@ enum SectorEffectType
     kSectorEffectTypeBoomHeights = (1 << 16)
 };
 
-enum PortalEffectType
-{
-    kPortalEffectTypeNone     = 0,
-    kPortalEffectTypeStandard = (1 << 0),
-    kPortalEffectTypeMirror   = (1 << 1),
-    kPortalEffectTypeCamera   = (1 << 2),
-};
-
 // -AJA- 2008/03/08: slope types
 enum SlopeType
 {
@@ -654,7 +646,6 @@ class LineType
     BoomScrollerType scroll_type_;
 
     SectorEffectType sector_effect_;
-    PortalEffectType portal_effect_;
 
     SlopeType slope_type_;
 

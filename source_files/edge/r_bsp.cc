@@ -46,7 +46,6 @@
 #include "r_effects.h"
 #include "r_gldefs.h"
 #include "r_image.h"
-#include "r_mirror.h"
 #include "r_misc.h"
 #include "r_modes.h"
 #include "r_occlude.h"
@@ -92,8 +91,6 @@ std::list<DrawSubsector *> draw_subsector_list;
 
 #endif
 
-MirrorSet bsp_mirror_set(kMirrorSetBSP);
-
 EDGE_DEFINE_CONSOLE_VARIABLE(debug_hall_of_mirrors, "0", kConsoleVariableFlagCheat)
 
 extern ConsoleVariable draw_culling;
@@ -124,44 +121,6 @@ ViewHeightZone view_height_zone;
 
 static Subsector *bsp_current_subsector;
 
-static void BSPWalkMirror(DrawSubsector *dsub, Seg *seg, BAMAngle left, BAMAngle right, bool is_portal)
-{
-    DrawMirror *mir = GetDrawMirror();
-    mir->seg        = seg;
-    mir->draw_subsectors.clear();
-
-    mir->left      = view_angle + left;
-    mir->right     = view_angle + right;
-    mir->is_portal = is_portal;
-
-    dsub->mirrors.push_back(mir);
-
-    // push mirror (translation matrix)
-    bsp_mirror_set.Push(mir);
-
-    Subsector *save_sub = bsp_current_subsector;
-
-    BAMAngle save_clip_L = clip_left;
-    BAMAngle save_clip_R = clip_right;
-    BAMAngle save_scope  = clip_scope;
-
-    clip_left  = left;
-    clip_right = right;
-    clip_scope = left - right;
-
-    // perform another BSP walk
-    BSPWalkNode(root_node);
-
-    bsp_current_subsector = save_sub;
-
-    clip_left  = save_clip_L;
-    clip_right = save_clip_R;
-    clip_scope = save_scope;
-
-    // pop mirror
-    bsp_mirror_set.Pop();
-}
-
 //
 // BSPWalkSeg
 //
@@ -172,76 +131,14 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
 {
     EDGE_ZoneScoped;
 
-    // ignore segs sitting on current mirror
-    if (bsp_mirror_set.SegOnPortal(seg))
-        return;
-
     float sx1 = seg->vertex_1->X;
     float sy1 = seg->vertex_1->Y;
 
     float sx2 = seg->vertex_2->X;
     float sy2 = seg->vertex_2->Y;
 
-    // when there are active mirror planes, segs not only need to
-    // be flipped across them but also clipped across them.
-
-    int32_t active_mirrors = bsp_mirror_set.TotalActive();
-    if (active_mirrors > 0)
-    {
-        for (int i = active_mirrors - 1; i >= 0; i--)
-        {
-            bsp_mirror_set.Transform(i, sx1, sy1);
-            bsp_mirror_set.Transform(i, sx2, sy2);
-
-            if (!bsp_mirror_set.IsPortal(i))
-            {
-                float tmp_x = sx1;
-                sx1         = sx2;
-                sx2         = tmp_x;
-                float tmp_y = sy1;
-                sy1         = sy2;
-                sy2         = tmp_y;
-            }
-
-            Seg *clipper = bsp_mirror_set.GetSeg(i);
-
-            DividingLine div;
-
-            div.x       = clipper->vertex_1->X;
-            div.y       = clipper->vertex_1->Y;
-            div.delta_x = clipper->vertex_2->X - div.x;
-            div.delta_y = clipper->vertex_2->Y - div.y;
-
-            int s1 = PointOnDividingLineSide(sx1, sy1, &div);
-            int s2 = PointOnDividingLineSide(sx2, sy2, &div);
-
-            // seg lies completely in front of clipper?
-            if (s1 == 0 && s2 == 0)
-                return;
-
-            if (s1 != s2)
-            {
-                // seg crosses clipper, need to split it
-                float ix, iy;
-
-                ComputeIntersection(&div, sx1, sy1, sx2, sy2, &ix, &iy);
-
-                if (s2 == 0)
-                    sx2 = ix, sy2 = iy;
-                else
-                    sx1 = ix, sy1 = iy;
-            }
-        }
-    }
-
-    bool precise = active_mirrors > 0;
-    if (!precise && seg->linedef)
-    {
-        precise = (seg->linedef->flags & kLineFlagMirror) || (seg->linedef->portal_pair);
-    }
-
-    BAMAngle angle_L = PointToAngle(view_x, view_y, sx1, sy1, precise);
-    BAMAngle angle_R = PointToAngle(view_x, view_y, sx2, sy2, precise);
+    BAMAngle angle_L = PointToAngle(view_x, view_y, sx1, sy1, false);
+    BAMAngle angle_R = PointToAngle(view_x, view_y, sx2, sy2, false);
 
     // Clip to view edges.
 
@@ -295,22 +192,6 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
 
     if (seg->miniseg || span == 0)
         return;
-
-    if (active_mirrors < kMaximumMirrors)
-    {
-        if (seg->linedef->flags & kLineFlagMirror)
-        {
-            BSPWalkMirror(dsub, seg, angle_L, angle_R, false);
-            OcclusionSet(angle_R, angle_L);
-            return;
-        }
-        else if (seg->linedef->portal_pair)
-        {
-            BSPWalkMirror(dsub, seg, angle_L, angle_R, true);
-            OcclusionSet(angle_R, angle_L);
-            return;
-        }
-    }
 
     DrawSeg *dseg = GetDrawSeg();
     dseg->seg     = seg;
@@ -449,27 +330,6 @@ static void BSPWalkSeg(DrawSubsector *dsub, Seg *seg)
 static bool BSPCheckBBox(const float *bspcoord)
 {
     EDGE_ZoneScoped;
-
-    if (bsp_mirror_set.TotalActive() > 0)
-    {
-        // a flipped bbox may no longer be axis aligned, hence we
-        // need to find the bounding area of the transformed box.
-        static float new_bbox[4];
-
-        BoundingBoxClear(new_bbox);
-
-        for (int p = 0; p < 4; p++)
-        {
-            float tx = bspcoord[(p & 1) ? kBoundingBoxLeft : kBoundingBoxRight];
-            float ty = bspcoord[(p & 2) ? kBoundingBoxBottom : kBoundingBoxTop];
-
-            bsp_mirror_set.Coordinate(tx, ty);
-
-            BoundingBoxAddPoint(new_bbox, tx, ty);
-        }
-
-        bspcoord = new_bbox;
-    }
 
     int boxx, boxy;
 
@@ -646,7 +506,6 @@ static void BSPWalkSubsector(int num)
 
     K->floors.clear();
     K->segs.clear();
-    K->mirrors.clear();
 
     // --- handle sky (using the depth buffer) ---
 
@@ -737,9 +596,6 @@ static void BSPWalkSubsector(int num)
 
         for (Seg *seg = sub->segs; seg; seg = seg->subsector_next)
         {
-            if (bsp_mirror_set.SegOnPortal(seg))
-                continue;
-
             float sx1 = seg->vertex_1->X;
             float sy1 = seg->vertex_1->Y;
 
@@ -766,13 +622,7 @@ static void BSPWalkSubsector(int num)
             }
 
             // add drawsub to list (closest -> furthest)
-            int32_t active_mirrors = bsp_mirror_set.TotalActive();
-            if (active_mirrors > 0)
-                bsp_mirror_set.PushSubsector(active_mirrors - 1, K);
-            else
-            {
-                BSPQueueDrawSubsector(K);
-            }
+            BSPQueueDrawSubsector(K);
         }
     }
     else
@@ -787,14 +637,7 @@ static void BSPWalkSubsector(int num)
             BSPWalkSeg(K, seg);
         }
 
-        // add drawsub to list (closest -> furthest)
-        int32_t active_mirrors = bsp_mirror_set.TotalActive();
-        if (active_mirrors > 0)
-            bsp_mirror_set.PushSubsector(active_mirrors - 1, K);
-        else
-        {
-            BSPQueueDrawSubsector(K);
-        }
+        BSPQueueDrawSubsector(K);
     }
 }
 
@@ -828,19 +671,6 @@ void BSPWalkNode(unsigned int bspnum)
     nd_div.y       = node->divider.y;
     nd_div.delta_x = node->divider.x + node->divider.delta_x;
     nd_div.delta_y = node->divider.y + node->divider.delta_y;
-
-    bsp_mirror_set.Coordinate(nd_div.x, nd_div.y);
-    bsp_mirror_set.Coordinate(nd_div.delta_x, nd_div.delta_y);
-
-    if (bsp_mirror_set.Reflective())
-    {
-        float tx       = nd_div.x;
-        nd_div.x       = nd_div.delta_x;
-        nd_div.delta_x = tx;
-        float ty       = nd_div.y;
-        nd_div.y       = nd_div.delta_y;
-        nd_div.delta_y = ty;
-    }
 
     nd_div.delta_x -= nd_div.x;
     nd_div.delta_y -= nd_div.y;

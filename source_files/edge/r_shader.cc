@@ -29,7 +29,6 @@
 #include "r_defs.h"
 #include "r_gldefs.h"
 #include "r_image.h"
-#include "r_mirror.h"
 #include "r_misc.h"
 #include "r_state.h"
 #include "r_texgl.h"
@@ -182,9 +181,6 @@ class dynlight_shader_c : public AbstractShader
         float my = mo->y;
         float mz = MapObjectMidZ(mo);
 
-        render_mirror_set.Coordinate(mx, my);
-        render_mirror_set.Height(mz);
-
         float dx = lit_pos->X - mx;
         float dy = lit_pos->Y - my;
         float dz = lit_pos->Z - mz;
@@ -222,7 +218,7 @@ class dynlight_shader_c : public AbstractShader
 
     inline float WhatRadius()
     {
-        return mo->dynamic_light_.r * render_mirror_set.XYScale();
+        return mo->dynamic_light_.r;
     }
 
     inline RGBAColor WhatColor()
@@ -241,9 +237,6 @@ class dynlight_shader_c : public AbstractShader
         float mx = mo->x;
         float my = mo->y;
         float mz = MapObjectMidZ(mo);
-
-        render_mirror_set.Coordinate(mx, my);
-        render_mirror_set.Height(mz);
 
         float dx = x - mx;
         float dy = y - my;
@@ -279,15 +272,9 @@ class dynlight_shader_c : public AbstractShader
             my += view_sine * 24;
         }
 
-        render_mirror_set.Coordinate(mx, my);
-        render_mirror_set.Height(mz);
-
         float dx = mod_pos->x;
         float dy = mod_pos->y;
         float dz = MapObjectMidZ(mod_pos);
-
-        render_mirror_set.Coordinate(dx, dy);
-        render_mirror_set.Height(dz);
 
         dx -= mx;
         dy -= my;
@@ -299,7 +286,7 @@ class dynlight_shader_c : public AbstractShader
         dy /= dist;
         dz /= dist;
 
-        dist = HMM_MAX(1.0, dist - mod_pos->radius_ * render_mirror_set.XYScale());
+        dist = HMM_MAX(1.0, dist - mod_pos->radius_);
 
         float L = 0.6 - 0.7 * (dx * nx + dy * ny + dz * nz);
 
@@ -410,7 +397,7 @@ class plane_glow_c : public AbstractShader
 
     inline float WhatRadius()
     {
-        return mo->dynamic_light_.r * render_mirror_set.XYScale();
+        return mo->dynamic_light_.r;
     }
 
     inline RGBAColor WhatColor()
@@ -571,7 +558,7 @@ class wall_glow_c : public AbstractShader
 
     inline float WhatRadius()
     {
-        return mo->dynamic_light_.r * render_mirror_set.XYScale();
+        return mo->dynamic_light_.r;
     }
 
     inline RGBAColor WhatColor()

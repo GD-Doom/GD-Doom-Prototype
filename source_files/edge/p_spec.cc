@@ -948,100 +948,6 @@ static void SectorEffect(Sector *target, Line *source, const LineType *special)
     }
 }
 
-static void P_PortalEffect(Line *ld)
-{
-    // already linked?
-    if (ld->portal_pair)
-        return;
-
-    if (ld->side[1])
-    {
-        LogWarning("Portal on line #%d disabled: Not one-sided!\n", (int)(ld - level_lines));
-        return;
-    }
-
-    if (ld->special->portal_effect_ & kPortalEffectTypeMirror)
-    {
-        ld->flags |= kLineFlagMirror;
-        return;
-    }
-
-    if (ld->tag <= 0)
-    {
-        LogWarning("Portal on line #%d disabled: Missing tag.\n", (int)(ld - level_lines));
-        return;
-    }
-
-    bool is_camera = (ld->special->portal_effect_ & kPortalEffectTypeCamera) ? true : false;
-
-    for (int i = 0; i < total_level_lines; i++)
-    {
-        Line *other = level_lines + i;
-
-        if (other == ld)
-            continue;
-
-        if (other->tag != ld->tag)
-            continue;
-
-        float h1 = ld->front_sector->ceiling_height - ld->front_sector->floor_height;
-        float h2 = other->front_sector->ceiling_height - other->front_sector->floor_height;
-
-        if (h1 < 1 || h2 < 1)
-        {
-            LogWarning("Portal on line #%d disabled: sector is closed.\n", (int)(ld - level_lines));
-            return;
-        }
-
-        if (is_camera)
-        {
-            // camera are much less restrictive than pass-able portals
-            // (they are also one-way).
-
-            ld->portal_pair = other;
-            return;
-        }
-
-        if (other->portal_pair)
-        {
-            LogWarning("Portal on line #%d disabled: Partner already a portal.\n", (int)(ld - level_lines));
-            return;
-        }
-
-        if (other->side[1])
-        {
-            LogWarning("Portal on line #%d disabled: Partner not one-sided.\n", (int)(ld - level_lines));
-            return;
-        }
-
-        float h_ratio = h1 / h2;
-
-        if (h_ratio < 0.95f || h_ratio > 1.05f)
-        {
-            LogWarning("Portal on line #%d disabled: Partner is different height.\n", (int)(ld - level_lines));
-            return;
-        }
-
-        float len_ratio = ld->length / other->length;
-
-        if (len_ratio < 0.95f || len_ratio > 1.05f)
-        {
-            LogWarning("Portal on line #%d disabled: Partner is different length.\n", (int)(ld - level_lines));
-            return;
-        }
-
-        ld->portal_pair    = other;
-        other->portal_pair = ld;
-
-        // let renderer (etc) know the portal information
-        other->special = ld->special;
-
-        return; // Success !!
-    }
-
-    LogWarning("Portal on line #%d disabled: Cannot find partner!\n", (int)(ld - level_lines));
-}
-
 static SlopePlane *DetailSlope_BoundIt(Line *ld, Sector *sec, float dz1, float dz2)
 {
     // determine slope's 2D coordinates
@@ -2432,12 +2338,6 @@ void SpawnMapSpecials1(void)
         }
 
         level_lines[i].count = special->count_;
-
-        // -AJA- 2007/12/29: Portal effects
-        if (special->portal_effect_ != kPortalEffectTypeNone)
-        {
-            P_PortalEffect(&level_lines[i]);
-        }
 
         // Detail slopes
         if (special->slope_type_ & kSlopeTypeDetailFloor)

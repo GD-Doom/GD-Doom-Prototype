@@ -381,8 +381,6 @@ struct Line
     // slider thinker, normally nullptr
     struct SlidingDoorMover *slider_move;
 
-    Line *portal_pair;
-
     bool old_stored = false;
 };
 
