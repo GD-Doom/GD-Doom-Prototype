@@ -174,26 +174,6 @@ line 477 s "-- EC: Ladder, 512 high"  :tag
 line 478 s "-- EC: Ladder, 768 high"  :tag
 line 479 s "-- EC: Ladder, no limit"  :tag
 
-
-line 462 r "-- EC: Mirror"
-line 463 r "-- EC: Mirror /white"
-line 464 r "-- EC: Mirror /blue"
-line 465 r "-- EC: Mirror /red"
-line 466 r "-- EC: Mirror /green"
-
-line 480 r "-- EC: Portal /dark"      :tag
-line 481 r "-- EC: Portal /light"     :tag
-line 482 r "-- EC: Portal /light2"    :tag
-line 483 r "-- EC: Portal /blue"      :tag
-line 484 r "-- EC: Portal /green"     :tag
-
-line 485 r "-- EC: Camera Portal"         :tag
-line 486 r "-- EC: Camera Portal /white"  :tag
-line 487 r "-- EC: Camera Portal /cyan"   :tag
-line 488 r "-- EC: Camera Portal /rusty"  :tag
-line 489 r "-- EC: Camera Portal /green"  :tag
-
-
 line 501 b "WR Hub Exit to MAP01 / E1M1"
 line 502 b "WR Hub Exit to MAP02 / E1M2"
 line 503 b "WR Hub Exit to MAP03 / E1M3"

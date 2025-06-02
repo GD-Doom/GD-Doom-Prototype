@@ -33,41 +33,6 @@ Select the Release CMake build variant
 
 Click Build
 
-## Windows Compilation using MSYS2
-
-This section assumes that you have completed the steps at https://www.msys2.org/ and have a working basic MSYS2 install
-
-From an MSYS prompt for your target architecture:
-
-Install the following additional packages:
-* `base-devel` (if not performed during initial MSYS2 install/setup)
-* `mingw-w64-(arch)-toolchain` (if not performed during initial MSYS2 install/setup)
-* `mingw-w64-(arch)-cmake`
-* `mingw-w64-(arch)-SDL2`
-
-Then, after navigating to the project directory:
-
-```
-> cmake -B build -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release
-> cmake --build build (-j# optional, with # being the number of threads/cores you'd like to use)
-> strip edge-classic.exe (if desired)
-```
-
-## Windows Compilation from Linux using MinGW
-
-Install the following packages with their dependencies (exact names may vary based on distribution):
-* `cmake`
-* `build-essential`
-* `mingw-w64`
-
-Then, after navigating to the project directory in a terminal:
-
-```
-> cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-mingw32.cmake (32-bit build, 64-bit builds can use Toolchain-mingw64.cmake)
-> cmake --build build (-j# optional, with # being the number of threads/cores you'd like to use)
-> strip edge-classic.exe (if desired)
-```
-
 ## Linux Compilation
 
 This section assumes that you have a display server and graphical environment installed
@@ -134,4 +99,4 @@ In all cases (barring the WebGL build per the previous section), the executable 
 * soundfont
 * edge-classic/edge-classic.exe (OS-dependent)
 * edge_defs.epk
-* SDL2.dll (MSVC/MinGW builds)
+* SDL2.dll (MSVC builds)
