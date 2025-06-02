@@ -159,16 +159,12 @@ Image *ImageContainerLookup(ImageType image_type, const char *name, int source_t
     {
     case kImageTypeTexture:
         return ImageContainerLookupInternal(real_textures, name_hash, source_type);
-        break;
     case kImageTypeGraphic:
         return ImageContainerLookupInternal(real_graphics, name_hash, source_type);
-        break;
     case kImageTypeFlat:
         return ImageContainerLookupInternal(real_flats, name_hash, source_type);
-        break;
     case kImageTypeSprite:
         return ImageContainerLookupInternal(real_sprites, name_hash, source_type);
-        break;
     default:
         FatalError("ImageContainerLookup: Unknown Image Type");
     }
@@ -1778,7 +1774,6 @@ void ImageMakeSaveString(const Image *image, char *type, char *namebuf)
 
     default:
         FatalError("ImageMakeSaveString: bad type %d\n", rim->source_type_);
-        break;
     }
 }
 
@@ -2027,9 +2022,7 @@ void DeleteAllImages(bool shutdown)
                     render_state->DeleteTexture(&pat->patch_font_cache_.atlas_whitened_smoothed_texture_id);
             }
         }
-        ImageMap::iterator iter;
-        ImageMap::iterator iter_end;
-        for (iter = real_graphics.begin(), iter_end = real_graphics.end(); iter != iter_end; ++iter)
+        for (ImageMap::iterator iter = real_graphics.begin(), iter_end = real_graphics.end(); iter != iter_end; ++iter)
         {
             for (Image *im : iter->second)
             {
@@ -2050,7 +2043,7 @@ void DeleteAllImages(bool shutdown)
                 delete im;
             }
         }
-        for (iter = real_textures.begin(), iter_end = real_textures.end(); iter != iter_end; ++iter)
+        for (ImageMap::iterator iter = real_textures.begin(), iter_end = real_textures.end(); iter != iter_end; ++iter)
         {
             for (Image *im : iter->second)
             {
@@ -2071,7 +2064,7 @@ void DeleteAllImages(bool shutdown)
                 delete im;
             }
         }
-        for (iter = real_flats.begin(), iter_end = real_flats.end(); iter != iter_end; ++iter)
+        for (ImageMap::iterator iter = real_flats.begin(), iter_end = real_flats.end(); iter != iter_end; ++iter)
         {
             for (Image *im : iter->second)
             {
@@ -2092,7 +2085,7 @@ void DeleteAllImages(bool shutdown)
                 delete im;
             }
         }
-        for (iter = real_sprites.begin(), iter_end = real_sprites.end(); iter != iter_end; ++iter)
+        for (ImageMap::iterator iter = real_sprites.begin(), iter_end = real_sprites.end(); iter != iter_end; ++iter)
         {
             for (Image *im : iter->second)
             {

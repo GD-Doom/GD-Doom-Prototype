@@ -313,11 +313,13 @@ static bool CheckSightBSP(unsigned int bspnum)
     return true;
 }
 
+// Dasho - Commented out until we can determine if it is still needed for vert slopes
+// in the CheckSightToPoint function
 //
 // CheckSightIntercepts
 //
 //
-static bool CheckSightIntercepts(float slope)
+/*static bool CheckSightIntercepts(float slope)
 {
     Sector *sec;
 
@@ -363,7 +365,7 @@ static bool CheckSightIntercepts(float slope)
     }
 
     return true;
-}
+}*/
 
 //
 // CheckSightSameSubsector
@@ -415,9 +417,6 @@ bool CheckSight(MapObject *src, MapObject *dest)
     if (AlmostEquals(dest->visibility_, 0.0f))
         return false;
 
-    int n, num_div;
-
-    float dest_heights[5];
     float dist_a;
 
     // First check for trivial rejection.
@@ -520,48 +519,6 @@ bool CheckSight(MapObject *src, MapObject *dest)
         else
             return false;
     }
-
-    // Enter the HackMan...  The new sight code only tests LOS to one
-    // destination height. The number of
-    // points we test depends on the destination: 5 for players, 3 for
-    // monsters, 1 for everything else.
-
-    if (dest->player_)
-    {
-        num_div         = 5;
-        dest_heights[0] = dest->z;
-        dest_heights[1] = dest->z + dest->height_ * 0.25f;
-        dest_heights[2] = dest->z + dest->height_ * 0.50f;
-        dest_heights[3] = dest->z + dest->height_ * 0.75f;
-        dest_heights[4] = dest->z + dest->height_;
-    }
-    else if (dest->extended_flags_ & kExtendedFlagMonster)
-    {
-        num_div         = 3;
-        dest_heights[0] = dest->z;
-        dest_heights[1] = dest->z + dest->height_ * 0.5f;
-        dest_heights[2] = dest->z + dest->height_;
-    }
-    else
-    {
-        num_div         = 1;
-        dest_heights[0] = dest->z + dest->height_ * 0.5f;
-    }
-
-    // use intercepts to check extrafloor heights
-    //
-    for (n = 0; n < num_div; n++)
-    {
-        float slope = dest_heights[n] - sight_check.source_z;
-
-        if (slope > sight_check.top_slope || slope < sight_check.bottom_slope)
-            continue;
-
-        if (CheckSightIntercepts(slope))
-            return true;
-    }
-
-    return false;
 }
 
 bool CheckSightToPoint(MapObject *src, float x, float y, float z)
@@ -608,12 +565,12 @@ bool CheckSightToPoint(MapObject *src, float x, float y, float z)
 
     return true; // Dasho - Not sure if we need the stuff below this for slopes still
 
-    float slope = z - sight_check.source_z;
+    /*float slope = z - sight_check.source_z;
 
     if (slope > sight_check.top_slope || slope < sight_check.bottom_slope)
         return false;
 
-    return CheckSightIntercepts(slope);
+    return CheckSightIntercepts(slope);*/
 }
 
 //--- editor settings ---

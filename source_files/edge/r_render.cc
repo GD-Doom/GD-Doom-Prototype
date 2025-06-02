@@ -1551,10 +1551,10 @@ static void RenderPlane(DrawFloor *dfloor, float h, MapSurface *surf, int face_d
         data.ty0 = fmod(HMM_Lerp(surf->old_offset.Y, fractional_tic, surf->offset.Y), surf->image->actual_height_);
     else
         data.ty0 = surf->offset.Y;
-    data.image_w    = surf->image->ScaledWidthActual();
-    data.image_h    = surf->image->ScaledHeightActual();
-    data.x_mat      = surf->x_matrix;
-    data.y_mat      = surf->y_matrix;
+    data.image_w  = surf->image->ScaledWidthActual();
+    data.image_h  = surf->image->ScaledHeightActual();
+    data.x_mat    = surf->x_matrix;
+    data.y_mat    = surf->y_matrix;
     data.normal   = {{0, 0, (view_z > h) ? 1.0f : -1.0f}};
     data.tex_id   = tex_id;
     data.pass     = 0;

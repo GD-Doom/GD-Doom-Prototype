@@ -24,10 +24,8 @@ endif()
 
 target_link_libraries(epi PUBLIC ${EPI_LIBRARIES})
 
-if(WIN32 AND (MSVC OR CLANG))
-  target_include_directories(epi PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/msvc/include)
-elseif (MINGW)
-  target_include_directories(epi SYSTEM PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/mingw/include)
+if(WIN32)
+  target_include_directories(epi PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/include)
 endif()
 
 target_include_directories(epi PUBLIC ./)

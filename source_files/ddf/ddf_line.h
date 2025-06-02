@@ -649,9 +649,6 @@ class LineType
 
     SlopeType slope_type_;
 
-    // -AJA- 2007/07/05: color for effects (e.g. MIRRORs)
-    RGBAColor fx_color_;
-
   private:
     // disable copy construct and assignment operator
     explicit LineType(LineType &rhs)
