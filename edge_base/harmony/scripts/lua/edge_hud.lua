@@ -107,11 +107,11 @@ function new_overlay_status()
     RelX = hud.x_left + (hud.x_right - hud.x_left) * 0.95
 
     if (player.cur_weapon() == "SHOTGUN") then
-        hud.stretch_image(RelX, 181, 15, 11, "SHELA0", 1)
+        hud.stretch_image(RelX, 181, 15, 11, "SBOXA0", 1)
     end
 
     if (player.cur_weapon() == "CHAINGUN") then
-        hud.stretch_image(RelX, 181, 13, 11, "CLIPA0", 1)
+        hud.stretch_image(RelX, 181, 13, 11, "AMMOA0", 1)
     end
 
     if (player.cur_weapon() == "ROCKET_LAUNCHER") then
@@ -119,7 +119,7 @@ function new_overlay_status()
     end
 
     if (player.cur_weapon() == "PLASMA_RIFLE") then
-        hud.stretch_image(RelX, 181, 13, 11, "CELLA0", 1)
+        hud.stretch_image(RelX, 181, 13, 11, "CELPA0", 1)
     end
 
     if (player.cur_weapon() == "BFG9000") then

@@ -11,7 +11,7 @@
 BACKGROUND.COLOUR=#000000;
 BACKGROUND.TRANSLUCENCY=60%;
 SPECIAL=STRETCH_FULLSCREEN;
-TEXT.FONT="EDGE1"; // "New Game", "options", "load", "save", "quit"
+TEXT.FONT="DOOM"; // "New Game", "options", "load", "save", "quit"
 TEXT.SCALE=1.1;
 ENTRY_SPACING=2;
 
@@ -20,10 +20,10 @@ ENTRY_SPACING=2;
 BACKGROUND.COLOUR=#000000;
 BACKGROUND.TRANSLUCENCY=60%;
 SPECIAL=STRETCH_FULLSCREEN;
-HEADER.FONT="EDGE1"; //"New Game"
-TITLE.FONT="EDGE1"; // "Choose Skill"
+HEADER.FONT="DOOM"; //"New Game"
+TITLE.FONT="DOOM"; // "Choose Skill"
 TITLE.X_OFFSET=-40;
-TEXT.FONT="EDGE1"; //"I'm too young to die" etc.;
+TEXT.FONT="DOOM"; //"I'm too young to die" etc.;
 ENTRY_SPACING=2;
 X_OFFSET=-10;
 
@@ -105,9 +105,9 @@ HELP.SCALE=1.1;
 
 
 [STATS]
-TEXT.FONT="EDGE1";
+TEXT.FONT="DOOM";
 // don't apply any colourmap
-ALT.FONT="EDGE1";  // par times
+ALT.FONT="DOOM";  // par times
 
 
 

@@ -1442,9 +1442,17 @@ void HUDDrawQuitScreen()
     if (quit_lines[0] && quit_lines[0]->endoom_bytes_.size() == kENDOOMBytesPerLine)
     {
         EPI_ASSERT(endoom_font);
-        float FNX = HMM_MIN((float)current_screen_width / 80.0f,
-                            320.0f / 80.0f * ((float)current_screen_height * 0.90f / 200.0f));
-        float FNY = FNX * 2;
+        float FNX = ((float)current_screen_width / 80.0f);
+        float FNY = ((float)current_screen_height * 0.90f / 25.0f);
+
+        // try to maintain ratio and scale
+        if (FNX / FNY < kEndoomFontRatio) // tall
+        {
+            FNY = FNX / kEndoomFontRatio;
+        }
+
+        float y_start = (((float)current_screen_height * 0.90f) - (FNY * 25.0f)) / 2;
+
         StartUnitBatch(false);
         RendererVertex *endoom_vert       = BeginRenderUnit(GL_QUADS, kENDOOMTotalVerts, GL_MODULATE, 0,
                                                             (GLuint)kTextureEnvironmentDisable, 0, 0, kBlendingNone);
@@ -1452,8 +1460,8 @@ void HUDDrawQuitScreen()
         // First pass, draw solid blocks
         for (int i = 0; i < kENDOOMLines; i++)
         {
-            float cy = (float)current_screen_height - ((i + 1) * FNY);
-            float cx = HMM_MAX(0, (((float)current_screen_width - (FNX * 80.0f)) / 2.0f));
+            float cy = (float)current_screen_height - ((i + 1) * FNY) - y_start;
+            float cx = 0;
             for (int j = 1; j < kENDOOMBytesPerLine; j += 2)
             {
                 uint8_t   info     = quit_lines[i]->endoom_bytes_[j];
@@ -1462,9 +1470,9 @@ void HUDDrawQuitScreen()
                 endoom_vert->rgba       = unit_col;
                 endoom_vert++->position = {{cx, cy, 0}};
                 endoom_vert->rgba       = unit_col;
-                endoom_vert++->position = {{cx, cy + FNX * 2, 0}};
+                endoom_vert++->position = {{cx, cy + FNY, 0}};
                 endoom_vert->rgba       = unit_col;
-                endoom_vert++->position = {{cx + FNX, cy + FNX * 2, 0}};
+                endoom_vert++->position = {{cx + FNX, cy + FNY, 0}};
                 endoom_vert->rgba       = unit_col;
                 endoom_vert++->position = {{cx + FNX, cy, 0}};
 
@@ -1493,8 +1501,8 @@ void HUDDrawQuitScreen()
         endoom_vert_count = 0;
         for (int i = 0; i < kENDOOMLines; i++)
         {
-            float cy = (float)current_screen_height - ((i + 1) * FNY);
-            float cx = HMM_MAX(0, (((float)current_screen_width - (FNX * 80.0f)) / 2.0f));
+            float cy = (float)current_screen_height - ((i + 1) * FNY) - y_start;
+            float cx = 0;
             for (int j = 0; j < kENDOOMBytesPerLine; j += 2)
             {
                 uint8_t info = quit_lines[i]->endoom_bytes_[j + 1];
@@ -1516,20 +1524,18 @@ void HUDDrawQuitScreen()
                 ty1        = (py)*en_font->font_image_->height_ratio_;
                 ty2        = (py + 1) * en_font->font_image_->height_ratio_;
 
-                float width_adjust = FNX / 2 + .5;
-
                 endoom_vert->rgba                   = unit_col;
                 endoom_vert->texture_coordinates[0] = {{tx1, ty1}};
-                endoom_vert++->position             = {{cx - width_adjust, cy, 0}};
+                endoom_vert++->position             = {{cx, cy, 0}};
                 endoom_vert->rgba                   = unit_col;
                 endoom_vert->texture_coordinates[0] = {{tx2, ty1}};
-                endoom_vert++->position             = {{cx + FNX + width_adjust, cy, 0}};
+                endoom_vert++->position             = {{cx + FNX, cy, 0}};
                 endoom_vert->rgba                   = unit_col;
                 endoom_vert->texture_coordinates[0] = {{tx2, ty2}};
-                endoom_vert++->position             = {{cx + FNX + width_adjust, cy + FNX * 2, 0}};
+                endoom_vert++->position             = {{cx + FNX, cy + FNY, 0}};
                 endoom_vert->rgba                   = unit_col;
                 endoom_vert->texture_coordinates[0] = {{tx1, ty2}};
-                endoom_vert++->position             = {{cx - width_adjust, cy + FNX * 2, 0}};
+                endoom_vert++->position             = {{cx, cy + FNY, 0}};
 
                 cx += FNX;
                 endoom_vert_count += 4;

@@ -25,6 +25,7 @@
 
 extern std::string working_directory;
 
+constexpr float     kEndoomFontRatio    = (9.0f / 14.0f);
 constexpr uint8_t   kENDOOMLines        = 25;
 constexpr uint8_t   kENDOOMBytesPerLine = 160;
 constexpr uint16_t  kENDOOMTotalVerts   = kENDOOMLines * 80 * 4; // 80 characters per line * 4 verts per quad

@@ -45,10 +45,6 @@ feature neg_patch_offsets 1
 
 #---- EDGE-Classic THINGS ----------
 
-thing 7000 b n  16 NVSC   "EC: Night vision"
-thing 7005 b n  16 TSTP   "EC: Stop Time"
-thing 7020 b n  16 JPCK   "EC: Jetpack"
-
 thing 7015 k nl 20 YKEY   "EC: Green keycard"
 thing 7017 k nl 20 YSKU   "EC: Green skull key"
 

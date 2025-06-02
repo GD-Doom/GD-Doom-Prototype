@@ -84,6 +84,33 @@ void ImageData::Invert()
     delete[] line_data;
 }
 
+void ImageData::Flip()
+{
+    int line_size = used_width_ * depth_ / 2;
+
+    uint8_t *line_data  = new uint8_t[line_size];
+    uint8_t *line_data2 = new uint8_t[line_size];
+
+    int x_break = used_width_ / 2;
+
+    for (int y = 0; y < used_height_; y++)
+    {
+        for (int x = 0; x < x_break; x++)
+        {
+            memcpy(line_data + (x * depth_), PixelAt(x_break - x, y), depth_);
+        }
+        for (int x = 0; x < x_break; x++)
+        {
+            memcpy(line_data2 + (x * depth_), PixelAt(used_width_ - x, y), depth_);
+        }
+        memcpy(PixelAt(0, y), line_data2, line_size);
+        memcpy(PixelAt(x_break, y), line_data, line_size);
+    }
+
+    delete[] line_data;
+    delete[] line_data2;
+}
+
 void ImageData::Shrink(int new_w, int new_h)
 {
     EPI_ASSERT(new_w <= width_ && new_h <= height_);

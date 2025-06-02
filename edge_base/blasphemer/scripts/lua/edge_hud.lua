@@ -9,20 +9,16 @@
 
 -- Startup stuff
 function new_game()
-    if (hud.custom_stbar) then
-        custom_stbar_average_color = hud.get_average_color("STBAR")
-        custom_stbar_darkest_color = hud.get_darkest_color("STBAR")
-        custom_stbar_lightest_color = hud.get_lightest_color("STBAR")
-    end
+    stbar_average_color = hud.get_average_color("BARBACK")
+    stbar_darkest_color = hud.get_darkest_color("BARBACK")
+    stbar_lightest_color = hud.get_lightest_color("BARBACK")
     hud.automap_player_arrow(hud.AM_ARROW_HERETIC)
 end
 
 function load_game()
-    if (hud.custom_stbar) then
-        custom_stbar_average_color = hud.get_average_color("STBAR")
-        custom_stbar_darkest_color = hud.get_darkest_color("STBAR")
-        custom_stbar_lightest_color = hud.get_lightest_color("STBAR")
-    end
+    stbar_average_color = hud.get_average_color("BARBACK")
+    stbar_darkest_color = hud.get_darkest_color("BARBACK")
+    stbar_lightest_color = hud.get_lightest_color("BARBACK")
     hud.automap_player_arrow(hud.AM_ARROW_HERETIC)
 end
 
@@ -56,6 +52,10 @@ end
 
 -- Full-Screen Heretic status bar
 function heretic_status_bar()
+
+    --Draw our extenders first, just in case the statusbar is already widescreen
+    hud.solid_box(-83, 158, 486, 42, stbar_average_color)
+
     local AmmoGfx_X = 117
     local AmmoGfx_Y = 174
 
@@ -67,9 +67,6 @@ function heretic_status_bar()
 
     tempwidth = hud.get_image_width("BARBACK")
     centerOffsetX = tempwidth / 2;
-
-    hud.draw_image(-83, 158, "STBARL") -- Widescreen border
-    hud.draw_image(320, 158, "STBARR")  -- Widescreen border
 
     --order is important because some of them overlap
     --hud.draw_image(0, 158, "BARBACK")
@@ -228,12 +225,6 @@ function heretic_automap()
 
     local which = hud.which_hud() % 3
 
-    --    if (which == 0)  --heretic_status_bar()
-    --    {
-    --		hud.draw_text(30, 148, hud.map_title())
-    --		heretic_status_bar()
-    --		heretic_life_gem()
-    --	}
 	local TempMapName = hud.map_title()
     
     if (DoesNameStartWith(hud.map_title(),hud.map_name()) == 0) then
@@ -391,12 +382,18 @@ function InventoryScreenOneItem()
 
         player.use_inventory(CurrentInventoryItem)
         hud.play_sound("ARTIUSE")
-        hud.stretch_image(calculatedX, invGfx_Y - 10, invGfx_H, invGfx_W, "USEARTIA", 1)
+        hud.stretch_image(calculatedX, invGfx_Y - 10, invGfx_W, invGfx_H, "USEARTIA", 1)
     end
 
     if (player.inventory(CurrentInventoryItem) > 0) then
         spriteName = GetInventorySprite(CurrentInventoryItem)
-        hud.stretch_image(calculatedX, invGfx_Y, invGfx_H, invGfx_W, spriteName, 1)
+        if spriteName ~= "NULL" then
+          if spriteName ~= "ARTISOAR" then
+            hud.stretch_image(calculatedX, invGfx_Y, invGfx_W, invGfx_H, spriteName, 1)
+          else
+            hud.stretch_image(calculatedX, invGfx_Y + 8, invGfx_W + 2, invGfx_H / 2 - 2, spriteName, 1)
+          end
+        end
         hud.set_scale(0.5)
         hud.draw_text(calculatedX, invGfx_Y - 2, tostring(player.inventory(CurrentInventoryItem))) -- + "/" + player.inventorymax(CurrentInventoryItem))
         hud.set_scale(1.0)
@@ -435,9 +432,14 @@ function InventoryScreenMultiItem()
 
         calculatedX = invGfx_X + (loopCounter * spacing)
         if (player.inventory(loopCounter) > 0) then
-            hud.stretch_image(calculatedX, invGfx_Y, invGfx_H, invGfx_W, "ARTIBOX", 1)
-            hud.stretch_image(calculatedX + 2, invGfx_Y + 2, invGfx_H - 5, invGfx_W - 5, spriteName, 1)
-
+            hud.stretch_image(calculatedX, invGfx_Y, invGfx_W, invGfx_H, "ARTIBOX", 1)
+            if spriteName ~= "NULL" then
+              if spriteName ~= "ARTISOAR" then
+                hud.stretch_image(calculatedX + 2, invGfx_Y + 2, invGfx_W - 5, invGfx_H - 5, spriteName, 1)
+              else
+                hud.stretch_image(calculatedX + 2, invGfx_Y + 8, invGfx_W - 5, invGfx_H / 2 - 5, spriteName, 1)
+              end
+            end
             hud.set_scale(0.4)
             hud.draw_text(calculatedX + 1, invGfx_Y + 1, tostring(player.inventory(loopCounter))) -- + "/" + player.inventorymax(loopCounter))
             hud.set_scale(1.0)

@@ -586,25 +586,28 @@ void ConsoleDrawer(void)
                 draw_endoom    = true;
             }
 
-            const ImageFont *en_font = (const ImageFont *)endoom_font;
-            int              x       = 0;
-            int              enwidth = RoundToInteger((float)en_font->image_monospace_width_ *
-                                                      ((float)FNSZ / en_font->image_monospace_width_) / 2) /
-                          2;
+            float x       = 0;
+            float enwidth = (float)FNSZ * kEndoomFontRatio;
+
+            // Might mess up the ratio, but can't adjust the height or else
+            // it might stomp on regular console lines - Dasho
+            if (enwidth * 80.0f > current_screen_width)
+                enwidth = current_screen_width / 80.0f;
+
             for (int j = 1; j < kENDOOMBytesPerLine; j += 2)
             {
                 RGBAColor col = kENDOOMColors[(CL->endoom_bytes_[j] >> 4) & 7];
 
                 console_glvert->rgba       = col;
-                console_glvert++->position = {{(float)(x - enwidth), (float)y, 0}};
+                console_glvert++->position = {{x, (float)y, 0}};
                 console_glvert->rgba       = col;
-                console_glvert++->position = {{(float)(x - enwidth), (float)(y + FNSZ), 0}};
+                console_glvert++->position = {{x, (float)(y + FNSZ), 0}};
                 console_glvert->rgba       = col;
-                console_glvert++->position = {{(float)(x + enwidth), (float)(y + FNSZ), 0}};
+                console_glvert++->position = {{x + enwidth, (float)(y + FNSZ), 0}};
                 console_glvert->rgba       = col;
-                console_glvert++->position = {{(float)(x + enwidth), (float)y, 0}};
+                console_glvert++->position = {{x + enwidth, (float)y, 0}};
 
-                x += enwidth * 2;
+                x += enwidth;
                 console_verts += 4;
 
                 if (x >= current_screen_width)
@@ -629,8 +632,12 @@ void ConsoleDrawer(void)
         console_glvert           = BeginRenderUnit(GL_QUADS, kENDOOMTotalVerts, GL_MODULATE,
                                                    ImageCache(en_font->font_image_, true, (const Colormap *)0, true),
                                                    (GLuint)kTextureEnvironmentDisable, 0, 0, kBlendingMasked);
-        int enwidth              = RoundToInteger((float)en_font->image_monospace_width_ *
-                                                  ((float)FNSZ / en_font->image_monospace_width_) / 2);
+        float enwidth            = FNSZ * kEndoomFontRatio;
+
+        // Might mess up the ratio, but can't adjust the height or else
+        // it might stomp on regular console lines - Dasho
+        if (enwidth * 80.0f > current_screen_width)
+            enwidth = current_screen_width / 80.0f;
 
         for (int i = HMM_MAX(0, bottom_row); i < kMaximumConsoleLines; i++)
         {
@@ -641,7 +648,7 @@ void ConsoleDrawer(void)
 
             if (CL->endoom_bytes_.size() == kENDOOMBytesPerLine && CL->line_.empty())
             {
-                int x = 0;
+                float x = 0;
                 for (int j = 0; j < kENDOOMBytesPerLine; j += 2)
                 {
                     uint8_t   ch   = CL->endoom_bytes_[j];
@@ -666,16 +673,16 @@ void ConsoleDrawer(void)
 
                     console_glvert->rgba                   = col;
                     console_glvert->texture_coordinates[0] = {{tx1, ty1}};
-                    console_glvert++->position             = {{(float)(x - enwidth), (float)y, 0}};
+                    console_glvert++->position             = {{x, (float)y, 0}};
                     console_glvert->rgba                   = col;
                     console_glvert->texture_coordinates[0] = {{tx1, ty2}};
-                    console_glvert++->position             = {{(float)(x - enwidth), (float)(y + FNSZ), 0}};
+                    console_glvert++->position             = {{x, (float)(y + FNSZ), 0}};
                     console_glvert->rgba                   = col;
                     console_glvert->texture_coordinates[0] = {{tx2, ty2}};
-                    console_glvert++->position             = {{(float)(x + enwidth), (float)(y + FNSZ), 0}};
+                    console_glvert++->position             = {{x + enwidth, (float)(y + FNSZ), 0}};
                     console_glvert->rgba                   = col;
                     console_glvert->texture_coordinates[0] = {{tx2, ty1}};
-                    console_glvert++->position             = {{(float)(x + enwidth), (float)y, 0}};
+                    console_glvert++->position             = {{x + enwidth, (float)y, 0}};
 
                     x += enwidth;
                     console_verts += 4;
@@ -1669,12 +1676,17 @@ void ConsoleShowPosition(void)
 
 void ConsoleENDOOM()
 {
-    ConsoleMessage(kConsoleOnly, "\n");
-    for (int i = 0; i < kENDOOMLines; i++)
+    if (quit_lines[0] && quit_lines[0]->endoom_bytes_.size() == kENDOOMBytesPerLine)
     {
-        ConsoleAddENDOOMLine(quit_lines[i]);
+        ConsoleMessage(kConsoleOnly, "\n");
+        for (int i = 0; i < kENDOOMLines; i++)
+        {
+            ConsoleAddENDOOMLine(quit_lines[i]);
+        }
+        ConsoleMessage(kConsoleOnly, "\n");
     }
-    ConsoleMessage(kConsoleOnly, "\n");
+    else
+        ConsoleMessage(kConsoleOnly, "No ENDOOM to display!\n");
 }
 
 void CreateQuitScreen()

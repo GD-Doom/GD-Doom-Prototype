@@ -3084,7 +3084,16 @@ void MenuInitialize(void)
     menu_skull[0]     = (Image *)ImageLookup("M_SKULL1");
     menu_skull[1]     = (Image *)ImageLookup("M_SKULL2");
 
-    if (styledefs.patch_menus_allowed_)
+    // GD - Dasho - This exists (for now) to account for the fact
+    // that we aren't shipping non-free Doom patches for stock Doom
+    // fonts
+    if (styledefs.patch_menus_forced_)
+    {
+        custom_MenuMain       = true;
+        custom_MenuEpisode    = true;
+        custom_MenuDifficulty = true;
+    }
+    else if (styledefs.patch_menus_allowed_)
     {
         // Check for custom menu graphics in pwads:
         // If we have them then use them instead of our

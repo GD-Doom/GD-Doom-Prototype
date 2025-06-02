@@ -44,11 +44,6 @@ void LuaLoadScripts()
         }
     }
 
-    if (IsLumpInPwad("STBAR"))
-    {
-        LuaSetBoolean(global_lua_state, "hud", "custom_stbar", true);
-    }
-
     EPI_ASSERT(lua_gettop(global_lua_state) == top);
 }
 

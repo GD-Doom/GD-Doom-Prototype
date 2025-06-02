@@ -139,10 +139,6 @@ function new_overlay_status()
 end
 
 function doom_automap()
-    -- Background is already black, only need to use 'solid_box'
-    -- when we want a different color.
-    --
-    -- hud.solid_box(0, 0, 320, 200 - 32, '80 80 80')
 
     hud.render_automap(0, 0, 320, 200 - 32)
     local which = hud.which_hud() % 4

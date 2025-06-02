@@ -1037,7 +1037,8 @@ void HandleFlags(const DehackedMapObjectDefinition *info, int mt_num, int player
     if (got_a_flag)
         wad::Printf(";\n");
 
-    if (cur_f & kMF_TRANSLATION)
+    // GD - Dasho - Unused (for now)
+    /*if (cur_f & kMF_TRANSLATION)
     {
         if ((cur_f & kMF_TRANSLATION) == 0x4000000)
             wad::Printf("PALETTE_REMAP = PLAYER_DK_GREY;\n");
@@ -1045,7 +1046,7 @@ void HandleFlags(const DehackedMapObjectDefinition *info, int mt_num, int player
             wad::Printf("PALETTE_REMAP = PLAYER_BROWN;\n");
         else
             wad::Printf("PALETTE_REMAP = PLAYER_DULL_RED;\n");
-    }
+    }*/
 
     if (cur_f & kMF_TRANSLUCENT)
     {
@@ -1324,11 +1325,11 @@ void HandlePlayer(int player)
 
     EPI_ASSERT(player <= NUMPLAYERS);
 
-    const PlayerInfo *pi = player_info + (player - 1);
+    // const PlayerInfo *pi = player_info + (player - 1);
 
     wad::Printf("PLAYER = %d;\n", player);
     wad::Printf("SIDE = %d;\n", 1 << (player - 1));
-    wad::Printf("PALETTE_REMAP = %s;\n", pi->remap);
+    // wad::Printf("PALETTE_REMAP = %s;\n", pi->remap);
 
     wad::Printf("INITIAL_BENEFIT = \n");
     wad::Printf("    BULLETS.LIMIT(%d), ", ammo::player_max[kAmmoTypeBullet]);

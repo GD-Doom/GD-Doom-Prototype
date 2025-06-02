@@ -829,7 +829,37 @@ void DDFMainReadFile(DDFReadInfo *readinfo, const std::string &data)
                 continue;
             }
 
-            if (epi::StringPrefixCaseCompareASCII(std::string_view(memfileptr, 13), "#NOPATCHMENUS") == 0)
+            if (epi::StringPrefixCaseCompareASCII(std::string_view(memfileptr, 16), "#FORCEPATCHMENUS") == 0)
+            {
+                if (epi::StringCaseCompareASCII(readinfo->lumpname, "DDFSTYLE") == 0)
+                {
+                    styledefs.patch_menus_forced_ = true;
+                }
+                memfileptr += l_len;
+                continue;
+            }
+
+            if (epi::StringPrefixCaseCompareASCII(std::string_view(memfileptr, 18), "#NOFORCEPATCHMENUS") == 0)
+            {
+                if (epi::StringCaseCompareASCII(readinfo->lumpname, "DDFSTYLE") == 0)
+                {
+                    styledefs.patch_menus_forced_ = false;
+                }
+                memfileptr += l_len;
+                continue;
+            }
+
+            if (epi::StringPrefixCaseCompareASCII(std::string_view(memfileptr, 16), "#ALLOWPATCHMENUS") == 0)
+            {
+                if (epi::StringCaseCompareASCII(readinfo->lumpname, "DDFSTYLE") == 0)
+                {
+                    styledefs.patch_menus_allowed_ = true;
+                }
+                memfileptr += l_len;
+                continue;
+            }
+
+            if (epi::StringPrefixCaseCompareASCII(std::string_view(memfileptr, 18), "#NOALLOWPATCHMENUS") == 0)
             {
                 if (epi::StringCaseCompareASCII(readinfo->lumpname, "DDFSTYLE") == 0)
                 {

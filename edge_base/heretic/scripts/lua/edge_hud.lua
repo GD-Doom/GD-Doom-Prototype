@@ -9,20 +9,16 @@
 
 -- Startup stuff
 function new_game()
-    if (hud.custom_stbar) then
-        custom_stbar_average_color = hud.get_average_color("STBAR")
-        custom_stbar_darkest_color = hud.get_darkest_color("STBAR")
-        custom_stbar_lightest_color = hud.get_lightest_color("STBAR")
-    end
+    stbar_average_color = hud.get_average_color("BARBACK")
+    stbar_darkest_color = hud.get_darkest_color("BARBACK")
+    stbar_lightest_color = hud.get_lightest_color("BARBACK")
     hud.automap_player_arrow(hud.AM_ARROW_HERETIC)
 end
 
 function load_game()
-    if (hud.custom_stbar) then
-        custom_stbar_average_color = hud.get_average_color("STBAR")
-        custom_stbar_darkest_color = hud.get_darkest_color("STBAR")
-        custom_stbar_lightest_color = hud.get_lightest_color("STBAR")
-    end
+    stbar_average_color = hud.get_average_color("BARBACK")
+    stbar_darkest_color = hud.get_darkest_color("BARBACK")
+    stbar_lightest_color = hud.get_lightest_color("BARBACK")
     hud.automap_player_arrow(hud.AM_ARROW_HERETIC)
 end
 
@@ -56,6 +52,15 @@ end
 
 -- Full-Screen Heretic status bar
 function heretic_status_bar()
+
+    --Draw our extenders first, just in case the statusbar is already widescreen
+    --hud.solid_box(-83, 158, 486, 42, stbar_average_color)
+
+    -- This assumes that people don't really customize
+    -- the Heretic bar, but if you need to do the usual colormatch
+    -- instead comment this out and use the solid_box stuff above - Dasho
+    hud.tile_image(-83, 158, 486, 42, "BAR_EXTENDER", 0, 0)
+
     local AmmoGfx_X = 117
     local AmmoGfx_Y = 174
 
@@ -69,17 +74,17 @@ function heretic_status_bar()
     centerOffsetX = tempwidth / 2;
 
     --order is important because some of them overlap
-    --hud.draw_image(0, 158, "BARBACK")
     hud.draw_image(160 - centerOffsetX, 158, "BARBACK", 1)
-    hud.draw_image(-120, 158, "STBARL") -- Widescreen border
-    hud.draw_image(355, 158, "STBARR")  -- Widescreen border
     hud.draw_image(34, 160, "LIFEBAR")
     hud.draw_image(-1, 190, "CHAINBAC")
     hud.draw_image(0, 190, "CHAIN")
     hud.draw_image(0, 190, "LTFACE")
     hud.draw_image(276, 190, "RTFACE")
-    hud.draw_image(-19, 148, "LTFCTOP")
-    hud.draw_image(290, 148, "RTFCTOP")
+
+    --Dasho - Looks better to skip drawing these unless
+    -- you have widescreen status bars
+    --hud.draw_image(0, 148, "LTFCTOP")
+    --hud.draw_image(290, 148, "RTFCTOP")
 
     hud.text_font("HERETIC_DIGIT")
 
@@ -227,13 +232,6 @@ function heretic_automap()
 
     local which = hud.which_hud() % 3
 
-    --    if (which == 0)  --heretic_status_bar()
-    --    {
-    --		hud.draw_text(30, 148, hud.map_title())
-    --		heretic_status_bar()
-    --		heretic_life_gem()
-    --	}
-	
 	local TempMapName = hud.map_title()
     
     if (DoesNameStartWith(hud.map_title(),hud.map_name()) == 0) then
@@ -397,7 +395,9 @@ function InventoryScreenOneItem()
 
     if (player.inventory(CurrentInventoryItem) > 0) then
         spriteName = GetInventorySprite(CurrentInventoryItem)
-        hud.stretch_image(calculatedX, invGfx_Y, invGfx_H, invGfx_W, spriteName, 1)
+        if spriteName ~= "NULL" then
+            hud.stretch_image(calculatedX, invGfx_Y, invGfx_H, invGfx_W, spriteName, 1)
+        end
         hud.set_scale(0.5)
         hud.draw_text(calculatedX, invGfx_Y - 2, tostring(player.inventory(CurrentInventoryItem))) -- + "/" + player.inventorymax(CurrentInventoryItem))
         hud.set_scale(1.0)
@@ -437,8 +437,9 @@ function InventoryScreenMultiItem()
         calculatedX = invGfx_X + (loopCounter * spacing)
         if (player.inventory(loopCounter) > 0) then
             hud.stretch_image(calculatedX, invGfx_Y, invGfx_H, invGfx_W, "ARTIBOX", 1)
-            hud.stretch_image(calculatedX + 2, invGfx_Y + 2, invGfx_H - 5, invGfx_W - 5, spriteName, 1)
-
+            if spriteName ~= "NULL" then
+              hud.stretch_image(calculatedX + 2, invGfx_Y + 2, invGfx_H - 5, invGfx_W - 5, spriteName, 1)
+            end
             hud.set_scale(0.4)
             hud.draw_text(calculatedX + 1, invGfx_Y + 1, tostring(player.inventory(loopCounter))) -- + "/" + player.inventorymax(loopCounter))
             hud.set_scale(1.0)
@@ -585,7 +586,7 @@ function draw_all()
     InventoryScreenMultiItem()
 
     if (player.has_power(player.JET_PACK)) then --wings
-        hud.stretch_image(10, 5, 20, 20, "SPFLY0", 1)
+        hud.stretch_image(10, 5, 20, 20, "SPFLY15", 1)
     end
 
 

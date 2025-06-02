@@ -244,8 +244,7 @@ SPECIAL=SWIM,AIRLESS,SUBMERGED_SFX;
 GRAVITY=0.7;
 FRICTION=0.9;
 DRAG=0.95;
-VISCOSITY=0.7; //lower number, faster you move
-SPLASH_SOUND=WTDIVE;    
+VISCOSITY=0.7; //lower number, faster you move 
 
 
 [4467] // EDGE Green Hue
@@ -255,7 +254,6 @@ GRAVITY=0.7;
 FRICTION=0.9;
 DRAG=0.95;
 VISCOSITY=0.7; //lower number, faster you move
-SPLASH_SOUND=WTDIVE;   
 
 [4468] // EDGE Green Hue + Damage
 DAMAGE.VAL=10;
@@ -275,7 +273,6 @@ GRAVITY=0.7;
 FRICTION=0.9;
 DRAG=0.95;
 VISCOSITY=0.7; //lower number, faster you move
-SPLASH_SOUND=WTDIVE; 
 
 [4470] // EDGE Red Hue + Damage
 DAMAGE.VAL=10;

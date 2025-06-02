@@ -127,6 +127,7 @@ enum DehackedMapObjectFlag
     //  using an internal color lookup table for re-indexing.
     // If 0x4 0x8 or 0xc,
     //  use a translation table for player colormaps
+    // GD - Dasho - Unused (for now)
     kMF_TRANSLATION1 = 0x4000000,
     kMF_TRANSLATION2 = 0x8000000,
 

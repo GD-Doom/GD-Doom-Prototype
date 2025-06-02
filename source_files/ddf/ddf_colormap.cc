@@ -174,13 +174,8 @@ void DDFColmapCleanUp(void)
     colormaps.shrink_to_fit();
 }
 
-DDFSpecialFlags colmap_specials[] = {{"FLASH", kColorSpecialNoFlash, true},
-                                     {"WHITEN", kColorSpecialWhiten, false},
-
-                                     // -AJA- backwards compatibility cruft...
-                                     {"SKY", 0, 0},
-
-                                     {nullptr, 0, 0}};
+DDFSpecialFlags colmap_specials[] = {
+    {"FLASH", kColorSpecialNoFlash, true}, {"WHITEN", kColorSpecialWhiten, false}, {nullptr, 0, 0}};
 
 //
 // DDFColmapGetSpecial
