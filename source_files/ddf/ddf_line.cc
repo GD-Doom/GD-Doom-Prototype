@@ -176,9 +176,8 @@ static const DDFCommandList linedef_commands[] = {
     DDF_FIELD("LINE_EFFECT", dummy_line, line_effect_, DDFLineGetLineEffect),
     DDF_FIELD("SCROLL_TYPE", dummy_line, scroll_type_, DDFLineGetScrollType),
     DDF_FIELD("LINE_PARTS", dummy_line, line_parts_, DDFLineGetScrollPart),
-    DDF_FIELD("SECTOR_EFFECT", dummy_line, sector_effect_, DDFLineGetSectorEffect),    
+    DDF_FIELD("SECTOR_EFFECT", dummy_line, sector_effect_, DDFLineGetSectorEffect),
     DDF_FIELD("SLOPE_TYPE", dummy_line, slope_type_, DDFLineGetSlopeType),
-    DDF_FIELD("COLOUR", dummy_line, fx_color_, DDFMainGetRGB),
 
     // Lobo: 2022
     DDF_FIELD("EFFECT_OBJECT", dummy_line, effectobject_ref_, DDFMainGetString),
@@ -1396,7 +1395,6 @@ void LineType::CopyDetail(const LineType &src)
     scroll_type_    = src.scroll_type_;
     sector_effect_  = src.sector_effect_;
     slope_type_     = src.slope_type_;
-    fx_color_       = src.fx_color_;
 
     // lobo 2022
     effectobject_     = src.effectobject_;
@@ -1453,7 +1451,6 @@ void LineType::Default(void)
     scroll_type_    = BoomScrollerTypeNone;
     sector_effect_  = kSectorEffectTypeNone;
     slope_type_     = kSlopeTypeNONE;
-    fx_color_       = kRGBABlack;
 
     // lobo 2022
     effectobject_ = nullptr;

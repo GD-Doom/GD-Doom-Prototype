@@ -88,12 +88,12 @@ Bugfixes and detailed changes can be found in CHANGELOG.txt
 
 # Currently Supported Platforms
 
-- Windows 7 or later
+- Windows 10 or later
 - [Web Browsers Supporting WebGL2](https://edge-classic.github.io/play.html)
-- Linux (x86 and ARM architecture - ARM tested with Raspberry Pi OS on a Pi 4B)
-- BSD (x86 and ARM64 architecture - tested with FreeBSD 13.1; ARM64 tested on a Pi 4B but not recommended unless proper video acceleration is available
+- Linux (x86_64 and ARM64 architecture - ARM tested with Raspberry Pi OS on a Pi 4B)
+- BSD (x86_64 and ARM64 architecture - tested with FreeBSD 13.1; ARM64 tested on a Pi 4B but not recommended unless proper video acceleration is available
                  as playable framerates are too difficult to achieve otherwise)
-- Mac (x86 and M1 architecture)
+- Mac (x86_64 and M1 architecture)
 
 # Currently Supported IWADs
 

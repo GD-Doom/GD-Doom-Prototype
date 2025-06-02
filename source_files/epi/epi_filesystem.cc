@@ -33,9 +33,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#ifdef __MINGW32__
-#include <sys/stat.h>
-#endif
 
 namespace epi
 {
@@ -112,15 +109,9 @@ bool IsDirectory(std::string_view dir)
 {
     EPI_ASSERT(!dir.empty());
     std::wstring wide_dir = epi::UTF8ToWString(dir);
-#ifdef __MINGW32__
-    struct stat dircheck;
-    if (wstat(wide_dir.c_str(), &dircheck) != 0)
-        return false;
-#else
     struct _stat dircheck;
     if (_wstat(wide_dir.c_str(), &dircheck) != 0)
         return false;
-#endif
     return (dircheck.st_mode & _S_IFDIR);
 }
 bool MakeDirectory(std::string_view dir)

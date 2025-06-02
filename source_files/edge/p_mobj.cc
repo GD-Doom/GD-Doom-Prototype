@@ -629,14 +629,20 @@ int MapObjectFindLabel(MapObject *mobj, const char *label)
 //
 void MapObjectSetDirectionAndSpeed(MapObject *mo, BAMAngle angle, float slope, float speed)
 {
+    // Dasho - After reducing the value of kMaximumMove to match other ports, discovered
+    // that projectiles had vertical drift if their speed was greater than kMaxiumumMove. This
+    // seems like the best compromise without imposing a cap on the speed of things in DDF
+    float capped_speed = HMM_Clamp(-kMaximumMove, speed, kMaximumMove);
+
     mo->angle_          = angle;
     mo->vertical_angle_ = epi::BAMFromATan(slope);
 
-    mo->momentum_.Z = epi::BAMSin(mo->vertical_angle_) * speed;
-    speed *= epi::BAMCos(mo->vertical_angle_);
+    mo->momentum_.Z = epi::BAMSin(mo->vertical_angle_) * capped_speed;
 
-    mo->momentum_.X = epi::BAMCos(angle) * speed;
-    mo->momentum_.Y = epi::BAMSin(angle) * speed;
+    capped_speed *= epi::BAMCos(mo->vertical_angle_);
+
+    mo->momentum_.X = epi::BAMCos(angle) * capped_speed;
+    mo->momentum_.Y = epi::BAMSin(angle) * capped_speed;
 }
 
 //
@@ -1665,10 +1671,7 @@ void MapObject::ClearStaleReferences()
 static void DeleteMobj(MapObject *mo)
 {
     if (mo->reference_count_ != 0)
-    {
         FatalError("INTERNAL ERROR: DeleteMobh with refcount %d", mo->reference_count_);
-        return;
-    }
 
 #if (EDGE_DEBUG_MAP_OBJECTS > 0)
     LogDebug("tics=%05d  DELETE %p [%s]\n", level_time_elapsed, mo, mo->info_ ? mo->info_->name_.c_str() : "???");
@@ -1800,30 +1803,6 @@ static void RemoveMobjFromList(MapObject *mo)
         EPI_ASSERT(mo->next_->previous_ == mo);
         mo->next_->previous_ = mo->previous_;
     }
-
-    if (mo->tag_)
-    {
-        auto mobjs = active_tagged_map_objects.equal_range(mo->tag_);
-        for (auto mobj = mobjs.first; mobj != mobjs.second;)
-        {
-            if (mobj->second == mo)
-                mobj = active_tagged_map_objects.erase(mobj);
-            else
-                ++mobj;
-        }
-    }
-
-    if (mo->tid_)
-    {
-        auto mobjs = active_tids.equal_range(mo->tid_);
-        for (auto mobj = mobjs.first; mobj != mobjs.second;)
-        {
-            if (mobj->second == mo)
-                mobj = active_tids.erase(mobj);
-            else
-                ++mobj;
-        }
-    }
 }
 
 //
@@ -1866,7 +1845,6 @@ void RemoveMapObject(MapObject *mo)
     mo->extended_flags_ = 0;
     mo->hyper_flags_    = 0;
     mo->health_         = 0;
-    mo->tag_            = 0;
     mo->tics_           = -1;
     mo->wait_until_dead_tags_.clear();
 
@@ -1886,6 +1864,31 @@ void RemoveMapObject(MapObject *mo)
 
     mo->fuse_ = kTicRate * 5;
     // mo->morphtimeout = kTicRate * 5; //maybe we need this?
+    if (mo->tag_)
+    {
+        auto mobjs = active_tagged_map_objects.equal_range(mo->tag_);
+        for (auto mobj = mobjs.first; mobj != mobjs.second;)
+        {
+            if (mobj->second == mo)
+                mobj = active_tagged_map_objects.erase(mobj);
+            else
+                ++mobj;
+        }
+    }
+    mo->tag_ = 0;
+
+    if (mo->tid_)
+    {
+        auto mobjs = active_tids.equal_range(mo->tid_);
+        for (auto mobj = mobjs.first; mobj != mobjs.second;)
+        {
+            if (mobj->second == mo)
+                mobj = active_tids.erase(mobj);
+            else
+                ++mobj;
+        }
+    }
+    mo->tid_ = 0;
 }
 
 void RemoveAllMapObjects(bool loading)
@@ -2163,10 +2166,7 @@ void ItemRespawn(void)
         objtype = cur->spawnpoint.info;
 
         if (objtype == nullptr)
-        {
             FatalError("P_MobjItemRespawn: No such item type!");
-            return; // shouldn't happen.
-        }
 
         // spawn a teleport fog at the new spot
         EPI_ASSERT(objtype->respawneffect_);
