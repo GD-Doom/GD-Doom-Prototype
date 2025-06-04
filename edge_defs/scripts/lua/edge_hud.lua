@@ -11,10 +11,10 @@ local face_image = ""
 local step_tic = 0
 
 -- Default all of these to black so that in a "worse-case scenario", it's just the old behavior of black areas
-local custom_stbar_average_color = vec3(0, 0, 0)
-local custom_stbar_darkest_color = vec3(0, 0, 0)
-local custom_stbar_lightest_color = vec3(0, 0, 0)
-local custom_stbar_average_hue = vec3(0, 0, 0)
+local stbar_average_color = vec3(0, 0, 0)
+local stbar_darkest_color = vec3(0, 0, 0)
+local stbar_lightest_color = vec3(0, 0, 0)
+local stbar_average_hue = vec3(0, 0, 0)
 
 function doom_weapon_icon(slot, x, y, off_pic, on_pic)
     if (player.has_weapon_slot(slot)) then
@@ -235,28 +235,7 @@ end
 --This one adds plain extenders of the average colour
 function doom_status_bar()
     --Draw our extenders first, just in case the statusbar is already widescreen
-    if (not hud.custom_stbar) then
-        hud.draw_image(-83, 168, "STBARL") -- Widescreen border
-        hud.draw_image(320, 168, "STBARR") -- Widescreen border	
-    else
-        hud.solid_box(-83, 168, 83, 32, custom_stbar_average_color)
-        hud.solid_box(320, 168, 83, 32, custom_stbar_average_color)
-    end
-
-    doom_status_bar_common()
-end
-
---This one adds textured extenders of the average colour
-function doom_status_bar2()
-    --Draw our extenders first, just in case the statusbar is already widescreen
-    hud.draw_image(-83, 168, "STBARL") -- Widescreen border
-    hud.draw_image(320, 168, "STBARR") -- Widescreen border
-    if (hud.custom_stbar) then
-        hud.set_alpha(0.85)            --**Alters Transparency of HUD Elements**
-        hud.solid_box(-83, 168, 83, 32, custom_stbar_average_color)
-        hud.solid_box(320, 168, 83, 32, custom_stbar_average_color)
-        hud.set_alpha(1.0) --**Alters Transparency of HUD Elements**
-    end
+    hud.solid_box(-83, 168, 486, 32, stbar_average_color)
 
     doom_status_bar_common()
 end
@@ -270,10 +249,6 @@ function new_overlay_status()
     RelX = hud.x_left + (hud.x_right - hud.x_left) * 0.17
     AbsY = 166
     YOffset = 8
-
-    if (player.has_key(4)) then --green card
-        hud.draw_image(RelX, AbsY, "STKEYS9")
-    end
 
     AbsY = AbsY + YOffset
     if (player.has_key(1)) then
@@ -295,10 +270,6 @@ function new_overlay_status()
     RelX = hud.x_left + (hud.x_right - hud.x_left) * 0.20
     AbsY = 166
     YOffset = 8
-
-    if (player.has_key(8)) then --green skull
-        hud.draw_image(RelX, AbsY, "STKEYSA")
-    end
 
     AbsY = AbsY + YOffset
     if (player.has_key(5)) then
@@ -418,19 +389,13 @@ function new_overlay_status()
 end
 
 function doom_automap()
-    -- Background is already black, only need to use 'solid_box'
-    -- when we want a different color.
-    --
-    -- hud.solid_box(0, 0, 320, 200 - 32, '80 80 80')
 
     hud.render_automap(0, 0, 320, 200 - 32)
-    local which = hud.which_hud() % 4
+    local which = hud.which_hud() % 3
 
     if (which == 0) then
         doom_status_bar()
     elseif (which == 1) then
-        doom_status_bar2()
-    elseif (which == 2) then
         new_overlay_status()
     end
 
@@ -513,7 +478,6 @@ function edge_air_bar()
 
     --edge_draw_bar(TopX, TopY, BarHeight, BarLength, MaxValue, CurrentValue)
     edge_draw_bar(BarLocation, BarHeight, BarLength, BarMaxValue, CurrentValue, hud.BLACK, hud.LIGHTBLUE)
-    hud.play_sound("HEARTBT1")
 end
 
 function edge_time_bar()
@@ -540,7 +504,6 @@ function edge_time_bar()
 
     --edge_draw_bar(TopX, TopY, BarHeight, BarLength, MaxValue, CurrentValue)
     edge_draw_bar(BarLocation, BarHeight, BarLength, BarMaxValue, CurrentValue, hud.BLACK, hud.PURPLE)
-    hud.play_sound("HEARTBT1")
 end
 
 --***********************
@@ -612,19 +575,15 @@ end
 --***********************
 
 function new_game()
-    if (hud.custom_stbar) then
-        custom_stbar_average_color = hud.get_average_color("STBAR")
-        custom_stbar_darkest_color = hud.get_darkest_color("STBAR")
-        custom_stbar_lightest_color = hud.get_lightest_color("STBAR")
-    end
+    stbar_average_color = hud.get_average_color("STBAR")
+    stbar_darkest_color = hud.get_darkest_color("STBAR")
+    stbar_lightest_color = hud.get_lightest_color("STBAR")
 end
 
 function load_game()
-    if (hud.custom_stbar) then
-        custom_stbar_average_color = hud.get_average_color("STBAR")
-        custom_stbar_darkest_color = hud.get_darkest_color("STBAR")
-        custom_stbar_lightest_color = hud.get_lightest_color("STBAR")
-    end
+    stbar_average_color = hud.get_average_color("STBAR")
+    stbar_darkest_color = hud.get_darkest_color("STBAR")
+    stbar_lightest_color = hud.get_lightest_color("STBAR")
 end
 
 function save_game() end
@@ -645,22 +604,18 @@ function draw_all()
         return
     end
 
-    -- there are four standard HUDs:
-    -- the first two have different styles for the widescreen status bar extenders
-    -- the third is the fullscreen hud
-    -- the fourth is "hudless", i.e. you can only see your weapon
+    -- there are three standard HUDs:
+    -- the first one is for the traditional status bar
+    -- the second is the fullscreen hud
+    -- the third is "hudless", i.e. you can only see your weapon
 
-    local which = hud.which_hud() % 4
+    local which = hud.which_hud() % 3
 
     if (which == 0) then
         hud.universal_y_adjust = -16
         hud.render_world(0, 0, 320, 200 - 32)
         doom_status_bar()
     elseif (which == 1) then
-        hud.universal_y_adjust = -16
-        hud.render_world(0, 0, 320, 200 - 32)
-        doom_status_bar2()
-    elseif (which == 2) then
         hud.universal_y_adjust = 0
         hud.render_world(0, 0, 320, 200)
         new_overlay_status()

@@ -208,6 +208,10 @@ class StyleDefinitionContainer : public std::vector<StyleDefinition *>
     // graphics; this is mostly for wadfixes or other EC-specific modifcations
     // for projects not targeting EC
     bool patch_menus_allowed_ = true;
+    // GD - Dasho - This exists (for now) to account for the fact
+    // that we aren't shipping non-free Doom patches for stock Doom
+    // fonts
+    bool patch_menus_forced_ = false;
 };
 
 extern StyleDefinitionContainer styledefs;

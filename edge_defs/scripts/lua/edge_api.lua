@@ -66,7 +66,6 @@ hud.now_time           = 0
 hud.passed_time        = 0
 hud.last_time          = -1
 
-hud.custom_stbar       = false
 hud.universal_y_adjust = 0
 
 hud.x_left             = 0

@@ -17,8 +17,6 @@ M_EPI1_Desc="Knee Deep In The Dead";
 M_EPI2_Desc="The Shores of Hell";
 M_EPI3_Desc="Inferno";
 M_EPI4_Desc="Thy Flesh Consumed";
-M_EPI5_Desc="Sigil";
-M_EPI6_Desc="Hell on Earth";
 
 MainNewGame="New Game";
 MainOptions="Options";

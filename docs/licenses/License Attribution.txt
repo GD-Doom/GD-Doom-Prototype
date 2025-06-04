@@ -1,20 +1,10 @@
 ===========================================================================================
-Apache License 2.0
-===========================================================================================
-
-glad2 Loader Generator (generated output) - Copyright (c) 2013-2020 The Khronos Group Inc. 
-
-===========================================================================================
 BSD 3-Clause License
 ===========================================================================================
 
-"16-Bit Game Station" soundfont (select melodic instruments) - Copyright (c) 2009 Beatnik, Inc
-
 AlmostEquals Google Test Framework Component - Copyright (c) 2005 Google, Inc.
 
-Blasphemer (various assets) - Copyright (c) 2021 Contributors to the Blasphemer project
-
-Freedoom (various assets) - Copyright (c) 2001-2019 Contributors to the Freedoom project
+DSSECRET.wav sound - Copyright (c) 2019-2023 Calvin Martinez and Silja Midsummer
 
 minivorbis library - Copyright (c) 2020 Eduardo Bart
   Copyright (c) 2002-2020 Xiph.org Foundation
@@ -22,31 +12,26 @@ minivorbis library - Copyright (c) 2020 Eduardo Bart
 Mod4Play library - 	Copyright (c) 2024-2025 dashodanger
 					Copyright (c) 2022 Olav Sørensen
 
+RIPSLOP.lmp sound - Copyright (c) 2024 Jute Gyte
+
 ===========================================================================================
 CC 1.0 Universal License
 ===========================================================================================
 
 HandmadeMath.h - Ben Visness
 
-"ProtoSquare!" soundfont - Yingchun Soul
+DSDGACT.ogg and DSDGATK.ogg sounds - apolloaiello (edited from "Mr Dog_01.wav")
+
+DSDGDTH.ogg, DSDGPAIN.ogg and DSDGSIT.ogg sounds - TobiasKosmos (edited from "DogYelp.wav")
+
+Bundled graphics (contents of the /crosshairs, /edge_defs/graphics, /edge_defs/textures,
+  and /overlays folders) - The EDGE Team
 
 ===========================================================================================
 CC-BY-3.0 Unported License
 ===========================================================================================
 
 German Shepherd Dog Sprites - Copyright (c) 2017 Nash Muhandes
-
-===========================================================================================
-CC-BY-NC-4.0 International License
-===========================================================================================
-
-REKKR (various assets) - Copyright (c) 2021 Mockingbird Softworks
-
-===========================================================================================
-CC-BY-SA-4.0 International License
-===========================================================================================
-
-"ChipFreak" soundfont - Copyright (c) Jayvee Enaguas
 
 ===========================================================================================
 GPL3 License
@@ -74,18 +59,10 @@ XMIDI library (MIDI conversion) - Copyright (c) 2015-2022 Vitaly Novichkov
 								  Copyright (c) 2001 Ryan Nunn
 
 ===========================================================================================
-HacX License
-===========================================================================================
-
-HacX 1.2/2.0 (various assets) - Copyright (c) 1997-2012 Banjo Software, et al
-
-===========================================================================================
 MIT License
 ===========================================================================================
 
 3dreamEngine Lua Math Libraries - Copyright (c) 2019 Luke100000 
-
-"16-Bit Game Station" soundfont (percussion and select melodic instruments) - Copyright (c) 2022 Yingchun Soul
 
 base64.lua - Copyright (c) 2018 Ilya Kolbin 
 
@@ -121,7 +98,7 @@ Miniaudio library - David Reid
 
 prns.h - Marc B. Reynolds
 
-"sf_GMbank" soundfont (renamed to Default.sf2) - The Csound Developers
+"sf_GMbank" soundfont (renamed to SNDFONT.sf3) - The Csound Developers
 
 stb_image, stb_rect_pack, stb_sprintf, and stb_truetype libraries - Sean Barrett
 
@@ -137,11 +114,8 @@ Germania One (renamed to ECFONT03.ttf) - Copyright (c) 2011, John Vargas Beltrá
 Russo One (renamed to ECFONT01.ttf) - Copyright (c) 2011-2012, Jovanny Lemonad,
 									  with Reserved Font Name "Russo"
 
-===========================================================================================
-WidePix License
-===========================================================================================
-
-WidePix (various assets) - Copyright (c) 2020-2021 Nash Muhandes
+Warale Font (renamed to ENDFONT.png) - Copyright (c) 2021, Adrien Burgun (shad.amethyst@gmail.com),
+                                       with Reserved Font Name "Warale Font".
 
 ===========================================================================================
 zlib License

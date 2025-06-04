@@ -71,8 +71,6 @@
 #include "w_files.h"
 #include "w_texture.h"
 
-#define EDGE_ENABLE_STRIFE 0
-
 // Combination of unique lumps needed to best identify an IWAD
 const std::vector<GameCheck> game_checker = {{
     {"Custom", "custom", {"EDGEGAME", "EDGEGAME"}},
@@ -95,9 +93,7 @@ const std::vector<GameCheck> game_checker = {{
     {"Doom Demo", "doom1", {"SHOTA0", "E1M1"}},
     {"Doom II", "doom2", {"BFGGA0", "MAP01"}},
     {"Doom II BFG", "doom2", {"DMENUPIC", "MAP33"}},
-#if EDGE_ENABLE_STRIFE
     {"Strife", "strife", {"VELLOGO", "RGELOGO"}} // Dev/internal use - Definitely nowhwere near playable
-#endif
 }};
 
 class WadFile
@@ -2281,107 +2277,6 @@ void ProcessTXHINamespaces(void)
             ProcessHiresPackSubstitutions(df->pack_, file);
         }
     }
-}
-
-static const char *UserSkyboxName(const char *base, int face)
-{
-    static char       buffer[64];
-    static const char letters[] = "NESWTB";
-
-    stbsp_sprintf(buffer, "%s_%c", base, letters[face]);
-    return buffer;
-}
-
-// DisableStockSkybox
-//
-// Check if a loaded pwad has a custom sky.
-// If so, turn off our EWAD skybox.
-//
-// Returns true if found
-bool DisableStockSkybox(const char *ActualSky)
-{
-    bool         TurnOffSkybox = false;
-    const Image *tempImage;
-    int          filenum = -1;
-    int          lumpnum = -1;
-
-    // First we should try for "SKY1_N" type names but only
-    // use it if it's in a pwad i.e. a users skybox
-    tempImage = ImageLookup(UserSkyboxName(ActualSky, 0), kImageNamespaceTexture, kImageLookupNull);
-    if (tempImage)
-    {
-        if (tempImage->source_type_ == kImageSourceUser) // from images.ddf
-        {
-            lumpnum = CheckLumpNumberForName(tempImage->name_.c_str());
-
-            if (lumpnum != -1)
-            {
-                filenum = GetDataFileIndexForLump(lumpnum);
-            }
-
-            if (filenum != -1) // make sure we actually have a file
-            {
-                // we only want pwads
-                if (data_files[filenum]->kind_ == kFileKindPWAD || data_files[filenum]->kind_ == kFileKindPackWAD)
-                {
-                    LogDebug("SKYBOX: Sky is: %s. Type:%d lumpnum:%d filenum:%d \n", tempImage->name_.c_str(),
-                             tempImage->source_type_, lumpnum, filenum);
-                    TurnOffSkybox = false;
-                    return TurnOffSkybox; // get out of here
-                }
-            }
-        }
-    }
-
-    // If we're here then there are no user skyboxes.
-    // Lets check for single texture ones instead.
-    tempImage = ImageLookup(ActualSky, kImageNamespaceTexture, kImageLookupNull);
-
-    if (tempImage)                                          // this should always be true but check just in case
-    {
-        if (tempImage->source_type_ == kImageSourceTexture) // Normal doom format sky
-        {
-            filenum = GetDataFileIndexForLump(tempImage->source_.texture.tdef->patches->patch);
-        }
-        else if (tempImage->source_type_ == kImageSourceUser) // texture from images.ddf
-        {
-            LogDebug("SKYBOX: Sky is: %s. Type:%d  \n", tempImage->name_.c_str(), tempImage->source_type_);
-            TurnOffSkybox = true;                             // turn off or not? hmmm...
-            return TurnOffSkybox;
-        }
-        else                                                  // could be a png or jpg i.e. TX_ or HI_
-        {
-            lumpnum = CheckLumpNumberForName(tempImage->name_.c_str());
-            // lumpnum = tempImage->source.graphic.lump;
-            if (lumpnum != -1)
-            {
-                filenum = GetDataFileIndexForLump(lumpnum);
-            }
-        }
-
-        if (tempImage->source_type_ == kImageSourceDummy) // probably a skybox?
-        {
-            TurnOffSkybox = false;
-        }
-
-        if (filenum == 0) // it's the IWAD so we're done
-        {
-            TurnOffSkybox = false;
-        }
-
-        if (filenum != -1) // make sure we actually have a file
-        {
-            // we only want pwads
-            if (data_files[filenum]->kind_ == kFileKindPWAD || data_files[filenum]->kind_ == kFileKindPackWAD)
-            {
-                TurnOffSkybox = true;
-            }
-        }
-    }
-
-    LogDebug("SKYBOX: Sky is: %s. Type:%d lumpnum:%d filenum:%d \n", tempImage->name_.c_str(), tempImage->source_type_,
-             lumpnum, filenum);
-    return TurnOffSkybox;
 }
 
 // IsLumpInPwad

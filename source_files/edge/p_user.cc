@@ -56,11 +56,11 @@ static constexpr uint8_t kZoomAngleDivisor = 4;
 static const BAMAngle    kMouseLookLimit   = epi::BAMFromDegrees(75);
 static constexpr float   kCrouchSlowdown   = 0.5f;
 
-static SoundEffect *sfx_jpidle;
-static SoundEffect *sfx_jpmove;
-static SoundEffect *sfx_jprise;
-static SoundEffect *sfx_jpdown;
-static SoundEffect *sfx_jpflow;
+static SoundEffect *sfx_jpidle = nullptr;
+static SoundEffect *sfx_jpmove = nullptr;
+static SoundEffect *sfx_jprise = nullptr;
+static SoundEffect *sfx_jpdown = nullptr;
+static SoundEffect *sfx_jpflow = nullptr;
 
 // Test for "measuring" size of room
 static bool P_RoomPath(PathIntercept *in, void *dataptr)
@@ -427,19 +427,23 @@ static void MovePlayer(Player *player)
         else
             sfx_cat = kCategoryOpponent;
 
-        if (player->powers_[kPowerTypeJetpack] <= (5 * kTicRate))
+        // GD - Dasho : Removed stock sounds and defs as they were non-free,
+        // kept this in for now (with null checks) in case we do want
+        // "flying noises"
+
+        if (player->powers_[kPowerTypeJetpack] <= (5 * kTicRate) && sfx_jpflow)
         {
             if ((level_time_elapsed & 10) == 0)
                 StartSoundEffect(sfx_jpflow, sfx_cat,
                                  player->map_object_); // fuel low
         }
-        else if (cmd->upward_move > 0)
+        else if (cmd->upward_move > 0 && sfx_jprise)
             StartSoundEffect(sfx_jprise, sfx_cat, player->map_object_);
-        else if (cmd->upward_move < 0)
+        else if (cmd->upward_move < 0 && sfx_jpdown)
             StartSoundEffect(sfx_jpdown, sfx_cat, player->map_object_);
-        else if (cmd->forward_move || cmd->side_move)
+        else if ((cmd->forward_move || cmd->side_move) && (sfx_jpidle && sfx_jpmove))
             StartSoundEffect((onground ? sfx_jpidle : sfx_jpmove), sfx_cat, player->map_object_);
-        else
+        else if (sfx_jpidle)
             StartSoundEffect(sfx_jpidle, sfx_cat, player->map_object_);
     }
 

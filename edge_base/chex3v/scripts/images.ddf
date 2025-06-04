@@ -1,0 +1,15 @@
+//***************************************
+//*** https://edge-classic.github.io/ ***
+//***************************************
+
+
+<IMAGES>
+
+[GFX:M_SKULL1]
+IMAGE_DATA=LUMP:DOOM:"M_SKULL1";
+Y_OFFSET=1;
+
+[GFX:M_SKULL2]
+IMAGE_DATA=LUMP:DOOM:"M_SKULL1";
+BRIGHTNESS = -50;
+Y_OFFSET=1;
