@@ -45,7 +45,6 @@ jobs:
           ${{github.workspace}}/crosshairs
           ${{github.workspace}}/edge_base
           ${{github.workspace}}/edge_defs
-          ${{github.workspace}}/edge_fixes
           ${{github.workspace}}/overlays
           ${{github.workspace}}/soundfont
           ${{github.workspace}}/edge-classic
@@ -67,7 +66,6 @@ jobs:
             crosshairs
             edge_base
             edge_defs
-            edge_fixes
             overlays
             soundfont
             edge-classic.exe
@@ -101,7 +99,6 @@ jobs:
           ${{github.workspace}}/crosshairs
           ${{github.workspace}}/edge_base
           ${{github.workspace}}/edge_defs
-          ${{github.workspace}}/edge_fixes
           ${{github.workspace}}/overlays
           ${{github.workspace}}/soundfont
           ${{github.workspace}}/edge-classic

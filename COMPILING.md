@@ -94,7 +94,6 @@ In all cases (barring the WebGL build per the previous section), the executable 
 * autoload
 * crosshairs
 * edge_base
-* edge_fixes
 * overlays
 * soundfont
 * edge-classic/edge-classic.exe (OS-dependent)
