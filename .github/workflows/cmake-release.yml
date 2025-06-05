@@ -30,7 +30,6 @@ jobs:
             crosshairs
             docs
             edge_base/*.epk
-            edge_fixes
             overlays
             soundfont
             edge-classic.exe
