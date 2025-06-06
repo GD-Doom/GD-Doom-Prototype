@@ -12,7 +12,6 @@ class Platform
 {
 
   public:
-
     static uint32_t GetTicks()
     {
         CheckValid();
@@ -48,6 +47,19 @@ class Platform
         return instance_->OpenURL(url);
     }
 
+    static int ShowSimpleMessageBox(const char *title, const char *message)
+    {
+        CheckValid();
+
+        return instance_->ShowSimpleMessageBoxInternal(title, message);
+    }
+
+    static void Delay(uint32_t milliseconds)
+    {
+
+        return instance_->DelayInternal(milliseconds);
+    }
+
     static void shutdown()
     {
         if (instance_)
@@ -71,6 +83,10 @@ class Platform
     virtual uint32_t GetTicksInternal() = 0;
 
     virtual int OpenURLInternal(const char *url) = 0;
+
+    virtual int ShowSimpleMessageBoxInternal(const char *title, const char *message) = 0;
+
+    virtual void DelayInternal(uint32_t milliseconds) = 0;
 
     static void set(Platform *platform);
 

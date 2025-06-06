@@ -53,6 +53,16 @@ class SDL_Platform : public Platform
         return SDL_OpenURL(url);
     }
 
+    int ShowSimpleMessageBoxInternal(const char *title, const char *message) override
+    {
+        return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, nullptr);
+    }
+
+    void DelayInternal(uint32_t milliseconds) override
+    {
+        SDL_Delay(milliseconds);
+    }
+
   public:
     SDL_Platform()
     {
@@ -64,6 +74,11 @@ class SDL_Platform : public Platform
             FatalError("Couldn't init SDL!!\n%s\n", SDL_GetError());
 
         set(this);
+    }
+
+    virtual ~SDL_Platform()
+    {
+        SDL_Quit();
     }
 };
 

@@ -25,12 +25,12 @@
 #include "dm_defs.h"
 #include "e_main.h"
 #include "epi.h"
-#include "epi_sdl.h"
 #include "epi_windows.h"
 #include "g_game.h"
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"
+#include "platform/gd_platform.h"
 #include "s_sound.h"
 #include "stb_sprintf.h"
 #include "version.h"
@@ -121,12 +121,11 @@ void LogPrint(const char *message, ...)
 
     // Send the message to the console.
     ConsoleMessage(kConsoleOnly, "%s", printbuf);
-
 }
 
 void ShowMessageBox(const char *message, const char *title)
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, nullptr);
+    gd::Platform::ShowSimpleMessageBox(title, message);
 }
 
 int PureRandomNumber(void)
@@ -161,7 +160,7 @@ void SleepForMilliseconds(int millisecs)
     }
 #endif
 
-    SDL_Delay(millisecs);
+    gd::Platform::Delay(millisecs);
 }
 
 void SystemShutdown(void)
@@ -182,7 +181,7 @@ void SystemShutdown(void)
         debug_file = nullptr;
     }
 
-    SDL_Quit();
+    gd::Platform_Shutdown();
 }
 
 //--- editor settings ---
