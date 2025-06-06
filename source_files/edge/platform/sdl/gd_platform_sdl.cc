@@ -10,6 +10,11 @@ class SDL_Platform : public Platform
 {
 
   protected:
+    uint32_t GetTicksInternal() override
+    {
+        return SDL_GetTicks();
+    }
+
     std::string GetBasePathInternal(void) override
     {
         const char *path = SDL_GetBasePath();

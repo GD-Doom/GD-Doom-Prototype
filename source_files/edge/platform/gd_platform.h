@@ -12,6 +12,14 @@ class Platform
 {
 
   public:
+
+    static uint32_t GetTicks()
+    {
+        CheckValid();
+
+        return instance_->GetTicksInternal();
+    }
+
     static std::string GetEnv(const char *name)
     {
         CheckValid();
@@ -59,6 +67,8 @@ class Platform
     virtual std::string GetPrefPathInternal(const char *org, const char *app) = 0;
 
     virtual std::string GetEnvInternal(const char *name) = 0;
+
+    virtual uint32_t GetTicksInternal() = 0;
 
     virtual int OpenURLInternal(const char *url) = 0;
 

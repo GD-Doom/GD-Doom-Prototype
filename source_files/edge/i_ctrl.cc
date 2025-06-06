@@ -27,6 +27,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "m_argv.h"
+#include "platform/gd_platform.h"
 #include "r_modes.h"
 
 // FIXME: Combine all these SDL bool vars into an int/enum'd flags structure
@@ -795,7 +796,7 @@ void ShutdownControl(void)
 
 int GetTime(void)
 {
-    Uint32 t = SDL_GetTicks();
+    uint32_t t = gd::Platform::GetTicks();
 
     // more complex than "t*35/1000" to give more accuracy
     return (t / 1000) * kTicRate + (t % 1000) * kTicRate / 1000;
@@ -803,7 +804,7 @@ int GetTime(void)
 
 int GetMilliseconds(void)
 {
-    return SDL_GetTicks();
+    return gd::Platform::GetTicks();
 }
 
 //--- editor settings ---
