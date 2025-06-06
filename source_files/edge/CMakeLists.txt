@@ -130,6 +130,18 @@ endif()
 
 list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
 
+# Platform sources
+if (GD_PLATFORM_SDL)
+
+  set (GD_PLATFORM_SDL_SOURCE_FILES
+    platform/gd_platform.cc
+    platform/sdl/gd_platform_sdl.cc
+  )
+
+  list (APPEND EDGE_SOURCE_FILES ${GD_PLATFORM_SDL_SOURCE_FILES})
+
+endif()
+
 if (EMSCRIPTEN)
   list (APPEND EDGE_SOURCE_FILES i_web.cc)
 else()

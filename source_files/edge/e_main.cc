@@ -73,6 +73,7 @@
 #include "n_network.h"
 #include "p_setup.h"
 #include "p_spec.h"
+#include "platform/gd_platform.h"
 #include "r_backend.h"
 #include "r_colormap.h"
 #include "r_draw.h"
@@ -1225,15 +1226,14 @@ static void InitializeDirectories(void)
     // Get the App Directory from parameter.
 
     // Note: This might need adjusting for Apple
-    char *path = SDL_GetBasePath();
+    std::string path = gd::Platform::GetBasePath();
 
-    if (!path)
+    if (!path.size())
         FatalError("Failed to get base path!\n");
 
     std::string s = path;
-
-    SDL_free(path);
-    path = NULL;
+    
+    path.clear();
 
     game_directory = s;
     s              = ArgumentValue("game");
@@ -1278,17 +1278,16 @@ static void InitializeDirectories(void)
     if (home_directory.empty())
     {
 #ifdef _WIN32
-        path = SDL_GetPrefPath(nullptr, application_name.c_str());
+        path = gd::Platform::GetPrefPath(nullptr, application_name.c_str());
 #else
         std::string lowpath = application_name.s_;
         epi::StringLowerASCII(lowpath);
         path = SDL_GetPrefPath(nullptr, lowpath.c_str());
 #endif
-        if (!path)
+        if (!path.size())
             FatalError("Could not determine home directory!\n");
         home_directory = path;
-        SDL_free(path);
-        path = NULL;
+        path.clear();
     }
 
     if (!epi::IsDirectory(home_directory))
@@ -1994,6 +1993,8 @@ void EdgeShutdown(void)
             ClosePackFile(df);
         delete df;
     }
+
+    gd::Platform_Shutdown();
 }
 
 #ifdef EDGE_MEMORY_CHECK
@@ -2032,6 +2033,8 @@ static void InitializeMemoryCheck()
 
 static void EdgeStartup(void)
 {
+    gd::Platform_Init();
+
     ConsoleInit();
 
     // -AJA- 2000/02/02: initialise global gameflags to defaults
