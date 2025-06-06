@@ -209,9 +209,7 @@ static void OptionMenuChangeResSize(int key_pressed, ConsoleVariable *console_va
 static void OptionMenuChangeResFull(int key_pressed, ConsoleVariable *console_variable);
 
 void OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable);
-#ifndef EDGE_WEB
 static void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable);
-#endif
 
 static void OptionMenuLanguageDrawer(int x, int y, int deltay);
 static void OptionMenuChangeLanguage(int key_pressed, ConsoleVariable *console_variable);
@@ -334,13 +332,8 @@ static int OptionMenuGetCurrentSwitchValue(OptionMenuItem *item)
 //
 //  MAIN MENU
 //
-#ifdef EDGE_WEB
-static constexpr uint8_t kOptionMenuLanguagePosition    = 10;
-static constexpr uint8_t kOptionMenuNetworkHostPosition = 12;
-#else
 static constexpr uint8_t kOptionMenuLanguagePosition    = 11;
 static constexpr uint8_t kOptionMenuNetworkHostPosition = 13;
-#endif
 
 static OptionMenuItem mainoptions[] = {
     {kOptionMenuItemTypeFunction, "MenuBinding", nullptr, 0, nullptr, OptionMenuKeyboardOptions, "Controls", nullptr, 0,
@@ -360,22 +353,16 @@ static OptionMenuItem mainoptions[] = {
      0, 0, ""},
     {kOptionMenuItemTypeFunction, "MenuVideo", nullptr, 0, nullptr, OptionMenuVideoOptions, "VideoOptions", nullptr, 0,
      0, 0, ""},
-#ifndef EDGE_WEB
     {kOptionMenuItemTypeFunction, "MenuResolution", nullptr, 0, nullptr, OptionMenuResolutionOptions, "ChangeRes",
      nullptr, 0, 0, 0, ""},
-#endif
     {kOptionMenuItemTypePlain, "", nullptr, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeFunction, "MenuLanguage", nullptr, 0, nullptr, OptionMenuChangeLanguage, nullptr, nullptr, 0, 0,
      0, ""},
     {kOptionMenuItemTypePlain, "", nullptr, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeFunction, "MenuStartBotmatch", nullptr, 0, nullptr, OptionMenuHostNetGame, nullptr, nullptr, 0,
      0, 0, ""},
-#ifndef EDGE_WEB
     {kOptionMenuItemTypeFunction, "MenuBrowseHome", nullptr, 0, nullptr, OptionMenuBrowseHome, nullptr, nullptr, 0, 0,
      0, ""},
-#else
-    {kOptionMenuItemTypePlain, "", nullptr, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-#endif
     {kOptionMenuItemTypeFunction, "MenuResetToDefault", nullptr, 0, nullptr, ResetDefaults, nullptr, nullptr, 0, 0, 0,
      ""}};
 
@@ -418,10 +405,8 @@ static OptionMenuItem vidoptions[] = {
      ""},
     {kOptionMenuItemTypeSwitch, "Invulnerability", "Simple/Textured", kTotalInvulnerabilityEffects,
      &invulnerability_effect, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-#ifndef EDGE_WEB
     {kOptionMenuItemTypeSwitch, "Wipe method", "None/Melt/Crossfade/Pixelfade/Top/Bottom/Left/Right/Spooky/Doors",
      kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-#endif
     {kOptionMenuItemTypeSwitch, "Animated Liquid Type", "Vanilla/SMMU/SMMU+Swirl/Parallax", 4, &swirling_flats, nullptr,
      nullptr, nullptr, 0, 0, 0, ""}};
 
@@ -2344,7 +2329,7 @@ void OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable)
 
     OptionMenuNetworkHostBegun();
 }
-#ifndef EDGE_WEB
+
 void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable)
 {
     EPI_UNUSED(key_pressed);
@@ -2352,7 +2337,7 @@ void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable)
 
     epi::OpenDirectory(home_directory);
 }
-#endif
+
 void MenuOptions(int choice)
 {
     option_menu_on    = 1;

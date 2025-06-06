@@ -251,7 +251,6 @@ void HandleKeyEvent(SDL_Event *ev)
         return;
     }
 
-#ifndef EDGE_WEB // Not sure if this is desired on the web build
     if (event.value.key.sym == kEnter && alt_is_down)
     {
         alt_is_down = false;
@@ -262,7 +261,6 @@ void HandleKeyEvent(SDL_Event *ev)
         }
         return;
     }
-#endif
 
     if (event.value.key.sym == kLeftAlt)
         alt_is_down = (event.type == kInputEventKeyDown);
@@ -581,17 +579,6 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
         {
             HandleFocusLost();
         }
-#ifdef EDGE_WEB
-        if (sdl_ev->window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-            printf("SDL window resize event %i %i\n", sdl_ev->window.data1, sdl_ev->window.data2);
-            current_screen_width  = sdl_ev->window.data1;
-            current_screen_height = sdl_ev->window.data2;
-            current_screen_depth  = 24;
-            current_window_mode   = kWindowModeWindowed;
-            DeterminePixelAspect();
-        }
-#endif
 
         break;
     }
@@ -603,20 +590,12 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-#ifdef EDGE_WEB
-        // On web, we don't want clicks coming through when changing pointer
-        // lock Otherwise, menus will be selected, weapons fired,
-        // unexpectedly
-        if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE)
-            HandleMouseButtonEvent(sdl_ev);
-#else
         if (need_mouse_recapture)
         {
             GrabCursor(true);
             break;
         }
         HandleMouseButtonEvent(sdl_ev);
-#endif
         break;
 
     case SDL_MOUSEWHEEL:

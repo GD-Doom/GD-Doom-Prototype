@@ -32,8 +32,6 @@ option(EDGE_SOKOL_D3D11 "Sokol D3D11" OFF)
 if (NOT EDGE_SOKOL_GL AND NOT EDGE_SOKOL_D3D11 AND NOT EDGE_SOKOL_GLES3)
   if (WIN32)
     set (EDGE_SOKOL_D3D11 ON)
-  elseif (EMSCRIPTEN)
-    set (EDGE_SOKOL_GLES3 ON)
 # Unix; Apple will eventually have a Metal backend but it should support 
 # the level of GL in use by Sokol GFX/GL
   else ()
@@ -49,10 +47,6 @@ option(EDGE_EXTRA_CHECKS "Enable diagnostic checks/functions" OFF)
 
 # memory allocator
 option(EDGE_MIMALLOC "Enable mimalloc" ON)
-# disable Mimalloc if targeting Emscripten
-if (EMSCRIPTEN)
-  set(EDGE_MIMALLOC OFF)
-endif()
 # Enables exhaustive memory checks, see mimalloc CMakeLists.txt for what is enabled
 # Memory error logging goes to debug.txt
 option(EDGE_MEMORY_CHECK "Enable Memory Checks" OFF)
@@ -65,10 +59,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
   set(CLANG true)
 else()
   set(CLANG false)
-endif()
-
-if (EMSCRIPTEN)
-  include("${CMAKE_SOURCE_DIR}/cmake/Emscripten.cmake")  
 endif()
 
 if(MSVC)
@@ -199,7 +189,7 @@ endif()
 add_definitions(-DEDGE_SOKOL)
 if (EDGE_SOKOL_GL)  
   find_package(OpenGL REQUIRED)
-elseif (EDGE_SOKOL_GLES3 AND NOT EMSCRIPTEN)
+elseif (EDGE_SOKOL_GLES3)
   find_package(OpenGL COMPONENTS GLES3 REQUIRED)
 endif()
 

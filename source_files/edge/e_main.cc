@@ -607,11 +607,6 @@ ScreenWipe wipe_method = kScreenWipeMelt;
 
 void ForceWipe(void)
 {
-#ifdef EDGE_WEB
-    // Wiping blocks the main thread while rendering outside of the main loop
-    // tick Disabled on the platform until can be better integrated
-    return;
-#endif
     if (game_state == kGameStateNothing)
         return;
 
@@ -2259,7 +2254,6 @@ void EdgeMain(int argc, const char **argv)
 
     LogDebug("- Entering game loop...\n");
 
-#ifndef EDGE_WEB
     while (!(app_state & kApplicationPendingQuit))
     {
         // We always do this once here, although the engine may
@@ -2273,9 +2267,6 @@ void EdgeMain(int argc, const char **argv)
             SleepForMilliseconds(5);
         }
     }
-#else
-    return;
-#endif
 }
 
 //

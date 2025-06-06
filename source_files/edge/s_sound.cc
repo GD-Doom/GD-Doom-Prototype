@@ -16,10 +16,6 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef EDGE_WEB
-#include <emscripten.h>
-#endif
-
 #include "dm_state.h"
 #include "epi.h"
 #include "epi_sdl.h"

@@ -3,7 +3,7 @@ add_library(sokol sokol.cc)
 
 if (EDGE_SOKOL_GL)
     set (SOKOL_LINK_LIBRARIES OpenGL::GL)
-elseif (EDGE_SOKOL_GLES3 AND NOT EMSCRIPTEN)
+elseif (EDGE_SOKOL_GLES3)
     set (SOKOL_LINK_LIBRARIES OpenGL::GLES3)
 endif()
 

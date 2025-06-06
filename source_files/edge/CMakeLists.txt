@@ -142,11 +142,7 @@ if (GD_PLATFORM_SDL)
 
 endif()
 
-if (EMSCRIPTEN)
-  list (APPEND EDGE_SOURCE_FILES i_web.cc)
-else()
-  list (APPEND EDGE_SOURCE_FILES i_main.cc)
-endif()
+list (APPEND EDGE_SOURCE_FILES i_main.cc)
 
 if (WIN32)
   list (APPEND EDGE_SOURCE_FILES w32_res.rc)
@@ -208,37 +204,9 @@ target_compile_options(edge-classic PRIVATE
 
 set(COPY_FILES "")
 
-if (NOT EMSCRIPTEN)
 
-  set (DEST_DIR "${CMAKE_SOURCE_DIR}")
-  list(APPEND COPY_FILES "$<TARGET_FILE:edge-classic>")
-
-else()
-
-  set (SOURCE_DIR "${CMAKE_SOURCE_DIR}/build/source_files/edge")
-  set (DEST_DIR "${CMAKE_SOURCE_DIR}/web/site")
-
-  target_link_options(edge-classic PRIVATE "--pre-js=${DEST_DIR}/edge-classic-data.js")
-
-  list(APPEND COPY_FILES "${SOURCE_DIR}/edge-classic.js" "${SOURCE_DIR}/edge-classic.wasm" "${SOURCE_DIR}/edge-classic.wasm.map")
-
-  add_custom_command(
-  TARGET edge-classic
-  PRE_BUILD
-  COMMAND python3 ${EMPACKAGER} ${DEST_DIR}/edge-classic.data --preload
-    ${CMAKE_SOURCE_DIR}/web/preload@/
-    ${CMAKE_SOURCE_DIR}/crosshairs@/crosshairs
-    ${CMAKE_SOURCE_DIR}/edge_base@/edge_base
-    ${CMAKE_SOURCE_DIR}/edge_defs@/edge_defs
-    ${CMAKE_SOURCE_DIR}/overlays@/overlays
-    ${CMAKE_SOURCE_DIR}/soundfont@/soundfont
-    --js-output=${DEST_DIR}/edge-classic-data.js
-    --use-preload-cache
-    --no-node
-    --lz4
-  )
-
-endif()
+set (DEST_DIR "${CMAKE_SOURCE_DIR}")
+list(APPEND COPY_FILES "$<TARGET_FILE:edge-classic>")
 
 # Copy appropriate SDL2.dll to local install directory when built with MSVC/Clang
 if (WIN32)

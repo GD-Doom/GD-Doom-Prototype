@@ -60,12 +60,7 @@ EDGE_DEFINE_CONSOLE_VARIABLE(pixel_aspect_ratio, "1.0", kConsoleVariableFlagRead
 // cases where a normal logic fails.  however, it will apply to *all* modes,
 // including windowed mode.
 EDGE_DEFINE_CONSOLE_VARIABLE(forced_pixel_aspect_ratio, "0", kConsoleVariableFlagArchive)
-
-#ifdef EDGE_WEB
-EDGE_DEFINE_CONSOLE_VARIABLE(framerate_limit, "0", kConsoleVariableFlagReadOnly)
-#else
 EDGE_DEFINE_CONSOLE_VARIABLE(framerate_limit, "500", kConsoleVariableFlagArchive)
-#endif
 
 static bool grab_state;
 
@@ -77,11 +72,6 @@ extern bool need_mouse_recapture;
 
 void GrabCursor(bool enable)
 {
-#ifdef EDGE_WEB
-    // On web, cursor lock is exclusively handled by selecting canvas
-    return;
-#endif
-
     if (!program_window || graphics_shutdown)
         return;
 
@@ -257,11 +247,7 @@ static bool InitializeWindow(DisplayMode *mode)
     std::string temp_title = window_title.s_;
     temp_title.append(" ").append(edge_version.s_);
 
-#if EDGE_WEB
-    int resizeable = SDL_WINDOW_RESIZABLE;
-#else
     int resizeable = 0;
-#endif
 
     uint32_t window_flags =
         (mode->window_mode == kWindowModeBorderless ? (SDL_WINDOW_FULLSCREEN_DESKTOP) : (0)) | resizeable;
