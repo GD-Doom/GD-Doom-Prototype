@@ -12,6 +12,13 @@ class Platform
 {
 
   public:
+    static std::string GetEnv(const char *name)
+    {
+        CheckValid();
+
+        return instance_->GetEnvInternal(name);
+    }
+
     static std::string GetBasePath()
     {
         CheckValid();
@@ -43,6 +50,8 @@ class Platform
     virtual std::string GetBasePathInternal(void) = 0;
 
     virtual std::string GetPrefPathInternal(const char *org, const char *app) = 0;
+
+    virtual std::string GetEnvInternal(const char *name) = 0;
 
     static void set(Platform *platform);
 

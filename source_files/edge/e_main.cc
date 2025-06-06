@@ -1282,7 +1282,7 @@ static void InitializeDirectories(void)
 #else
         std::string lowpath = application_name.s_;
         epi::StringLowerASCII(lowpath);
-        path = SDL_GetPrefPath(nullptr, lowpath.c_str());
+        path = gd::Platform::GetPrefPath(nullptr, lowpath.c_str());
 #endif
         if (!path.size())
             FatalError("Could not determine home directory!\n");
@@ -1452,8 +1452,8 @@ static void IdentifyVersion(void)
 
     // If we haven't yet found an IWAD, build a search list
     // starting with the DOOMWADDIR environment variable
-    const char *check = SDL_getenv("DOOMWADDIR");
-    if (check)
+    std::string check = gd::Platform::GetEnv("DOOMWADDIR");
+    if (!check.empty())
         s = check;
 
     if (!s.empty() && epi::IsDirectory(s))
@@ -1461,8 +1461,8 @@ static void IdentifyVersion(void)
 
     // Add DOOMWADPATH directories if they exist
     s.clear();
-    check = SDL_getenv("DOOMWADPATH");
-    if (check)
+    check = gd::Platform::GetEnv("DOOMWADPATH");
+    if (!check.empty())
         s = check;
 
     if (!s.empty())
@@ -2033,8 +2033,6 @@ static void InitializeMemoryCheck()
 
 static void EdgeStartup(void)
 {
-    gd::Platform_Init();
-
     ConsoleInit();
 
     // -AJA- 2000/02/02: initialise global gameflags to defaults
