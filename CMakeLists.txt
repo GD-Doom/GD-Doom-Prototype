@@ -18,6 +18,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Platform Options
 option(GD_PLATFORM_SDL "Platform SDL" ON)
 
+if (GD_PLATFORM_SDL)
+add_definitions(-DGD_PLATFORM_SDL)
+endif()
+
 # Rendering Options
 
 # Sokol Renderer
