@@ -43,6 +43,11 @@ class SDL_Platform : public Platform
         return result;
     }
 
+    int OpenURLInternal(const char *url) override
+    {
+        return SDL_OpenURL(url);
+    }
+
   public:
     SDL_Platform()
     {

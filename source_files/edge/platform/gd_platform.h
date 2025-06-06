@@ -33,6 +33,13 @@ class Platform
         return instance_->GetPrefPathInternal(org, app);
     }
 
+    static int OpenURL(const char *url)
+    {
+        CheckValid();
+
+        return instance_->OpenURL(url);
+    }
+
     static void shutdown()
     {
         if (instance_)
@@ -52,6 +59,8 @@ class Platform
     virtual std::string GetPrefPathInternal(const char *org, const char *app) = 0;
 
     virtual std::string GetEnvInternal(const char *name) = 0;
+
+    virtual int OpenURLInternal(const char *url) = 0;
 
     static void set(Platform *platform);
 
