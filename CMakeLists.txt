@@ -107,7 +107,7 @@ if (MSVC)
   add_definitions("/wd4100")
 
   # warning level for edge specific source files 
-  set (EDGE_WARNING_LEVEL "/W4")
+  set (EDGE_WARNING_LEVEL /WX /W4)
 
   # To use the sanitizer with MSVC, you will need to either have your Visual Studio
   # or Build Tools install in your PATH variable, or copy the appropriate DLL to the program
@@ -139,9 +139,9 @@ else()
 
   # warning level for edge specific source files
   if (CLANG)
-    set (EDGE_WARNING_LEVEL -Wextra -Wunreachable-code-aggressive)
+    set (EDGE_WARNING_LEVEL -Wextra -Werror -Wunreachable-code-aggressive)
   else()
-    set (EDGE_WARNING_LEVEL -Wextra)
+    set (EDGE_WARNING_LEVEL -Wextra -Werror)
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing")

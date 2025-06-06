@@ -1513,13 +1513,8 @@ static void IdentifyVersion(void)
                         LogDebug("GAME BASE = [%s]\n", game_base.c_str());
                         return;
                     }
-                    else
-                        FatalError("IdentifyVersion: Could not identify '%s' as a valid "
-                                   "IWAD!\n",
-                                   fn.c_str());
                 }
             }
-            FatalError("IdentifyVersion: Unable to access specified '%s'", fn.c_str());
         }
         else
         {
@@ -1533,10 +1528,6 @@ static void IdentifyVersion(void)
                 LogDebug("GAME BASE = [%s]\n", game_base.c_str());
                 return;
             }
-            else
-                FatalError("IdentifyVersion: Could not identify '%s' as a valid "
-                           "IWAD!\n",
-                           fn.c_str());
         }
 
         // If we get here, try .epk and error out if we still can't access what
@@ -1563,10 +1554,6 @@ static void IdentifyVersion(void)
                         LogDebug("GAME BASE = [%s]\n", game_base.c_str());
                         return;
                     }
-                    else
-                        FatalError("IdentifyVersion: Could not identify '%s' as a valid "
-                                   "IWAD!\n",
-                                   fn.c_str());
                 }
             }
             FatalError("IdentifyVersion: Unable to access specified '%s'", fn.c_str());
