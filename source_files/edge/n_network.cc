@@ -35,6 +35,7 @@
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_random.h"
+#include "platform/gd_platform.h"
 #include "script/compat/lua_compat.h"
 
 // only true if packets are exchanged with a server
@@ -96,7 +97,7 @@ void NetworkShutdown(void)
 static void PreInput()
 {
     // process input
-    ControlGetEvents();
+    gd::Platform::ControlGetEvents();
     ProcessInputEvents();
 }
 

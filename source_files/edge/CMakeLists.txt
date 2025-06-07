@@ -106,6 +106,7 @@ set (EDGE_SOURCE_FILES
   w_sprite.cc
   w_texture.cc
   w_wad.cc
+  platform/gd_platform.cc
   script/lua_debugger.cc
   script/compat/lua_vm.cc
   script/compat/lua_compat.cc
@@ -114,27 +115,52 @@ set (EDGE_SOURCE_FILES
   script/compat/lua_player.cc
   script/compat/lua_hud.cc)
   
-set (EDGE_SOKOL_SOURCE_FILES
-  render/sokol/sokol_backend.cc
-  render/sokol/sokol_gl.cc  
-  render/sokol/sokol_images.cc
-  render/sokol/sokol_pipeline.cc
-  render/sokol/sokol_sky.cc
-  render/sokol/sokol_state.cc
-  render/sokol/sokol_units.cc
-)
+if (EDGE_SOKOL_GL)
 
-if (EDGE_SOKOL_D3D11)
-  list (APPEND EDGE_SOKOL_SOURCE_FILES render/sokol/sokol_d3d11.cc)
-endif()
+  set (EDGE_SOKOL_SOURCE_FILES
+    render/sokol/sokol_backend.cc
+    render/sokol/sokol_gl.cc  
+    render/sokol/sokol_images.cc
+    render/sokol/sokol_pipeline.cc
+    render/sokol/sokol_sky.cc
+    render/sokol/sokol_state.cc
+    render/sokol/sokol_units.cc
+  )
 
-list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
+  list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
 
-if (EMSCRIPTEN)
-  list (APPEND EDGE_SOURCE_FILES i_web.cc)
 else()
-  list (APPEND EDGE_SOURCE_FILES i_main.cc)
+
+  set (EDGE_NULL_SOURCE_FILES
+    render/null/null_backend.cc
+    render/null/null_state.cc
+    render/null/null_units.cc
+  )
+
+  list (APPEND EDGE_SOURCE_FILES ${EDGE_NULL_SOURCE_FILES})
+
 endif()
+
+# Platform sources
+if (GD_PLATFORM_SDL)
+
+  set (GD_PLATFORM_SDL_SOURCE_FILES
+    platform/sdl/gd_platform_sdl.cc
+  )
+
+  list (APPEND EDGE_SOURCE_FILES ${GD_PLATFORM_SDL_SOURCE_FILES})
+
+else()
+
+  set (GD_PLATFORM_NULL_SOURCE_FILES
+    platform/null/gd_platform_null.cc
+  )
+
+  list (APPEND EDGE_SOURCE_FILES ${GD_PLATFORM_NULL_SOURCE_FILES})
+
+endif()
+
+list (APPEND EDGE_SOURCE_FILES i_main.cc)
 
 if (WIN32)
   list (APPEND EDGE_SOURCE_FILES w32_res.rc)
@@ -162,8 +188,7 @@ set (EDGE_LINK_LIBRARIES
   ddf
   dehacked
   epi
-  edge_tracy
-  ${SDL2_LIBRARIES}
+  edge_tracy  
   almostequals
   fluidlite
   HandmadeMath
@@ -177,6 +202,12 @@ set (EDGE_LINK_LIBRARIES
   stb
 )
 
+if (GD_PLATFORM_SDL)
+  list (APPEND EDGE_LINK_LIBRARIES thread ${SDL2_LIBRARIES})
+elseif(WIN32)
+    set_target_properties(edge-classic PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+endif()
+
 if (NOT EMSCRIPTEN)
   list (APPEND EDGE_LINK_LIBRARIES thread)
 endif()
@@ -185,7 +216,9 @@ if (EDGE_PROFILING)
   list (APPEND EDGE_LINK_LIBRARIES TracyClient)
 endif()
 
-list(APPEND EDGE_LINK_LIBRARIES sokol)
+if (EDGE_SOKOL_GL)
+  list(APPEND EDGE_LINK_LIBRARIES sokol)
+endif()
 
 target_link_libraries(edge-classic PRIVATE ${EDGE_LINK_LIBRARIES})
 
@@ -196,47 +229,24 @@ target_compile_options(edge-classic PRIVATE
 
 set(COPY_FILES "")
 
-if (NOT EMSCRIPTEN)
 
-  set (DEST_DIR "${CMAKE_SOURCE_DIR}")
-  list(APPEND COPY_FILES "$<TARGET_FILE:edge-classic>")
+set (DEST_DIR "${CMAKE_SOURCE_DIR}")
+list(APPEND COPY_FILES "$<TARGET_FILE:edge-classic>")
 
-else()
+if (GD_PLATFORM_SDL)
 
-  set (SOURCE_DIR "${CMAKE_SOURCE_DIR}/build/source_files/edge")
-  set (DEST_DIR "${CMAKE_SOURCE_DIR}/web/site")
-
-  target_link_options(edge-classic PRIVATE "--pre-js=${DEST_DIR}/edge-classic-data.js")
-
-  list(APPEND COPY_FILES "${SOURCE_DIR}/edge-classic.js" "${SOURCE_DIR}/edge-classic.wasm" "${SOURCE_DIR}/edge-classic.wasm.map")
-
-  add_custom_command(
-  TARGET edge-classic
-  PRE_BUILD
-  COMMAND python3 ${EMPACKAGER} ${DEST_DIR}/edge-classic.data --preload
-    ${CMAKE_SOURCE_DIR}/web/preload@/
-    ${CMAKE_SOURCE_DIR}/crosshairs@/crosshairs
-    ${CMAKE_SOURCE_DIR}/edge_base@/edge_base
-    ${CMAKE_SOURCE_DIR}/edge_defs@/edge_defs
-    ${CMAKE_SOURCE_DIR}/overlays@/overlays
-    ${CMAKE_SOURCE_DIR}/soundfont@/soundfont
-    --js-output=${DEST_DIR}/edge-classic-data.js
-    --use-preload-cache
-    --no-node
-    --lz4
-  )
-
-endif()
-
-# Copy appropriate SDL2.dll to local install directory when built with MSVC/Clang
-if (WIN32)
-  if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
-    list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x64/SDL2.dll")
-  else ()
-    list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x86/SDL2.dll")
-  endif ()
+  # Copy appropriate SDL2.dll to local install directory when built with MSVC/Clang
+  if (WIN32)
+    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+      list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x64/SDL2.dll")
+    else ()
+      list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x86/SDL2.dll")
+    endif ()
+  endif()
 endif()
 
 if (COPY_FILES)
   add_custom_command( TARGET edge-classic POST_BUILD COMMAND_EXPAND_LISTS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COPY_FILES} ${DEST_DIR})
 endif()
+
+

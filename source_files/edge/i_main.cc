@@ -23,11 +23,14 @@
 #include "dm_defs.h"
 #include "e_main.h"
 #include "epi_filesystem.h"
+#ifdef GD_PLATFORM_SDL
 #include "epi_sdl.h"
+#endif
 #include "epi_str_util.h"
 #include "i_system.h"
 #include "m_argv.h"
 #include "version.h"
+#include "platform/gd_platform.h"
 
 std::string executable_path = ".";
 
@@ -35,14 +38,9 @@ extern "C"
 {
     int main(int argc, char *argv[])
     {
-#ifdef EDGE_MIMALLOC
-        if (SDL_SetMemoryFunctions(mi_malloc, mi_calloc, mi_realloc, mi_free) != 0)
-            FatalError("Couldn't init SDL memory functions!!\n%s\n", SDL_GetError());
-#endif
-        if (SDL_Init(0) < 0)
-            FatalError("Couldn't init SDL!!\n%s\n", SDL_GetError());
-
-        executable_path = SDL_GetBasePath();
+        gd::Platform_Init();
+        
+        executable_path = gd::Platform::GetBasePath();
 
         EdgeMain(argc, (const char **)argv);
         EdgeShutdown();

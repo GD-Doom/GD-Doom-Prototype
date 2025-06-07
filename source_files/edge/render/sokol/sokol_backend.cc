@@ -4,10 +4,6 @@
 #include "sokol_pipeline.h"
 #include "sokol_images.h"
 
-#ifdef SOKOL_D3D11
-#include "sokol_d3d11.h"
-#endif
-
 #include "epi.h"
 #include "i_video.h"
 
@@ -99,14 +95,6 @@ class SokolRenderBackend : public RenderBackend
             }
         }
 
-#ifdef SOKOL_D3D11
-        if (deferred_resize)
-        {
-            deferred_resize = false;
-            sapp_d3d11_resize_default_render_target(deferred_resize_width, deferred_resize_height);
-        }
-#endif
-
         FinalizeDeletedImages();
 
         render_state->Reset();
@@ -133,12 +121,6 @@ class SokolRenderBackend : public RenderBackend
         pass_.swapchain.depth_format   = SG_PIXELFORMAT_DEPTH;
         pass_.swapchain.gl.framebuffer = 0;
         pass_.swapchain.sample_count   = 1;
-
-#ifdef SOKOL_D3D11
-        pass_.swapchain.d3d11.render_view        = sapp_d3d11_get_render_view();
-        pass_.swapchain.d3d11.resolve_view       = sapp_d3d11_get_resolve_view();
-        pass_.swapchain.d3d11.depth_stencil_view = sapp_d3d11_get_depth_stencil_view();
-#endif
 
         EPI_CLEAR_MEMORY(world_state_, WorldState, kRenderWorldMax);
 
@@ -173,9 +155,6 @@ class SokolRenderBackend : public RenderBackend
 
     void SwapBuffers()
     {
-#ifdef SOKOL_D3D11
-        sapp_d3d11_present(vsync.d_ ? false : true, vsync.d_ ? 1 : 0);
-#endif
     }
 
     void FinishFrame()
@@ -209,21 +188,12 @@ class SokolRenderBackend : public RenderBackend
 
     void Resize(int32_t width, int32_t height)
     {
-#ifdef SOKOL_D3D11
-        deferred_resize        = true;
-        deferred_resize_width  = width;
-        deferred_resize_height = height;
-#else
         EPI_UNUSED(width);
         EPI_UNUSED(height);
-#endif
     }
 
     void Shutdown()
     {
-#ifdef SOKOL_D3D11
-        sapp_d3d11_shutdown();
-#endif
         sgl_shutdown();
         sg_shutdown();
 
@@ -247,9 +217,6 @@ class SokolRenderBackend : public RenderBackend
         CaptureScreenGL(width, height, stride, dest);
 #endif
 
-#ifdef SOKOL_D3D11
-        sapp_d3d11_capture_screen(width, height, stride, dest);
-#endif
     }
 
     void Init()
@@ -270,12 +237,6 @@ class SokolRenderBackend : public RenderBackend
         env.defaults.color_format = SG_PIXELFORMAT_RGBA8;
         env.defaults.depth_format = SG_PIXELFORMAT_DEPTH;
         env.defaults.sample_count = 1;
-
-#ifdef SOKOL_D3D11
-        sapp_d3d11_init(program_window, current_screen_width, current_screen_height);
-        env.d3d11.device         = sapp_d3d11_get_device();
-        env.d3d11.device_context = sapp_d3d11_get_device_context();
-#endif
 
         sg_desc desc;
         EPI_CLEAR_MEMORY(&desc, sg_desc, 1);
@@ -484,12 +445,6 @@ class SokolRenderBackend : public RenderBackend
     sg_pass pass_;
 
     WorldState world_state_[kRenderWorldMax];
-
-#ifdef SOKOL_D3D11
-    bool    deferred_resize        = false;
-    int32_t deferred_resize_width  = 0;
-    int32_t deferred_resize_height = 0;
-#endif
 };
 
 static SokolRenderBackend sokol_render_backend;

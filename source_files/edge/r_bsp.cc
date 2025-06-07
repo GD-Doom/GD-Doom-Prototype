@@ -55,9 +55,7 @@
 #include "r_things.h"
 #include "r_units.h"
 
-#ifndef EDGE_WEB
 #define BSP_MULTITHREAD
-#endif
 
 static void BSPQueueDrawSubsector(DrawSubsector *subsector);
 static void BSPQueueSkyWall(Seg *seg, float h1, float h2);

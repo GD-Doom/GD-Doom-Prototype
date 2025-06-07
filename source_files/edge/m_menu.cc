@@ -42,7 +42,6 @@
 #include "e_main.h"
 #include "epi.h"
 #include "epi_filesystem.h"
-#include "epi_sdl.h"
 #include "epi_str_util.h"
 #include "f_interm.h"
 #include "g_game.h"
@@ -1627,10 +1626,6 @@ static void QuitResponse(int ch)
 void QuitEdge(int choice)
 {
     EPI_UNUSED(choice);
-#ifdef EDGE_WEB
-    StartMenuMessage(language["QuitWhenWebPlayer"], nullptr, false);
-    return;
-#endif
 
     char ref[64];
 
@@ -1670,11 +1665,6 @@ void QuitEdge(int choice)
 // Accessible from console's 'quit now' command
 void ImmediateQuit()
 {
-#if EDGE_WEB
-    LogPrint("Quit ignored on web platform\n");
-    return;
-#endif
-
     LogPrint("Saving system defaults...\n");
     SaveDefaults();
 
@@ -1805,8 +1795,6 @@ bool MenuResponder(InputEvent *ev)
 
     int ch = ev->value.key.sym;
 
-    SDL_Keymod mod = SDL_GetModState();
-
     // -ACB- 1999/10/11 F1 is responsible for print screen at any time
     if (ch == kFunction1 || ch == kPrintScreen)
     {
@@ -1876,7 +1864,7 @@ bool MenuResponder(InputEvent *ev)
             return true;
         }
 
-        if (mod & KMOD_SHIFT || mod & KMOD_CAPS)
+        if (ev->modstate & kInputEventModShift || ev->modstate & kInputEventModCaps)
             ch = epi::ToUpperASCII(ch);
         if (ch == '-')
             ch = '_';
@@ -1943,7 +1931,7 @@ bool MenuResponder(InputEvent *ev)
             break;
 
         default:
-            if (mod & KMOD_SHIFT || mod & KMOD_CAPS)
+            if (ev->modstate & kInputEventModShift || ev->modstate & kInputEventModCaps)
                 ch = epi::ToUpperASCII(ch);
             EPI_ASSERT(save_style);
             if (ch >= 32 && ch <= 127 && save_string_character_index < kSaveStringSize - 1 &&
@@ -2076,11 +2064,7 @@ bool MenuResponder(InputEvent *ev)
         case kQuitEdge: // Quit DOOM
 
             StartSoundEffect(sound_effect_swtchn);
-#ifdef EDGE_WEB
-            StartMenuMessage(language["QuitWhenWebPlayer"], nullptr, false);
-#else
             QuitEdge(0);
-#endif
             return true;
 
         case kGammaToggle: // gamma toggle

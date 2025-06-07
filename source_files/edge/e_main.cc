@@ -51,7 +51,6 @@
 #include "edge_profiling.h"
 #include "epi_file.h"
 #include "epi_filesystem.h"
-#include "epi_sdl.h"
 #include "epi_str_compare.h"
 #include "epi_str_hash.h"
 #include "epi_str_util.h"
@@ -73,6 +72,7 @@
 #include "n_network.h"
 #include "p_setup.h"
 #include "p_spec.h"
+#include "platform/gd_platform.h"
 #include "r_backend.h"
 #include "r_colormap.h"
 #include "r_draw.h"
@@ -606,11 +606,6 @@ ScreenWipe wipe_method = kScreenWipeMelt;
 
 void ForceWipe(void)
 {
-#ifdef EDGE_WEB
-    // Wiping blocks the main thread while rendering outside of the main loop
-    // tick Disabled on the platform until can be better integrated
-    return;
-#endif
     if (game_state == kGameStateNothing)
         return;
 
@@ -1225,15 +1220,14 @@ static void InitializeDirectories(void)
     // Get the App Directory from parameter.
 
     // Note: This might need adjusting for Apple
-    char *path = SDL_GetBasePath();
+    std::string path = gd::Platform::GetBasePath();
 
-    if (!path)
+    if (!path.size())
         FatalError("Failed to get base path!\n");
 
     std::string s = path;
-
-    SDL_free(path);
-    path = NULL;
+    
+    path.clear();
 
     game_directory = s;
     s              = ArgumentValue("game");
@@ -1278,17 +1272,16 @@ static void InitializeDirectories(void)
     if (home_directory.empty())
     {
 #ifdef _WIN32
-        path = SDL_GetPrefPath(nullptr, application_name.c_str());
+        path = gd::Platform::GetPrefPath(nullptr, application_name.c_str());
 #else
         std::string lowpath = application_name.s_;
         epi::StringLowerASCII(lowpath);
-        path = SDL_GetPrefPath(nullptr, lowpath.c_str());
+        path = gd::Platform::GetPrefPath(nullptr, lowpath.c_str());
 #endif
-        if (!path)
+        if (!path.size())
             FatalError("Could not determine home directory!\n");
         home_directory = path;
-        SDL_free(path);
-        path = NULL;
+        path.clear();
     }
 
     if (!epi::IsDirectory(home_directory))
@@ -1453,8 +1446,8 @@ static void IdentifyVersion(void)
 
     // If we haven't yet found an IWAD, build a search list
     // starting with the DOOMWADDIR environment variable
-    const char *check = SDL_getenv("DOOMWADDIR");
-    if (check)
+    std::string check = gd::Platform::GetEnv("DOOMWADDIR");
+    if (!check.empty())
         s = check;
 
     if (!s.empty() && epi::IsDirectory(s))
@@ -1462,8 +1455,8 @@ static void IdentifyVersion(void)
 
     // Add DOOMWADPATH directories if they exist
     s.clear();
-    check = SDL_getenv("DOOMWADPATH");
-    if (check)
+    check = gd::Platform::GetEnv("DOOMWADPATH");
+    if (!check.empty())
         s = check;
 
     if (!s.empty())
@@ -1993,7 +1986,7 @@ void EdgeShutdown(void)
         if (df->pack_)
             ClosePackFile(df);
         delete df;
-    }
+    }    
 }
 
 #ifdef EDGE_MEMORY_CHECK
@@ -2258,12 +2251,11 @@ void EdgeMain(int argc, const char **argv)
 
     LogDebug("- Entering game loop...\n");
 
-#ifndef EDGE_WEB
     while (!(app_state & kApplicationPendingQuit))
     {
         // We always do this once here, although the engine may
         // makes in own calls to keep on top of the event processing
-        ControlGetEvents();
+        gd::Platform::ControlGetEvents();
 
         if (app_state & kApplicationActive)
             EdgeTicker();
@@ -2272,9 +2264,6 @@ void EdgeMain(int argc, const char **argv)
             SleepForMilliseconds(5);
         }
     }
-#else
-    return;
-#endif
 }
 
 //

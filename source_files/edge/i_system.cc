@@ -25,12 +25,12 @@
 #include "dm_defs.h"
 #include "e_main.h"
 #include "epi.h"
-#include "epi_sdl.h"
 #include "epi_windows.h"
 #include "g_game.h"
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"
+#include "platform/gd_platform.h"
 #include "s_sound.h"
 #include "stb_sprintf.h"
 #include "version.h"
@@ -49,8 +49,8 @@ static char              message_buffer[kMessageBufferSize];
 
 void SystemStartup(void)
 {
-    StartupGraphics(); // SDL requires this to be called first
-    StartupControl();
+    StartupGraphics(); 
+    gd::Platform::StartupControl();
     StartupAudio();
 }
 
@@ -122,15 +122,16 @@ void LogPrint(const char *message, ...)
     // Send the message to the console.
     ConsoleMessage(kConsoleOnly, "%s", printbuf);
 
-#ifdef EDGE_WEB
+ #ifndef GD_PLATFORM_SDL
     // Send to debug console in browser
     printf("%s", printbuf);
 #endif
+
 }
 
 void ShowMessageBox(const char *message, const char *title)
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, nullptr);
+    gd::Platform::ShowSimpleMessageBox(title, message);
 }
 
 int PureRandomNumber(void)
@@ -165,12 +166,12 @@ void SleepForMilliseconds(int millisecs)
     }
 #endif
 
-    SDL_Delay(millisecs);
+    gd::Platform::Delay(millisecs);
 }
 
 void SystemShutdown(void)
 {
-    ShutdownControl();
+    gd::Platform::ShutdownControl();
     ShutdownGraphics();
 
     if (log_file)
@@ -186,7 +187,7 @@ void SystemShutdown(void)
         debug_file = nullptr;
     }
 
-    SDL_Quit();
+    gd::Platform_Shutdown();
 }
 
 //--- editor settings ---

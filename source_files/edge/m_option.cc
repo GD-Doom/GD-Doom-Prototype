@@ -88,7 +88,6 @@
 #include "e_input.h"
 #include "epi.h"
 #include "epi_filesystem.h"
-#include "epi_sdl.h"
 #include "epi_str_compare.h"
 #include "epi_str_util.h"
 #include "g_game.h"
@@ -101,6 +100,7 @@
 #include "m_netgame.h"
 #include "n_network.h"
 #include "p_local.h"
+#include "platform/gd_platform.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_gldefs.h"
@@ -159,8 +159,6 @@ extern ConsoleVariable joystick_deadzone_axis_3;
 extern ConsoleVariable joystick_deadzone_axis_4;
 extern ConsoleVariable joystick_deadzone_axis_5;
 
-extern SDL_Joystick *joystick_info;
-extern int           JoystickGetAxis(int n);
 extern void          OptionMenuNetworkHostBegun(void);
 
 extern int entry_playing;
@@ -208,10 +206,8 @@ static void OptionMenuSetResolution(int key_pressed, ConsoleVariable *console_va
 static void OptionMenuChangeResSize(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeResFull(int key_pressed, ConsoleVariable *console_variable);
 
-void OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable);
-#ifndef EDGE_WEB
+void        OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable);
-#endif
 
 static void OptionMenuLanguageDrawer(int x, int y, int deltay);
 static void OptionMenuChangeLanguage(int key_pressed, ConsoleVariable *console_variable);
@@ -334,13 +330,8 @@ static int OptionMenuGetCurrentSwitchValue(OptionMenuItem *item)
 //
 //  MAIN MENU
 //
-#ifdef EDGE_WEB
-static constexpr uint8_t kOptionMenuLanguagePosition    = 10;
-static constexpr uint8_t kOptionMenuNetworkHostPosition = 12;
-#else
 static constexpr uint8_t kOptionMenuLanguagePosition    = 11;
 static constexpr uint8_t kOptionMenuNetworkHostPosition = 13;
-#endif
 
 static OptionMenuItem mainoptions[] = {
     {kOptionMenuItemTypeFunction, "MenuBinding", nullptr, 0, nullptr, OptionMenuKeyboardOptions, "Controls", nullptr, 0,
@@ -360,22 +351,16 @@ static OptionMenuItem mainoptions[] = {
      0, 0, ""},
     {kOptionMenuItemTypeFunction, "MenuVideo", nullptr, 0, nullptr, OptionMenuVideoOptions, "VideoOptions", nullptr, 0,
      0, 0, ""},
-#ifndef EDGE_WEB
     {kOptionMenuItemTypeFunction, "MenuResolution", nullptr, 0, nullptr, OptionMenuResolutionOptions, "ChangeRes",
      nullptr, 0, 0, 0, ""},
-#endif
     {kOptionMenuItemTypePlain, "", nullptr, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeFunction, "MenuLanguage", nullptr, 0, nullptr, OptionMenuChangeLanguage, nullptr, nullptr, 0, 0,
      0, ""},
     {kOptionMenuItemTypePlain, "", nullptr, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeFunction, "MenuStartBotmatch", nullptr, 0, nullptr, OptionMenuHostNetGame, nullptr, nullptr, 0,
      0, 0, ""},
-#ifndef EDGE_WEB
     {kOptionMenuItemTypeFunction, "MenuBrowseHome", nullptr, 0, nullptr, OptionMenuBrowseHome, nullptr, nullptr, 0, 0,
      0, ""},
-#else
-    {kOptionMenuItemTypePlain, "", nullptr, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-#endif
     {kOptionMenuItemTypeFunction, "MenuResetToDefault", nullptr, 0, nullptr, ResetDefaults, nullptr, nullptr, 0, 0, 0,
      ""}};
 
@@ -418,10 +403,8 @@ static OptionMenuItem vidoptions[] = {
      ""},
     {kOptionMenuItemTypeSwitch, "Invulnerability", "Simple/Textured", kTotalInvulnerabilityEffects,
      &invulnerability_effect, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-#ifndef EDGE_WEB
     {kOptionMenuItemTypeSwitch, "Wipe method", "None/Melt/Crossfade/Pixelfade/Top/Bottom/Left/Right/Spooky/Doors",
      kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-#endif
     {kOptionMenuItemTypeSwitch, "Animated Liquid Type", "Vanilla/SMMU/SMMU+Swirl/Parallax", 4, &swirling_flats, nullptr,
      nullptr, nullptr, 0, 0, 0, ""}};
 
@@ -1202,11 +1185,11 @@ void OptionMenuDrawer()
                 }
                 else
                 {
-                    const char *joyname = SDL_JoystickNameForIndex(joystick_device - 1);
-                    if (joyname)
+                    std::string joyname = gd::Platform::JoystickNameForIndex(joystick_device - 1);
+                    if (!joyname.empty())
                     {
                         HUDWriteText(style, fontType, (current_menu->menu_center) + 15, curry,
-                                     epi::StringFormat("%d - %s", joystick_device, joyname).c_str());
+                                     epi::StringFormat("%d - %s", joystick_device, joyname.c_str()).c_str());
                         break;
                     }
                     else
@@ -2268,7 +2251,7 @@ static void OptionMenuChangeGamepad(int key_pressed, ConsoleVariable *console_va
 {
     EPI_UNUSED(key_pressed);
     EPI_UNUSED(console_variable);
-    CheckJoystickChanged();
+    gd::Platform::CheckJoystickChanged();
 }
 
 //
@@ -2344,7 +2327,7 @@ void OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable)
 
     OptionMenuNetworkHostBegun();
 }
-#ifndef EDGE_WEB
+
 void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable)
 {
     EPI_UNUSED(key_pressed);
@@ -2352,7 +2335,7 @@ void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable)
 
     epi::OpenDirectory(home_directory);
 }
-#endif
+
 void MenuOptions(int choice)
 {
     option_menu_on    = 1;

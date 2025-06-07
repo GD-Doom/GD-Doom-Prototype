@@ -526,12 +526,6 @@ int ConsoleCommandScreenShot(char **argv, int argc)
 
 int ConsoleCommandQuitEDGE(char **argv, int argc)
 {
-#ifdef EDGE_WEB
-    EPI_UNUSED(argv);
-    EPI_UNUSED(argc);
-    ConsoleMessage(kConsoleOnly, "%s\n", language["QuitWhenWebPlayer"]);
-    return 1;
-#else
     if (argc >= 2 && epi::StringCaseCompareASCII(argv[1], "now") == 0)
         // this never returns
         ImmediateQuit();
@@ -539,7 +533,6 @@ int ConsoleCommandQuitEDGE(char **argv, int argc)
         QuitEdge(0);
 
     return 0;
-#endif
 }
 
 int ConsoleCommandPlaySound(char **argv, int argc)
@@ -586,13 +579,8 @@ int ConsoleCommandBrowse(char **argv, int argc)
 {
     EPI_UNUSED(argv);
     EPI_UNUSED(argc);
-#ifdef EDGE_WEB
-    ConsoleMessage(kConsoleOnly, "%s\n", language["NoBrowseFromWeb"]);
-    return 1;
-#else
     epi::OpenDirectory(working_directory);
     return 0;
-#endif
 }
 
 int ConsoleCommandShowVars(char **argv, int argc)
