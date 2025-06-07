@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Platform Options
-option(GD_PLATFORM_SDL "Platform SDL" OFF)
+option(GD_PLATFORM_SDL "Platform SDL" ON)
 
 if (GD_PLATFORM_SDL)
 add_definitions(-DGD_PLATFORM_SDL)
@@ -25,7 +25,7 @@ endif()
 # Rendering Options
 
 # Sokol Renderer
-option(EDGE_SOKOL_GL "Sokol GL" OFF)
+option(EDGE_SOKOL_GL "Sokol GL" ON)
 
 # Development 
 option(EDGE_SANITIZE "Enable code sanitizing" OFF)
