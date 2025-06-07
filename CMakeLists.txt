@@ -15,24 +15,17 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Platform Options
+option(GD_PLATFORM_SDL "Platform SDL" ON)
+
+if (GD_PLATFORM_SDL)
+add_definitions(-DGD_PLATFORM_SDL)
+endif()
+
 # Rendering Options
 
 # Sokol Renderer
-option(EDGE_SOKOL_GL "Sokol GL" OFF)
-option(EDGE_SOKOL_GLES3 "Sokol GLES3" OFF)
-option(EDGE_SOKOL_D3D11 "Sokol D3D11" OFF)
-
-if (NOT EDGE_SOKOL_GL AND NOT EDGE_SOKOL_D3D11 AND NOT EDGE_SOKOL_GLES3)
-  if (WIN32)
-    set (EDGE_SOKOL_D3D11 ON)
-  elseif (EMSCRIPTEN)
-    set (EDGE_SOKOL_GLES3 ON)
-# Unix; Apple will eventually have a Metal backend but it should support 
-# the level of GL in use by Sokol GFX/GL
-  else ()
-    set (EDGE_SOKOL_GL ON)
-  endif()
-endif()
+option(EDGE_SOKOL_GL "Sokol GL" ON)
 
 # Development 
 option(EDGE_SANITIZE "Enable code sanitizing" OFF)
@@ -42,10 +35,6 @@ option(EDGE_EXTRA_CHECKS "Enable diagnostic checks/functions" OFF)
 
 # memory allocator
 option(EDGE_MIMALLOC "Enable mimalloc" ON)
-# disable Mimalloc if targeting Emscripten
-if (EMSCRIPTEN)
-  set(EDGE_MIMALLOC OFF)
-endif()
 # Enables exhaustive memory checks, see mimalloc CMakeLists.txt for what is enabled
 # Memory error logging goes to debug.txt
 option(EDGE_MEMORY_CHECK "Enable Memory Checks" OFF)
@@ -58,10 +47,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
   set(CLANG true)
 else()
   set(CLANG false)
-endif()
-
-if (EMSCRIPTEN)
-  include("${CMAKE_SOURCE_DIR}/cmake/Emscripten.cmake")  
 endif()
 
 if(MSVC)
@@ -172,16 +157,20 @@ if(${CMAKE_SYSTEM} MATCHES "BSD")
   include_directories("/usr/local/include")  
 endif()
 
-if(MSVC OR (WIN32 AND CLANG))
-  set(SDL2_DIR "${CMAKE_SOURCE_DIR}/libraries/sdl2")
-endif()
+if (GD_PLATFORM_SDL)
+  if(MSVC OR (WIN32 AND CLANG))
+    set(SDL2_DIR "${CMAKE_SOURCE_DIR}/libraries/sdl2")
+  endif()
 
-find_package(SDL2 REQUIRED)
+  find_package(SDL2 REQUIRED)
+endif()
 
 # set certain definitions (if appropriate)
 
 if (APPLE)
-  include_directories(${SDL2_INCLUDE_DIR})  
+  if (GD_PLATFORM_SDL)
+    include_directories(${SDL2_INCLUDE_DIR})  
+  endif()
   if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64" AND APPLE)
     add_compile_definitions(APPLE_SILICON)
   elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64" AND APPLE)
@@ -189,11 +178,9 @@ if (APPLE)
   endif()
 endif()
 
-add_definitions(-DEDGE_SOKOL)
-if (EDGE_SOKOL_GL)  
+if (EDGE_SOKOL_GL)
+  add_definitions(-DEDGE_SOKOL)
   find_package(OpenGL REQUIRED)
-elseif (EDGE_SOKOL_GLES3 AND NOT EMSCRIPTEN)
-  find_package(OpenGL COMPONENTS GLES3 REQUIRED)
 endif()
 
 if (EDGE_CLASSIC)

@@ -23,9 +23,6 @@
 #include "epi_sdl.h"
 #include "epi_str_compare.h"
 #include "epi_windows.h"
-#ifdef EDGE_WEB
-#include <emscripten.h>
-#endif
 #ifndef _WIN32
 #include <dirent.h>
 #include <ftw.h>
@@ -587,6 +584,7 @@ File *FileOpen(std::string_view name, unsigned int flags)
 
 bool OpenDirectory(const std::string &src)
 {
+#ifdef GD_PLATFORM_SDL    
     // A result of 0 is 'success', but that only means SDL was able to launch
     // some kind of process to attempt to handle the path. -1 is the only result
     // that is guaranteed to be an 'error'
@@ -596,6 +594,10 @@ bool OpenDirectory(const std::string &src)
         return false;
     }
     return true;
+#else
+    // TODO: SDL call in the epi library, where we don't have platform abstraction
+    FatalError("OpenDirectory - Not Implemented");
+#endif
 }
 
 bool FileCopy(std::string_view src, std::string_view dest)
@@ -644,32 +646,10 @@ bool FileCopy(std::string_view src, std::string_view dest)
         return true;
 }
 
-// Emscripten-specific
-#ifdef EDGE_WEB
-void SyncFilesystem(bool populate)
-{
-    EM_ASM_(
-        {
-            if (Module.edgePreSyncFS)
-            {
-                Module.edgePreSyncFS();
-            }
-            FS.syncfs(
-                $0, function(err) {
-                    if (Module.edgePostSyncFS)
-                    {
-                        Module.edgePostSyncFS();
-                    }
-                });
-        },
-        populate);
-}
-#else
 void SyncFilesystem(bool populate)
 {
     EPI_UNUSED(populate);
 }
-#endif
 
 } // namespace epi
 

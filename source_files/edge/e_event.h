@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 //
 // Event handling.
 //
@@ -37,10 +39,20 @@ enum InputEventType
     kInputEventKeyMouse
 };
 
+typedef enum InputEventModState : uint32_t
+{
+    kInputEventModNone       = 0x0000,
+    kInputEventModLeftShift  = 0x0001,
+    kInputEventModRightShift = 0x0002,
+    kInputEventModCaps       = 0x0004,
+    kInputEventModShift      = kInputEventModLeftShift | kInputEventModRightShift
+} InputEventModState;
+
 // Event structure.
 struct InputEvent
 {
-    InputEventType type;
+    InputEventType     type;
+    InputEventModState modstate;
 
     union {
         struct
