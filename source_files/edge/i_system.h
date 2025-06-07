@@ -75,15 +75,6 @@ extern std::string executable_path;
 //
 // -ACB- 1999/09/19 moved from I_Input.H
 
-// Initialises all control devices (i.e. input devices), such as the
-// keyboard, mouse and joysticks.  Should be called from
-// SystemStartup() -- the main code never calls this function.
-void StartupControl(void);
-
-// Causes all control devices to send their events to the engine via
-// the PostEvent() function.
-void ControlGetEvents(void);
-
 // Used when hotplugging controllers or selecting a different gamepad
 // from the Options Menu
 void CheckJoystickChanged(void);

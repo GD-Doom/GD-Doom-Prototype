@@ -49,8 +49,8 @@ static char              message_buffer[kMessageBufferSize];
 
 void SystemStartup(void)
 {
-    StartupGraphics(); // SDL requires this to be called first
-    StartupControl();
+    StartupGraphics(); 
+    gd::Platform::StartupControl();
     StartupAudio();
 }
 
@@ -165,7 +165,7 @@ void SleepForMilliseconds(int millisecs)
 
 void SystemShutdown(void)
 {
-    ShutdownControl();
+    gd::Platform::ShutdownControl();
     ShutdownGraphics();
 
     if (log_file)

@@ -88,7 +88,6 @@
 #include "e_input.h"
 #include "epi.h"
 #include "epi_filesystem.h"
-#include "epi_sdl.h"
 #include "epi_str_compare.h"
 #include "epi_str_util.h"
 #include "g_game.h"
@@ -101,6 +100,7 @@
 #include "m_netgame.h"
 #include "n_network.h"
 #include "p_local.h"
+#include "platform/gd_platform.h"
 #include "r_colormap.h"
 #include "r_draw.h"
 #include "r_gldefs.h"
@@ -159,8 +159,6 @@ extern ConsoleVariable joystick_deadzone_axis_3;
 extern ConsoleVariable joystick_deadzone_axis_4;
 extern ConsoleVariable joystick_deadzone_axis_5;
 
-extern SDL_Joystick *joystick_info;
-extern int           JoystickGetAxis(int n);
 extern void          OptionMenuNetworkHostBegun(void);
 
 extern int entry_playing;
@@ -208,7 +206,7 @@ static void OptionMenuSetResolution(int key_pressed, ConsoleVariable *console_va
 static void OptionMenuChangeResSize(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeResFull(int key_pressed, ConsoleVariable *console_variable);
 
-void OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable);
+void        OptionMenuHostNetGame(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuBrowseHome(int key_pressed, ConsoleVariable *console_variable);
 
 static void OptionMenuLanguageDrawer(int x, int y, int deltay);
@@ -1187,11 +1185,11 @@ void OptionMenuDrawer()
                 }
                 else
                 {
-                    const char *joyname = SDL_JoystickNameForIndex(joystick_device - 1);
-                    if (joyname)
+                    std::string joyname = gd::Platform::JoystickNameForIndex(joystick_device - 1);
+                    if (!joyname.empty())
                     {
                         HUDWriteText(style, fontType, (current_menu->menu_center) + 15, curry,
-                                     epi::StringFormat("%d - %s", joystick_device, joyname).c_str());
+                                     epi::StringFormat("%d - %s", joystick_device, joyname.c_str()).c_str());
                         break;
                     }
                     else
@@ -2253,7 +2251,7 @@ static void OptionMenuChangeGamepad(int key_pressed, ConsoleVariable *console_va
 {
     EPI_UNUSED(key_pressed);
     EPI_UNUSED(console_variable);
-    CheckJoystickChanged();
+    gd::Platform::CheckJoystickChanged();
 }
 
 //

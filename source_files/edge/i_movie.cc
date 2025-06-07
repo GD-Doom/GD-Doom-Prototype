@@ -18,7 +18,6 @@
 
 #include "e_event.h"
 #include "epi.h"
-#include "epi_sdl.h"
 #include "hu_draw.h"
 #include "i_defs_gl.h"
 #include "i_sound.h"

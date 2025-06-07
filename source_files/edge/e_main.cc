@@ -51,7 +51,6 @@
 #include "edge_profiling.h"
 #include "epi_file.h"
 #include "epi_filesystem.h"
-#include "epi_sdl.h"
 #include "epi_str_compare.h"
 #include "epi_str_hash.h"
 #include "epi_str_util.h"
@@ -1987,9 +1986,7 @@ void EdgeShutdown(void)
         if (df->pack_)
             ClosePackFile(df);
         delete df;
-    }
-
-    gd::Platform_Shutdown();
+    }    
 }
 
 #ifdef EDGE_MEMORY_CHECK
@@ -2258,7 +2255,7 @@ void EdgeMain(int argc, const char **argv)
     {
         // We always do this once here, although the engine may
         // makes in own calls to keep on top of the event processing
-        ControlGetEvents();
+        gd::Platform::ControlGetEvents();
 
         if (app_state & kApplicationActive)
             EdgeTicker();

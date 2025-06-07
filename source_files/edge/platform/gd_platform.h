@@ -56,8 +56,45 @@ class Platform
 
     static void Delay(uint32_t milliseconds)
     {
+        CheckValid();
 
         return instance_->DelayInternal(milliseconds);
+    }
+
+    // Input
+    static void StartupControl()
+    {
+        CheckValid();
+
+        instance_->StartupControlInternal();
+    }
+
+    static void ShutdownControl()
+    {
+        CheckValid();
+
+        instance_->ShutdownControlInternal();
+    }
+
+    static void ControlGetEvents()
+    {
+        CheckValid();
+
+        instance_->ControlGetEventsInternal();
+    }
+
+    static void CheckJoystickChanged()
+    {
+        CheckValid();
+
+        instance_->CheckJoystickChangedInternal();
+    }
+
+    static std::string JoystickNameForIndex(int index)
+    {
+        CheckValid();
+
+        return instance_->JoystickNameForIndexInternal(index);
     }
 
     static void shutdown()
@@ -87,6 +124,15 @@ class Platform
     virtual int ShowSimpleMessageBoxInternal(const char *title, const char *message) = 0;
 
     virtual void DelayInternal(uint32_t milliseconds) = 0;
+
+    virtual void StartupControlInternal()  = 0;
+    virtual void ShutdownControlInternal() = 0;
+
+    virtual void ControlGetEventsInternal() = 0;
+
+    virtual void CheckJoystickChangedInternal() = 0;
+
+    virtual std::string JoystickNameForIndexInternal(int index) = 0;
 
     static void set(Platform *platform);
 

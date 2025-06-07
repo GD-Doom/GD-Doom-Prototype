@@ -42,7 +42,6 @@
 #include "e_main.h"
 #include "epi.h"
 #include "epi_filesystem.h"
-#include "epi_sdl.h"
 #include "epi_str_util.h"
 #include "f_interm.h"
 #include "g_game.h"
@@ -1796,8 +1795,6 @@ bool MenuResponder(InputEvent *ev)
 
     int ch = ev->value.key.sym;
 
-    SDL_Keymod mod = SDL_GetModState();
-
     // -ACB- 1999/10/11 F1 is responsible for print screen at any time
     if (ch == kFunction1 || ch == kPrintScreen)
     {
@@ -1867,7 +1864,7 @@ bool MenuResponder(InputEvent *ev)
             return true;
         }
 
-        if (mod & KMOD_SHIFT || mod & KMOD_CAPS)
+        if (ev->modstate & kInputEventModShift || ev->modstate & kInputEventModCaps)
             ch = epi::ToUpperASCII(ch);
         if (ch == '-')
             ch = '_';
@@ -1934,7 +1931,7 @@ bool MenuResponder(InputEvent *ev)
             break;
 
         default:
-            if (mod & KMOD_SHIFT || mod & KMOD_CAPS)
+            if (ev->modstate & kInputEventModShift || ev->modstate & kInputEventModCaps)
                 ch = epi::ToUpperASCII(ch);
             EPI_ASSERT(save_style);
             if (ch >= 32 && ch <= 127 && save_string_character_index < kSaveStringSize - 1 &&
