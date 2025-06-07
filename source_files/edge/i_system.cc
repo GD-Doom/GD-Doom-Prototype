@@ -83,7 +83,7 @@ void LogWarning(const char *warning, ...)
     {
         fprintf(debug_file, "ERROR: %s\n", message_buffer);
         fflush(debug_file);
-    }
+    }    
 
     SystemShutdown();
 

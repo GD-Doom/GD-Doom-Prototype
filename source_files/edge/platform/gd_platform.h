@@ -1,9 +1,10 @@
 
 #pragma once
 
-#include <epi.h>
-
 #include <string>
+#include <stdint.h>
+
+#include <epi.h>
 
 #include "../r_modes.h"
 
@@ -46,7 +47,7 @@ class Platform
     {
         CheckValid();
 
-        return instance_->OpenURL(url);
+        return instance_->OpenURLInternal(url);
     }
 
     static int ShowSimpleMessageBox(const char *title, const char *message)
@@ -73,7 +74,10 @@ class Platform
 
     static void ShutdownControl()
     {
-        CheckValid();
+        if (!instance_)
+        {
+            return;
+        }
 
         instance_->ShutdownControlInternal();
     }
@@ -136,7 +140,7 @@ class Platform
         return instance_->GetProgramWindowInternal();
     }
 
-    static void shutdown()
+    static void Shutdown()
     {
         if (instance_)
         {
@@ -161,7 +165,10 @@ class Platform
 
     static void ShutdownGraphics()
     {
-        CheckValid();
+        if (!instance_)
+        {
+            return;
+        }
 
         instance_->ShutdownGraphicsInternal();
     }

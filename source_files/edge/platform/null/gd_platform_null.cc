@@ -26,6 +26,7 @@ void ShowGamepads(void)
 
 int JoystickGetAxis(int n)
 {
+    EPI_UNUSED(n);
     return 0;
 }
 
@@ -43,31 +44,38 @@ class NullPlatform : public Platform
 
     std::string GetBasePathInternal(void) override
     {
-        return std::string("C:\\Dev\\GD-Doom-Prototype");
+        return std::string("./");
     }
 
     std::string GetPrefPathInternal(const char *org, const char *app) override
     {
-        return std::string("C:\\Dev\\GD-Doom-Prototype");
+        EPI_UNUSED(org);
+        EPI_UNUSED(app);
+        return std::string("./");
     }
 
     std::string GetEnvInternal(const char *name) override
     {
+        EPI_UNUSED(name);
         return std::string("");
     }
 
     int OpenURLInternal(const char *url) override
     {
+        EPI_UNUSED(url);
         return 0;
     }
 
     int ShowSimpleMessageBoxInternal(const char *title, const char *message) override
     {
+        EPI_UNUSED(title);
+        EPI_UNUSED(message);
         return 0;
     }
 
     void DelayInternal(uint32_t milliseconds) override
     {
+        EPI_UNUSED(milliseconds);
         // SDL_Delay(milliseconds);
     }
 
@@ -92,11 +100,13 @@ class NullPlatform : public Platform
 
     std::string JoystickNameForIndexInternal(int index) override
     {
+        EPI_UNUSED(index);
         return std::string("None");
     }
 
     void SetRelativeMouseModeInternal(bool enabled) override
     {
+        EPI_UNUSED(enabled);
     }
 
     // Video
@@ -116,11 +126,13 @@ class NullPlatform : public Platform
 
     bool InitializeWindowInternal(DisplayMode *mode) override
     {
+        EPI_UNUSED(mode);
         return true;
     }
 
     bool SetScreenSizeInternal(DisplayMode *mode) override
     {
+        EPI_UNUSED(mode);
         return true;
     }
 

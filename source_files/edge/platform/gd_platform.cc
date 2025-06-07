@@ -13,7 +13,7 @@ void Platform::set(Platform *platform)
 
 void Platform_Shutdown()
 {
-    Platform::shutdown();
+    Platform::Shutdown();
 }
 
 } // namespace gd

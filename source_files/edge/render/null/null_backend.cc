@@ -1,5 +1,6 @@
 // clang-format off
 #include "../../r_backend.h"
+#include <epi.h>
 
 class NullRenderBackend : public RenderBackend
 {
@@ -18,10 +19,14 @@ class NullRenderBackend : public RenderBackend
 
     void StartFrame(int32_t width, int32_t height)
     {
+      EPI_UNUSED(width);
+      EPI_UNUSED(height);
     }
 
     void Flush(int32_t commands, int32_t vertices)
     {
+      EPI_UNUSED(commands);
+      EPI_UNUSED(vertices);
     }
 
     void SwapBuffers()
@@ -35,6 +40,8 @@ class NullRenderBackend : public RenderBackend
 
     void Resize(int32_t width, int32_t height)
     {
+      EPI_UNUSED(width);
+      EPI_UNUSED(height);
     }
 
     void Shutdown()
@@ -44,7 +51,10 @@ class NullRenderBackend : public RenderBackend
 
     void CaptureScreen(int32_t width, int32_t height, int32_t stride, uint8_t *dest)
     {
-
+      EPI_UNUSED(width);
+      EPI_UNUSED(height);
+      EPI_UNUSED(stride);
+      EPI_UNUSED(dest);
     }
 
     void Init()
@@ -62,6 +72,7 @@ class NullRenderBackend : public RenderBackend
 
     void SetClearColor(RGBAColor color)
     {
+      EPI_UNUSED(color);
     }
 
     int32_t GetHUDLayer()
@@ -71,6 +82,8 @@ class NullRenderBackend : public RenderBackend
 
     void SetupMatrices(RenderLayer layer, bool context_change = false)
     {
+      EPI_UNUSED(layer);
+      EPI_UNUSED(context_change);
     }
 
     void FlushContext()
@@ -79,6 +92,8 @@ class NullRenderBackend : public RenderBackend
 
     virtual void SetRenderLayer(RenderLayer layer, bool clear_depth = false)
     {
+      EPI_UNUSED(layer);
+      EPI_UNUSED(clear_depth);
     }
 
     RenderLayer GetRenderLayer()
@@ -96,6 +111,7 @@ class NullRenderBackend : public RenderBackend
 
     void GetFrameStats(FrameStats &stats)
     {
+        EPI_UNUSED(stats);
     }
 
   private:

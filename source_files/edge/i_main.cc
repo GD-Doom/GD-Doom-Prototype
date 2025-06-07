@@ -16,10 +16,6 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef EDGE_MIMALLOC
-#include <mimalloc.h>
-#endif
-
 #include "dm_defs.h"
 #include "e_main.h"
 #include "epi_filesystem.h"

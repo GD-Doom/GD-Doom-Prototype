@@ -298,6 +298,7 @@ class SokolRenderState : public RenderState
 
     void DeleteTexture(const GLuint *tex_id)
     {
+        EPI_UNUSED(tex_id);
     }
 
     void FrontFace(GLenum wind)
@@ -365,11 +366,25 @@ class SokolRenderState : public RenderState
 
     void FinishTextures(GLsizei n, GLuint *textures)
     {
+        EPI_UNUSED(n);
+        EPI_UNUSED(textures);
     }
 
     void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border,
                     GLenum format, GLenum type, const void *pixels, RenderUsage usage = kRenderUsageImmutable)
     {
+        EPI_UNUSED(target);
+        EPI_UNUSED(level);
+        EPI_UNUSED(internalformat);
+        EPI_UNUSED(width);
+        EPI_UNUSED(height);
+        EPI_UNUSED(border);
+        EPI_UNUSED(format);
+        EPI_UNUSED(type);
+        EPI_UNUSED(pixels);
+        EPI_UNUSED(usage);
+        
+
     }
 
     void PixelStorei(GLenum pname, GLint param)
@@ -431,6 +446,7 @@ class SokolRenderState : public RenderState
     void SetPipeline(uint32_t flags)
     {
 
+        EPI_UNUSED(flags);
     }
 
     // state

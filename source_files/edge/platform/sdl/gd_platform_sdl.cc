@@ -17,6 +17,10 @@
 #include "../../version.h"
 #include "../gd_platform.h"
 
+#ifdef EDGE_MIMALLOC
+#include <mimalloc.h>
+#endif
+
 // Input
 
 bool need_mouse_recapture = false;
