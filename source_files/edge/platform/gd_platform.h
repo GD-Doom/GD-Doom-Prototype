@@ -5,6 +5,8 @@
 
 #include <string>
 
+#include "../r_modes.h"
+
 namespace gd
 {
 
@@ -97,6 +99,43 @@ class Platform
         return instance_->JoystickNameForIndexInternal(index);
     }
 
+    static void SetRelativeMouseMode(bool enabled)
+    {
+        CheckValid();
+
+        instance_->SetRelativeMouseModeInternal(enabled);
+    }
+
+    // Video
+
+    static void StartupGraphics()
+    {
+        CheckValid();
+
+        instance_->StartupGraphicsInternal();
+    }
+
+    static bool InitializeWindow(DisplayMode *mode)
+    {
+        CheckValid();
+
+        return instance_->InitializeWindowInternal(mode);
+    }
+
+    static bool SetScreenSize(DisplayMode *mode)
+    {
+        CheckValid();
+
+        return instance_->SetScreenSizeInternal(mode);
+    }
+
+    static void *GetProgramWindow()
+    {
+        CheckValid();
+
+        return instance_->GetProgramWindowInternal();
+    }
+
     static void shutdown()
     {
         if (instance_)
@@ -104,6 +143,27 @@ class Platform
             delete instance_;
             instance_ = nullptr;
         }
+    }
+
+    static void StartFrame()
+    {
+        CheckValid();
+
+        instance_->StartFrameInternal();
+    }
+
+    static void FinishFrame()
+    {
+        CheckValid();
+
+        instance_->FinishFrameInternal();
+    }
+
+    static void ShutdownGraphics()
+    {
+        CheckValid();
+
+        instance_->ShutdownGraphicsInternal();
     }
 
   protected:
@@ -125,6 +185,7 @@ class Platform
 
     virtual void DelayInternal(uint32_t milliseconds) = 0;
 
+    // Input
     virtual void StartupControlInternal()  = 0;
     virtual void ShutdownControlInternal() = 0;
 
@@ -133,6 +194,26 @@ class Platform
     virtual void CheckJoystickChangedInternal() = 0;
 
     virtual std::string JoystickNameForIndexInternal(int index) = 0;
+
+    virtual void SetRelativeMouseModeInternal(bool enabled) = 0;
+
+    // Video
+
+    virtual bool InitializeWindowInternal(DisplayMode *mode) = 0;
+
+    virtual bool SetScreenSizeInternal(DisplayMode *mode) = 0;
+
+    virtual void *GetProgramWindowInternal() = 0;
+
+    virtual void StartupGraphicsInternal() = 0;
+
+    virtual void ShutdownGraphicsInternal(void) = 0;
+
+    virtual void StartFrameInternal(void) = 0;
+
+    virtual void FinishFrameInternal(void) = 0;
+
+    virtual void SwapBuffersInternal(void) = 0;
 
     static void set(Platform *platform);
 
