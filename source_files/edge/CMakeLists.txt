@@ -124,10 +124,6 @@ set (EDGE_SOKOL_SOURCE_FILES
   render/sokol/sokol_units.cc
 )
 
-if (EDGE_SOKOL_D3D11)
-  list (APPEND EDGE_SOKOL_SOURCE_FILES render/sokol/sokol_d3d11.cc)
-endif()
-
 list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
 
 # Platform sources

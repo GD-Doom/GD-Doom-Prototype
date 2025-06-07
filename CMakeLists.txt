@@ -25,19 +25,7 @@ endif()
 # Rendering Options
 
 # Sokol Renderer
-option(EDGE_SOKOL_GL "Sokol GL" OFF)
-option(EDGE_SOKOL_GLES3 "Sokol GLES3" OFF)
-option(EDGE_SOKOL_D3D11 "Sokol D3D11" OFF)
-
-if (NOT EDGE_SOKOL_GL AND NOT EDGE_SOKOL_D3D11 AND NOT EDGE_SOKOL_GLES3)
-  if (WIN32)
-    set (EDGE_SOKOL_D3D11 ON)
-# Unix; Apple will eventually have a Metal backend but it should support 
-# the level of GL in use by Sokol GFX/GL
-  else ()
-    set (EDGE_SOKOL_GL ON)
-  endif()
-endif()
+option(EDGE_SOKOL_GL "Sokol GL" ON)
 
 # Development 
 option(EDGE_SANITIZE "Enable code sanitizing" OFF)
@@ -187,11 +175,7 @@ if (APPLE)
 endif()
 
 add_definitions(-DEDGE_SOKOL)
-if (EDGE_SOKOL_GL)  
-  find_package(OpenGL REQUIRED)
-elseif (EDGE_SOKOL_GLES3)
-  find_package(OpenGL COMPONENTS GLES3 REQUIRED)
-endif()
+find_package(OpenGL REQUIRED)
 
 if (EDGE_CLASSIC)
   add_definitions(-DEDGE_CLASSIC)
