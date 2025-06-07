@@ -92,7 +92,7 @@ if (MSVC)
   add_definitions("/wd4100")
 
   # warning level for edge specific source files 
-  set (EDGE_WARNING_LEVEL "/W4")
+  set (EDGE_WARNING_LEVEL /W4 /WX)
 
   # To use the sanitizer with MSVC, you will need to either have your Visual Studio
   # or Build Tools install in your PATH variable, or copy the appropriate DLL to the program
@@ -124,9 +124,11 @@ else()
 
   # warning level for edge specific source files
   if (CLANG)
-    set (EDGE_WARNING_LEVEL -Wextra -Wunreachable-code-aggressive)
+    set (EDGE_WARNING_LEVEL -Wextra -Wunreachable-code-aggressive -Werror)
   else()
-    set (EDGE_WARNING_LEVEL -Wextra)
+    # for GCC, the fact that EPI simply includes <string.h> will cause failures for 
+    # array-bounds and stringop-overflow warnings, so make exceptions for those two
+    set (EDGE_WARNING_LEVEL -Wextra -Werror -Wno-error=array-bounds -Wno-error=stringop-overflow)
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing")
