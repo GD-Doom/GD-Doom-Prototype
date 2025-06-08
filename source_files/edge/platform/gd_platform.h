@@ -166,6 +166,17 @@ class Platform
         instance_->ShutdownGraphicsInternal();
     }
 
+    static void DebugPrint(const char* message)
+    {
+        if (!instance_)
+        {
+            return;
+        }
+
+        instance_->DebugPrintInternal(message);
+    }
+
+
   protected:
     virtual ~Platform()
     {
@@ -213,7 +224,12 @@ class Platform
 
     virtual void SwapBuffersInternal(void) = 0;
 
-    static void set(Platform *platform);
+    virtual void DebugPrintInternal(const char* message)
+    {
+        EPI_UNUSED(message);
+    }
+
+    static void set(Platform *platform);    
 
     static void CheckValid()
     {

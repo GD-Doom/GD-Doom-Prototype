@@ -3,6 +3,8 @@
 #include <epi_str_compare.h>
 #include <epi_str_util.h>
 
+#include <godot_cpp/core/print_string.hpp>
+
 #include "../../con_main.h"
 #include "../../dm_state.h"
 #include "../../e_input.h"
@@ -146,6 +148,17 @@ class GodotPlatform : public Platform
 
     void SwapBuffersInternal(void) override
     {
+    }
+
+    void DebugPrintInternal(const char *message) override
+    {
+        if (!message) {
+            return;
+        }
+        static char temp[4096];
+        strncpy(temp, message, 4096);
+        temp[strcspn(temp, "\n")] = '\0';
+        godot::print_line(temp);
     }
 
   public:
