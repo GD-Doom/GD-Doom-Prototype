@@ -36,7 +36,9 @@
 #include "e_main.h"
 #include "e_player.h"
 #include "epi.h"
+#ifdef GD_PLATFORM_SDL
 #include "epi_sdl.h"
+#endif
 #include "epi_str_util.h"
 #include "hu_stuff.h"
 #include "i_movie.h"

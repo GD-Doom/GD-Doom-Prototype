@@ -17,3 +17,7 @@ if (EDGE_MIMALLOC)
   add_subdirectory(mimalloc)
 endif()
 add_subdirectory(tracy)
+
+if (GD_PLATFORM_GODOT)
+  add_subdirectory(godot-cpp)
+endif()

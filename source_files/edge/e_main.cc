@@ -2129,6 +2129,7 @@ void EdgeMain(int argc, const char **argv)
 
     LogDebug("- Entering game loop...\n");
 
+#ifndef GD_PLATFORM_GODOT
     while (!(app_state & kApplicationPendingQuit))
     {
         // We always do this once here, although the engine may
@@ -2142,6 +2143,7 @@ void EdgeMain(int argc, const char **argv)
             SleepForMilliseconds(5);
         }
     }
+#endif
 }
 
 //

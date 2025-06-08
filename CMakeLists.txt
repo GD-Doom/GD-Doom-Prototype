@@ -15,8 +15,18 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+include(CMakeDependentOption)
+
 # Platform Options
-option(GD_PLATFORM_SDL "Platform SDL" ON)
+option(GD_PLATFORM_GODOT "Platform Godot" ON)
+option(GD_PLATFORM_SDL "Platform SDL" OFF)
+option(GD_PLATFORM_NULL "Platform Godot" OFF)
+
+if (GD_PLATFORM_GODOT) 
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  add_definitions(-DGD_PLATFORM_GODOT)
+endif()
+
 
 if (GD_PLATFORM_SDL)
 add_definitions(-DGD_PLATFORM_SDL)
@@ -25,7 +35,7 @@ endif()
 # Rendering Options
 
 # Sokol Renderer
-option(EDGE_SOKOL_GL "Sokol GL" ON)
+option(EDGE_SOKOL_GL "Sokol GL" OFF)
 
 # Development 
 option(EDGE_SANITIZE "Enable code sanitizing" OFF)
@@ -34,7 +44,8 @@ option(EDGE_PROFILING "Enable Profiling" OFF)
 option(EDGE_EXTRA_CHECKS "Enable diagnostic checks/functions" OFF)
 
 # memory allocator
-option(EDGE_MIMALLOC "Enable mimalloc" ON)
+cmake_dependent_option(EDGE_MIMALLOC "Enable mimalloc" OFF GD_PLATFORM_GODOT ON)
+
 # Enables exhaustive memory checks, see mimalloc CMakeLists.txt for what is enabled
 # Memory error logging goes to debug.txt
 option(EDGE_MEMORY_CHECK "Enable Memory Checks" OFF)

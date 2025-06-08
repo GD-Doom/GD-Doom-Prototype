@@ -20,7 +20,9 @@
 
 #include "epi.h"
 #include "epi_file.h"
+#ifdef GD_PLATFORM_SDL
 #include "epi_sdl.h"
+#endif
 #include "epi_str_compare.h"
 #include "epi_windows.h"
 #ifndef _WIN32

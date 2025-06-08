@@ -50,5 +50,23 @@
             "externalConsole": false,
             "MIMode": "lldb"
         },
+        {
+            "name": "Launch Godot (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            // Don't use the console exe if you want breakpoints to work (something to look into)
+            "program": "C:\\Godot\\Godot_v4.4.1-stable_win64.exe",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [                
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"            
+        }
     ]
 }
