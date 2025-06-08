@@ -1,0 +1,17 @@
+<ATTACKS>
+
+// Dasho - Not sure if Dehacked assumes that Doom 2 actions can be used in Doom 1, but the REKKR
+// Dehacked->DDF produces a weapon that uses the super shotgun attack, so I copied this over
+// from doom2-all
+[PLAYER_SHOTGUN2]
+ATTACKTYPE=SHOT;
+SHOTCOUNT=20;
+DAMAGE.VAL=5;
+DAMAGE.MAX=15;
+DAMAGE.OBITUARY="OB_Shotgun";
+ATTACK_HEIGHT=32;
+ACCURACY_ANGLE=12;
+ACCURACY_SLOPE=6;
+ENGAGED_SOUND=DSHTGN;
+ATTACKRANGE=2048;
+PUFF=PUFF;

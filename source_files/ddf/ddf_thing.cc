@@ -2650,10 +2650,9 @@ void MapObjectDefinition::Default()
     oof_sound_      = nullptr;
     fallpain_sound_ = nullptr;
     gasp_sound_     = nullptr;
-    // secretsound_ = nullptr;
-    secretsound_   = sfxdefs.GetEffect("SECRET");
-    falling_sound_ = nullptr;
-    rip_sound_     = nullptr;
+    secretsound_    = sfxdefs.GetEffect("SECRET", false);
+    falling_sound_  = nullptr;
+    rip_sound_      = nullptr;
 
     fuse_           = 0;
     reload_shots_   = 5;

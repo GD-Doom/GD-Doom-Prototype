@@ -159,7 +159,7 @@ extern ConsoleVariable joystick_deadzone_axis_3;
 extern ConsoleVariable joystick_deadzone_axis_4;
 extern ConsoleVariable joystick_deadzone_axis_5;
 
-extern void          OptionMenuNetworkHostBegun(void);
+extern void OptionMenuNetworkHostBegun(void);
 
 extern int entry_playing;
 

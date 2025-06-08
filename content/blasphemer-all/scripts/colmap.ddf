@@ -1,0 +1,11 @@
+//
+//    EDGE COLMAP.DDF -redefine or add new color maps.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<COLOURMAPS>
+
+// ----- Text Colour remaps ---------------
+
+[TEXT_RED]
+gl_colour = #FF2222;

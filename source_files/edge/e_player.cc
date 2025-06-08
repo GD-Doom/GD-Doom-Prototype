@@ -578,7 +578,7 @@ void SpawnHelper(int player_number_)
     if (point == nullptr)
         return;
 
-    const MapObjectDefinition *info = mobjtypes.Lookup(888);
+    const MapObjectDefinition *info = mobjtypes.Lookup("MBF_COMPANION");
     if (info == nullptr)
         return;
 

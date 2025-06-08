@@ -24,8 +24,8 @@ DSDGACT.ogg and DSDGATK.ogg sounds - apolloaiello (edited from "Mr Dog_01.wav")
 
 DSDGDTH.ogg, DSDGPAIN.ogg and DSDGSIT.ogg sounds - TobiasKosmos (edited from "DogYelp.wav")
 
-Bundled graphics (contents of the /crosshairs, /edge_defs/graphics, /edge_defs/textures,
-  and /overlays folders) - The EDGE Team
+Bundled graphics (contents of the /crosshairs, /autoload/all-all/graphics,  
+/autoload/all-all/textures, and /overlays folders) - The EDGE Team
 
 ===========================================================================================
 CC-BY-3.0 Unported License

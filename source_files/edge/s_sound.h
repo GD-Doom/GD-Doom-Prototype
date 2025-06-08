@@ -78,7 +78,8 @@ enum SoundEffectFlag
 void InitializeSound(void);
 void ShutdownSound(void);
 
-void StartSoundEffect(const SoundEffect *sfx, int category = kCategoryUi, const Position *pos = nullptr, int flags = 0);
+void StartSoundEffect(const struct SoundEffect *sfx, int category = kCategoryUi, const Position *pos = nullptr,
+                      int flags = 0);
 
 void StopSoundEffect(const Position *pos);
 void StopLevelSoundEffects(void);

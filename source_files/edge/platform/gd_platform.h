@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <string>
+#include <epi.h>
 #include <stdint.h>
 
-#include <epi.h>
+#include <string>
 
 #include "../r_modes.h"
 
@@ -48,13 +48,6 @@ class Platform
         CheckValid();
 
         return instance_->OpenURLInternal(url);
-    }
-
-    static int ShowSimpleMessageBox(const char *title, const char *message)
-    {
-        CheckValid();
-
-        return instance_->ShowSimpleMessageBoxInternal(title, message);
     }
 
     static void Delay(uint32_t milliseconds)
@@ -188,8 +181,6 @@ class Platform
 
     virtual int OpenURLInternal(const char *url) = 0;
 
-    virtual int ShowSimpleMessageBoxInternal(const char *title, const char *message) = 0;
-
     virtual void DelayInternal(uint32_t milliseconds) = 0;
 
     // Input
@@ -237,5 +228,9 @@ class Platform
 
 void Platform_Init();
 void Platform_Shutdown();
+// This may only exist as long as SDL is still in, but this is outside of a specific
+// instance because it does not require a valid platform instance and is thus suitable
+// for things like FatalError - Dasho
+void Platform_SimpleMessageBox(const char *title, const char *message);
 
 } // namespace gd

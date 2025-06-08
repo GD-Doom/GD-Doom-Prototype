@@ -321,13 +321,6 @@ static void FillSpriteFrames(int file)
                     continue;
                 }
 
-                // ignore model skins
-                if (strlen(lumpname) == spr_len + 4 && lumpname[spr_len] == 'S' && lumpname[spr_len + 1] == 'K' &&
-                    lumpname[spr_len + 2] == 'N')
-                {
-                    continue;
-                }
-
                 if (epi::StringCompareMax(sprname, lumpname, spr_len) != 0)
                     continue;
 
@@ -363,13 +356,6 @@ static void FillSpriteFrames(int file)
                         continue;
                     }
 
-                    // ignore model skins
-                    if (spritebase.size() == spr_len + 4 && spritebase[spr_len] == 'S' &&
-                        spritebase[spr_len + 1] == 'K' && spritebase[spr_len + 2] == 'N')
-                    {
-                        continue;
-                    }
-
                     if (epi::StringCompareMax(sprname, spritebase, spr_len) != 0)
                         continue;
 
@@ -391,7 +377,7 @@ static void FillSpriteFrames(int file)
 //
 // Like the above, but made especially for IMAGES.DDF.
 //
-static void FillSpriteFramesUser()
+static void FillSpriteFramesUser(int file)
 {
     int           img_num;
     const Image **images = GetUserSprites(&img_num);
@@ -416,14 +402,47 @@ static void FillSpriteFramesUser()
                 continue;
             }
 
-            // ignore model skins
-            if (strlen(img_name) == spr_len + 4 && img_name[spr_len] == 'S' && img_name[spr_len + 1] == 'K' &&
-                img_name[spr_len + 2] == 'N')
-            {
+            if (epi::StringCompareMax(sprname, img_name, spr_len) != 0)
                 continue;
+
+            bool good_index = true;
+
+            if (images[L]->source_type_ != kImageSourceUser)
+            {
+                if (images[L]->source_.graphic.packfile_name)
+                {
+                    for (int i = (int)data_files.size() - 1; i >= 0 && good_index; --i)
+                    {
+                        if (data_files[i]->pack_ && data_files[i]->name_ == images[L]->source_.graphic.packfile_name)
+                        {
+                            if (i != file)
+                                good_index = false;
+                        }
+                    }
+                }
+                else if (GetDataFileIndexForLump(images[L]->source_.graphic.lump) != file)
+                    good_index = false;
+            }
+            else
+            {
+                if (images[L]->source_.user.def->type_ == kImageDataFile ||
+                    images[L]->source_.user.def->type_ == kImageDataPackage)
+                {
+                    for (int i = (int)data_files.size() - 1; i >= 0 && good_index; --i)
+                    {
+                        if (data_files[i]->pack_ &&
+                            FindPackFile(data_files[i]->pack_, images[L]->source_.user.def->info_))
+                        {
+                            if (i != file)
+                                good_index = false;
+                        }
+                    }
+                }
+                else if (CheckDataFileIndexForName(images[L]->source_.user.def->info_.c_str()) != file)
+                    good_index = false;
             }
 
-            if (epi::StringCompareMax(sprname, img_name, spr_len) != 0)
+            if (!good_index)
                 continue;
 
             // Fix offsets if Doom formatted
@@ -649,10 +668,9 @@ void InitializeSprites(void)
 
     int numfiles = GetTotalFiles();
 
-    FillSpriteFramesUser();
-
     for (int file = numfiles - 1; file >= 0; file--)
     {
+        FillSpriteFramesUser(file);
         FillSpriteFrames(file);
     }
 

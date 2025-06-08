@@ -167,8 +167,8 @@ GameFlags global_flags;
 
 std::string branding_file;
 std::string configuration_file;
-std::string epkfile;
-std::string game_base;
+GameProfile loaded_game;
+int         external_content_index = -1;
 
 std::string cache_directory;
 std::string game_directory;
@@ -515,12 +515,12 @@ void SetLanguage(void)
 //
 static void SpecialWadVerify(void)
 {
-    StartupProgressMessage("Verifying EDGE_DEFS version...");
+    StartupProgressMessage("Verifying core content version...");
 
     epi::File *data = OpenFileFromPack("/version.txt");
 
     if (!data)
-        FatalError("Version file not found. Get edge_defs.epk at "
+        FatalError("Version file not found. Download the full release at "
                    "https://github.com/edge-classic/EDGE-classic");
 
     // parse version number
@@ -537,15 +537,15 @@ static void SpecialWadVerify(void)
 
     float real_ver = epk_ver / 100.0;
 
-    LogPrint("EDGE_DEFS.EPK version %1.2f found.\n", real_ver);
+    LogPrint("Core content version %1.2f found.\n", real_ver);
 
     if (real_ver < edge_version.f_)
     {
-        FatalError("EDGE_DEFS.EPK is an older version (got %1.2f, expected %1.2f)\n", real_ver, edge_version.f_);
+        FatalError("Core content is an older version (got %1.2f, expected %1.2f)\n", real_ver, edge_version.f_);
     }
     else if (real_ver > edge_version.f_)
     {
-        LogWarning("EDGE_DEFS.EPK is a newer version (got %1.2f, expected %1.2f)\n", real_ver, edge_version.f_);
+        LogWarning("Core content is a newer version (got %1.2f, expected %1.2f)\n", real_ver, edge_version.f_);
     }
 }
 
@@ -1226,7 +1226,7 @@ static void InitializeDirectories(void)
         FatalError("Failed to get base path!\n");
 
     std::string s = path;
-    
+
     path.clear();
 
     game_directory = s;
@@ -1293,21 +1293,6 @@ static void InitializeDirectories(void)
     if (configuration_file.empty())
         configuration_file = epi::PathAppend(home_directory, config_filename.s_);
 
-    // edge_defs.epk file
-    s = ArgumentValue("defs");
-    if (!s.empty())
-    {
-        epkfile = s;
-    }
-    else
-    {
-        std::string defs_test = epi::PathAppend(game_directory, "edge_defs");
-        if (epi::IsDirectory(defs_test))
-            epkfile = defs_test;
-        else
-            epkfile = defs_test.append(".epk");
-    }
-
     // cache directory
     cache_directory = epi::PathAppend(home_directory, kCacheDirectory);
 
@@ -1340,7 +1325,7 @@ static int CheckPackForGameFiles(std::string_view check_pack, FileKind check_kin
     {
         ClosePackFile(check_pack_df);
         delete check_pack_df;
-        return 0; // Custom game index value in game_checker vector
+        return 0; // Custom game index value in game_profiles vector
     }
     else
     {
@@ -1351,19 +1336,62 @@ static int CheckPackForGameFiles(std::string_view check_pack, FileKind check_kin
     }
 }
 
+// Add game-specific base content
+static void AddBaseContent(void)
+{
+    if (loaded_game.content_folders == NULL)
+        return; // Standalone EDGE IWADs/EPKs should already contain their
+                // necessary resources and definitions - Dasho
+    std::vector<epi::DirectoryEntry> fsd;
+    std::string                      content_dir = epi::PathAppend(game_directory, "content");
+    std::vector<std::string>         base_dirs   = epi::SeparatedStringVector(loaded_game.content_folders, ',');
+
+    for (const std::string &dir : base_dirs)
+    {
+        std::string fullpath = epi::PathAppend(content_dir, dir);
+        if (epi::IsDirectory(fullpath))
+            AddDataFile(fullpath, kFileKindEFolder);
+    }
+
+    // If anything gets added after this, the index will start here
+    // +1 accounts for the actual IWAD
+    external_content_index = data_files.size() + 1;
+}
+
+static void AddBaseAutoloads(void)
+{
+    if (loaded_game.autoload_folders == NULL)
+        return;
+    std::vector<epi::DirectoryEntry> fsd;
+    std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
+    if (!epi::IsDirectory(autoload_dir))
+    {
+        if (!epi::MakeDirectory(autoload_dir))
+        {
+            LogWarning("Error creating %s\n", autoload_dir.c_str());
+            return;
+        }
+    }
+    std::vector<std::string> base_dirs = epi::SeparatedStringVector(loaded_game.autoload_folders, ',');
+    for (const std::string &dir : base_dirs)
+    {
+        std::string fullpath = epi::PathAppend(autoload_dir, dir);
+        if (epi::IsDirectory(fullpath))
+            AddDataFile(fullpath, kFileKindEFolder);
+    }
+}
+
 //
-// Adds main game content and edge_defs folder/EPK
+// Add core content and identify IWAD/standalone game pack
 //
 static void IdentifyVersion(void)
 {
-    if (epi::IsDirectory(epkfile))
-        AddDataFile(epkfile, kFileKindEFolder);
+    std::string core_content_dir = epi::PathAppend(game_directory, "content/all-all");
+
+    if (epi::IsDirectory(core_content_dir))
+        AddDataFile(core_content_dir, kFileKindEFolder);
     else
-    {
-        if (!epi::TestFileAccess(epkfile))
-            FatalError("IdentifyVersion: Could not find required %s.%s!\n", kRequiredEPK, "epk");
-        AddDataFile(epkfile, kFileKindEEPK);
-    }
+        FatalError("IdentifyVersion: Could not find core content!\n");
 
     LogDebug("- Identify Version\n");
 
@@ -1387,9 +1415,11 @@ static void IdentifyVersion(void)
                            iwad_par.c_str());
             else
             {
-                game_base = game_checker[game_check].base;
+                loaded_game = game_profiles[game_check];
+                AddBaseContent();
                 AddDataFile(iwad_par, kFileKindIFolder);
-                LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                AddBaseAutoloads();
+                LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                 return;
             }
         }
@@ -1408,9 +1438,11 @@ static void IdentifyVersion(void)
                 test_index = CheckPackForGameFiles(dnd, kFileKindIFolder);
                 if (test_index >= 0)
                 {
-                    game_base = game_checker[test_index].base;
+                    loaded_game = game_profiles[test_index];
+                    AddBaseContent();
                     AddDataFile(dnd, kFileKindIFolder);
-                    LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                    AddBaseAutoloads();
+                    LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                     program_argument_list.erase(program_argument_list.begin() + p--);
                     return;
                 }
@@ -1420,9 +1452,11 @@ static void IdentifyVersion(void)
                 test_index = CheckPackForGameFiles(dnd, kFileKindIPK);
                 if (test_index >= 0)
                 {
-                    game_base = game_checker[test_index].base;
+                    loaded_game = game_profiles[test_index];
+                    AddBaseContent();
                     AddDataFile(dnd, kFileKindIPK);
-                    LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                    AddBaseAutoloads();
+                    LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                     program_argument_list.erase(program_argument_list.begin() + p--);
                     return;
                 }
@@ -1434,9 +1468,11 @@ static void IdentifyVersion(void)
                 delete game_test;
                 if (test_index >= 0)
                 {
-                    game_base = game_checker[test_index].base;
+                    loaded_game = game_profiles[test_index];
+                    AddBaseContent();
                     AddDataFile(dnd, kFileKindIWAD);
-                    LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                    AddBaseAutoloads();
+                    LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                     program_argument_list.erase(program_argument_list.begin() + p--);
                     return;
                 }
@@ -1501,9 +1537,11 @@ static void IdentifyVersion(void)
                     delete game_test;
                     if (test_score >= 0)
                     {
-                        game_base = game_checker[test_score].base;
+                        loaded_game = game_profiles[test_score];
+                        AddBaseContent();
                         AddDataFile(iwad_file, kFileKindIWAD);
-                        LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                        AddBaseAutoloads();
+                        LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                         return;
                     }
                 }
@@ -1516,9 +1554,11 @@ static void IdentifyVersion(void)
             delete game_test;
             if (test_score >= 0)
             {
-                game_base = game_checker[test_score].base;
+                loaded_game = game_profiles[test_score];
+                AddBaseContent();
                 AddDataFile(iwad_file, kFileKindIWAD);
-                LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                AddBaseAutoloads();
+                LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                 return;
             }
         }
@@ -1542,27 +1582,33 @@ static void IdentifyVersion(void)
                     int test_score = CheckPackForGameFiles(iwad_file, kFileKindIPK);
                     if (test_score >= 0)
                     {
-                        game_base = game_checker[test_score].base;
+                        loaded_game = game_profiles[test_score];
+                        AddBaseContent();
                         AddDataFile(iwad_file, kFileKindIPK);
-                        LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                        AddBaseAutoloads();
+                        LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                         return;
                     }
                     else
                         FatalError("IdentifyVersion: Could not identify '%s' as a valid "
                                    "IWAD!\n",
-                                   fn.c_str());
+                                   iwad_par.c_str());
                 }
             }
-            FatalError("IdentifyVersion: Unable to access specified '%s'", fn.c_str());
+            FatalError("IdentifyVersion: Could not identify '%s' as a valid "
+                       "IWAD!\n",
+                       iwad_par.c_str());
         }
         else
         {
             int test_score = CheckPackForGameFiles(iwad_file, kFileKindIPK);
             if (test_score >= 0)
             {
-                game_base = game_checker[test_score].base;
+                loaded_game = game_profiles[test_score];
+                AddBaseContent();
                 AddDataFile(iwad_file, kFileKindIPK);
-                LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                AddBaseAutoloads();
+                LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                 return;
             }
             else
@@ -1593,9 +1639,11 @@ static void IdentifyVersion(void)
                         delete game_test;
                         if (test_score >= 0)
                         {
-                            game_base = game_checker[test_score].base;
+                            loaded_game = game_profiles[test_score];
+                            AddBaseContent();
                             AddDataFile(fsd[j].name, kFileKindIWAD);
-                            LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                            AddBaseAutoloads();
+                            LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                             return;
                         }
                     }
@@ -1610,9 +1658,11 @@ static void IdentifyVersion(void)
                         int test_score = CheckPackForGameFiles(fsd[j].name, kFileKindIPK);
                         if (test_score >= 0)
                         {
-                            game_base = game_checker[test_score].base;
+                            loaded_game = game_profiles[test_score];
+                            AddBaseContent();
                             AddDataFile(fsd[j].name, kFileKindIPK);
-                            LogDebug("GAME BASE = [%s]\n", game_base.c_str());
+                            AddBaseAutoloads();
+                            LogDebug("Loaded Game = [%s]\n", loaded_game.display_name);
                             return;
                         }
                     }
@@ -1621,32 +1671,6 @@ static void IdentifyVersion(void)
         }
         // If we've made it here, we've exhausted all possibilities
         FatalError("IdentifyVersion: No IWADs or standalone packs found!\n");
-    }
-}
-
-// Add game-specific base EPKs (widepix, skyboxes, etc) - Dasho
-static void AddBasePack(void)
-{
-    if (epi::StringCaseCompareASCII("CUSTOM", game_base) == 0)
-        return; // Standalone EDGE IWADs/EPKs should already contain their
-                // necessary resources and definitions - Dasho
-    std::string base_path = epi::PathAppend(game_directory, "edge_base");
-    std::string base_wad  = game_base;
-    epi::StringLowerASCII(base_wad);
-    base_path = epi::PathAppend(base_path, base_wad);
-    if (epi::IsDirectory(base_path))
-        AddDataFile(base_path, kFileKindEFolder);
-    else
-    {
-        epi::ReplaceExtension(base_path, ".epk");
-        if (epi::TestFileAccess(base_path))
-            AddDataFile(base_path, kFileKindEEPK);
-        else
-        {
-            FatalError("%s not found for the %s IWAD! Check the /edge_base folder of "
-                       "your %s install!\n",
-                       epi::GetFilename(base_path).c_str(), game_base.c_str(), application_name.c_str());
-        }
     }
 }
 
@@ -1738,15 +1762,14 @@ static void AddSingleCommandLineFile(const std::string &name, bool ignore_unknow
     if (epi::IsDirectory(name))
     {
         AddDataFile(name, kFileKindFolder);
+        // Don't check for file-specific autoloads for a directory; seems unlikely
+        // that final releases of mods or mapsets would be distributed as loose folders - Dasho
         return;
     }
 
     std::string ext = epi::GetExtension(name);
 
     epi::StringLowerASCII(ext);
-
-    if (ext == ".edm")
-        FatalError("Demos are not supported\n");
 
     FileKind kind;
 
@@ -1769,6 +1792,27 @@ static void AddSingleCommandLineFile(const std::string &name, bool ignore_unknow
 
     std::string filename = epi::PathAppendIfNotAbsolute(game_directory, name);
     AddDataFile(filename, kind);
+    // add autoload folder if appropriate
+    if (kind == kFileKindPWAD || kind == kFileKindEPK)
+    {
+        std::vector<epi::DirectoryEntry> fsd;
+        std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
+        filename                                      = epi::GetFilename(filename);
+        epi::StringLowerASCII(filename);
+        std::string path_check = epi::PathAppend(autoload_dir, filename);
+        bool        add_it     = true;
+        // Ensure it hasn't been added already
+        for (const DataFile *df : data_files)
+        {
+            if (epi::StringCompare(path_check, df->name_) == 0)
+            {
+                add_it = false;
+                break;
+            }
+        }
+        if (add_it && epi::IsDirectory(path_check))
+            AddDataFile(path_check, kFileKindFolder);
+    }
 }
 
 static void AddCommandLineFiles(void)
@@ -1796,161 +1840,6 @@ static void AddCommandLineFiles(void)
 
         p++;
     }
-
-    // scripts....
-
-    p = FindArgument("script");
-
-    while (p > 0 && p < int(program_argument_list.size()) &&
-           (!ArgumentIsOption(p) || epi::StringCompare(program_argument_list[p], "-script") == 0))
-    {
-        // the parms after p are script filenames,
-        // go until end of parms or another '-' preceded parm
-        if (!ArgumentIsOption(p))
-        {
-            std::string ext = epi::GetExtension(program_argument_list[p]);
-            // sanity check...
-            if (epi::StringCaseCompareASCII(ext, ".wad") == 0 || epi::StringCaseCompareASCII(ext, ".pk3") == 0 ||
-                epi::StringCaseCompareASCII(ext, ".zip") == 0 || epi::StringCaseCompareASCII(ext, ".epk") == 0 ||
-                epi::StringCaseCompareASCII(ext, ".ddf") == 0 || epi::StringCaseCompareASCII(ext, ".deh") == 0 ||
-                epi::StringCaseCompareASCII(ext, ".bex") == 0)
-            {
-                FatalError("Illegal filename for -script: %s\n", program_argument_list[p].c_str());
-            }
-
-            std::string filename = epi::PathAppendIfNotAbsolute(game_directory, program_argument_list[p]);
-            AddDataFile(filename, kFileKindRTS);
-        }
-
-        p++;
-    }
-
-    // dehacked/bex....
-
-    p = FindArgument("deh");
-
-    while (p > 0 && p < int(program_argument_list.size()) &&
-           (!ArgumentIsOption(p) || epi::StringCompare(program_argument_list[p], "-deh") == 0))
-    {
-        // the parms after p are Dehacked/BEX filenames,
-        // go until end of parms or another '-' preceded parm
-        if (!ArgumentIsOption(p))
-        {
-            std::string ext = epi::GetExtension(program_argument_list[p]);
-            // sanity check...
-            if (epi::StringCaseCompareASCII(ext, ".wad") == 0 || epi::StringCaseCompareASCII(ext, ".epk") == 0 ||
-                epi::StringCaseCompareASCII(ext, ".pk3") == 0 || epi::StringCaseCompareASCII(ext, ".zip") == 0 ||
-                epi::StringCaseCompareASCII(ext, ".ddf") == 0 || epi::StringCaseCompareASCII(ext, ".rts") == 0)
-            {
-                FatalError("Illegal filename for -deh: %s\n", program_argument_list[p].c_str());
-            }
-
-            std::string filename = epi::PathAppendIfNotAbsolute(game_directory, program_argument_list[p]);
-            AddDataFile(filename, kFileKindDehacked);
-        }
-
-        p++;
-    }
-
-    // directories....
-
-    p = FindArgument("dir");
-
-    while (p > 0 && p < int(program_argument_list.size()) &&
-           (!ArgumentIsOption(p) || epi::StringCompare(program_argument_list[p], "-dir") == 0))
-    {
-        // the parms after p are directory names,
-        // go until end of parms or another '-' preceded parm
-        if (!ArgumentIsOption(p))
-        {
-            std::string dirname = epi::PathAppendIfNotAbsolute(game_directory, program_argument_list[p]);
-            AddDataFile(dirname, kFileKindFolder);
-        }
-
-        p++;
-    }
-
-    // handle -ddf option (backwards compatibility)
-
-    std::string ps = ArgumentValue("ddf");
-
-    if (!ps.empty())
-    {
-        std::string filename = epi::PathAppendIfNotAbsolute(game_directory, ps);
-        AddDataFile(filename, kFileKindFolder);
-    }
-}
-
-static void AddAutoload(void)
-{
-    std::vector<epi::DirectoryEntry> fsd;
-    std::string                      folder = epi::PathAppend(game_directory, "autoload");
-
-    if (!ReadDirectory(fsd, folder, "*.*"))
-    {
-        LogWarning("Failed to read %s directory!\n", folder.c_str());
-    }
-    else
-    {
-        for (size_t i = 0; i < fsd.size(); i++)
-        {
-            if (!fsd[i].is_dir)
-                AddSingleCommandLineFile(fsd[i].name, true);
-        }
-    }
-    fsd.clear();
-    folder = epi::PathAppend(folder, game_base);
-    if (!ReadDirectory(fsd, folder, "*.*"))
-    {
-        LogWarning("Failed to read %s directory!\n", folder.c_str());
-    }
-    else
-    {
-        for (size_t i = 0; i < fsd.size(); i++)
-        {
-            if (!fsd[i].is_dir)
-                AddSingleCommandLineFile(fsd[i].name, true);
-        }
-    }
-    fsd.clear();
-
-    if (game_directory != home_directory)
-    {
-        // Check if autoload folder stuff is in home_directory as well, make the
-        // folder/subfolder if they don't exist (in home_directory only)
-        folder = epi::PathAppend(home_directory, "autoload");
-        if (!epi::IsDirectory(folder))
-            epi::MakeDirectory(folder);
-
-        if (!ReadDirectory(fsd, folder, "*.*"))
-        {
-            LogWarning("Failed to read %s directory!\n", folder.c_str());
-        }
-        else
-        {
-            for (size_t i = 0; i < fsd.size(); i++)
-            {
-                if (!fsd[i].is_dir)
-                    AddSingleCommandLineFile(fsd[i].name, true);
-            }
-        }
-        fsd.clear();
-        folder = epi::PathAppend(folder, game_base);
-        if (!epi::IsDirectory(folder))
-            epi::MakeDirectory(folder);
-        if (!ReadDirectory(fsd, folder, "*.*"))
-        {
-            LogWarning("Failed to read %s directory!\n", folder.c_str());
-        }
-        else
-        {
-            for (size_t i = 0; i < fsd.size(); i++)
-            {
-                if (!fsd[i].is_dir)
-                    AddSingleCommandLineFile(fsd[i].name, true);
-            }
-        }
-    }
 }
 
 static void InitializeDDF(void)
@@ -1977,7 +1866,7 @@ void EdgeShutdown(void)
         if (df->pack_)
             ClosePackFile(df);
         delete df;
-    }    
+    }
 }
 
 #ifdef EDGE_MEMORY_CHECK
@@ -2044,8 +1933,6 @@ static void EdgeStartup(void)
     epi::Initialize();
     InitializeDDF();
     IdentifyVersion();
-    AddBasePack();
-    AddAutoload();
     AddCommandLineFiles();
     CheckTurbo();
 

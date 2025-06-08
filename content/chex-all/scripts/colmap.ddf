@@ -1,0 +1,27 @@
+// 
+//    EDGE COLMAP.DDF -redefine or add new color maps.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<COLOURMAPS>
+
+[DAMAGE_FLASH]
+gl_colour = #008800;
+
+[TEXT_RED]
+gl_colour = #FF2222;
+
+[TEXT_WHITE]
+gl_colour = #FFFFFF;
+
+[TEXT_GREY]
+gl_colour = #AAAAAA;
+
+[TEXT_GREEN]
+gl_colour = #33FF33;
+
+[TEXT_YELLOW]
+gl_colour = #FFFF22;
+
+[TEXT_PURPLE]
+gl_colour = #FF33FF;

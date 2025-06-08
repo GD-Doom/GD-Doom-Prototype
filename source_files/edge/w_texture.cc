@@ -23,6 +23,7 @@
 
 #include "w_texture.h"
 
+#include "dm_state.h"
 #include "e_main.h"
 #include "e_search.h"
 #include "epi.h"
@@ -33,8 +34,6 @@
 #include "r_image.h"
 #include "w_files.h"
 #include "w_wad.h"
-
-extern std::string game_base;
 
 class TextureSet
 {
@@ -432,7 +431,7 @@ void InitializeTextures(void)
         if (WT.texture1 < 0)
             continue;
 
-        if (game_base == "strife")
+        if (epi::StringPrefixCompare(loaded_game.content_folders, "strife") == 0)
             InstallTextureLumpsStrife(file, &WT);
         else
             InstallTextureLumps(file, &WT);

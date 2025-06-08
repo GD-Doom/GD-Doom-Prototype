@@ -666,7 +666,6 @@ static void UpdatePowerups(Player *player)
     {
         float s = player->powers_[kPowerTypeInvulnerable];
 
-        // -ACB- FIXME!!! Catch lookup failure!
         player->effect_colourmap_ = colormaps.Lookup("ALLWHITE");
         player->effect_left_      = (s <= 0) ? 0 : HMM_MIN(int(s), kMaximumEffectTime);
     }
@@ -1042,11 +1041,11 @@ void CreatePlayer(int pnum, bool is_bot)
 
     if (!sfx_jpidle)
     {
-        sfx_jpidle = sfxdefs.GetEffect("JPIDLE");
-        sfx_jpmove = sfxdefs.GetEffect("JPMOVE");
-        sfx_jprise = sfxdefs.GetEffect("JPRISE");
-        sfx_jpdown = sfxdefs.GetEffect("JPDOWN");
-        sfx_jpflow = sfxdefs.GetEffect("JPFLOW");
+        sfx_jpidle = sfxdefs.GetEffect("JPIDLE", false);
+        sfx_jpmove = sfxdefs.GetEffect("JPMOVE", false);
+        sfx_jprise = sfxdefs.GetEffect("JPRISE", false);
+        sfx_jpdown = sfxdefs.GetEffect("JPDOWN", false);
+        sfx_jpflow = sfxdefs.GetEffect("JPFLOW", false);
     }
 }
 

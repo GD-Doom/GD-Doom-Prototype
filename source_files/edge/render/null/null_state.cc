@@ -214,7 +214,6 @@ class SokolRenderState : public RenderState
     {
         if (mask & GL_DEPTH_BUFFER_BIT)
         {
-            
         }
     }
 
@@ -383,8 +382,6 @@ class SokolRenderState : public RenderState
         EPI_UNUSED(type);
         EPI_UNUSED(pixels);
         EPI_UNUSED(usage);
-        
-
     }
 
     void PixelStorei(GLenum pname, GLint param)
@@ -513,7 +510,6 @@ RenderState            *render_state = &state;
 
 void SetupSkyMatrices(void)
 {
-
 }
 
 void RendererRevertSkyMatrices(void)

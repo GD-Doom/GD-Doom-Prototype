@@ -1,0 +1,264 @@
+//
+//    EDGE LANGUAGE.LDF -redefine or add new messages.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<LANGUAGES>
+
+[ENGLISH]
+
+MenuWhichEpisode="Which Episode?";
+MainNewGame="New Game";
+MainOptions="Options";
+MainLoadGame="Load Game";
+MainSaveGame="Save Game";
+MainReadThis="Read This!";
+MainQuitGame="Quit Game";
+MainEndBotMatch="End Game";
+NoBrowseFromWeb="Cannot open a file browser from the web player!";
+
+MenuOptions="Options";
+MenuVideo="Video Options";
+MenuUI="UI Options";
+MenuResolution="Screen Options";
+MenuScreen="Screen Options";
+MenuMouse="Mouse / Controller";
+MenuSound="Sound Options";
+MenuGameplay="Gameplay Options";
+MenuPerformance="Performance Options";
+MenuAccessibility="Accessibility Options";
+MenuBinding="Key Bindings";
+MenuBrowseHome="Browse Home Directory";
+
+MenuLanguage="Language";
+MenuMessages="Messages";
+MenuResetToDefault="Reset to Defaults";
+MenuStartBotmatch="Start Bot Match";
+
+MenuSkill="Choose skill level:";
+
+// Message shown when Reduce Flash is on from the Accessibility Menu
+Teleporting="Teleporting...";
+SectorBrightness="Sector Brightness";
+
+IntermissionEntering="Entering";
+IntermissionFinished="Finished";
+IntermissionKills="Kills";
+IntermissionItems="Items";
+IntermissionSecrets="Secrets";
+IntermissionTime="Time";
+
+OldConfig="A config from a previous version\nof EDGE-Classic was "
+          "loaded.\nSome values may be changed\nor reset to their "
+          "defaults.\n\nPress a key";
+
+FoundSecret="You found a secret!";
+
+BotCoop="Co-Op";
+BotOldDM="Deathmatch (Old)";
+BotNewDM="Deathmatch (New)";
+NoUsableDMStarts="Selected map has\nno usable deathmatch starts!\nReturning to main menu.";
+
+BotDifficulty1="Very Easy";
+BotDifficulty2="Easy";
+BotDifficulty3="Medium";
+BotDifficulty4="Hard";
+BotDifficulty5="Very Hard";
+
+DevelopmentMode="Development Mode is enabled.\n";
+PressKey="Press A Key";
+PressYorN="Press Y or N";
+
+QuickSaveOver="quicksave over your game named";
+NoQuickSaveSlot="you haven't picked a quicksave slot yet!\n\npress a key.";
+SaveWhenNotPlaying="you can't save if you aren't playing!\n\npress a key.";
+QuitWhenWebPlayer="You can't quit from the web player!\nPress Escape to release the cursor and close your browser.";
+
+NoLoadInNetGame="you can't load while in a net game!\n\npress a key.";
+NoQLoadInNetGame="you can't quickload during a netgame!\n\npress a key." ;
+QuickLoad="do you want to quickload the game named";
+
+NewNetGame="you can't start a new game\n"
+           "while in a network game.\n\npress a key.";
+EpisodeNonExist="You don't have this episode!\n\npress a key.";
+
+MessagesOff="Messages OFF";
+MessagesOn="Messages ON";
+
+EndNetGame="you can't end a netgame!\n\npress a key.";
+EndGameCheck="are you sure you want to end the game?\n\npress y or n.";
+
+PressToQuit="(press y to quit)";
+ENDOOMOnQuit="Show ENDOOM on Quit";
+
+EmptySlot="Empty Slot";
+
+NeedGoldKey  ="You need a gold key to open this door";
+NeedSilverKey="You need a silver key to open this door";
+NeedBrassKey ="You need a brass key to open this door";
+NeedCopperKey="You need a copper key to open this door";
+NeedSteelKey ="You need a steel key to open this door";
+NeedWoodenKey="You need a wooden key to open this door";
+NeedFireKey  ="You need a fire key to open this door";
+NeedWaterKey ="You need a water key to open this door";
+
+GameSaved="game saved.";
+
+Player1Name="Player 1: ";
+Player2Name="Player 2: ";
+Player3Name="Player 3: ";
+Player4Name="Player 4: ";
+Player5Name="Player 5: ";
+Player6Name="Player 6: ";
+Player7Name="Player 7: ";
+Player8Name="Player 8: ";
+
+AutoMapFollowOn="Follow Mode ON";
+AutoMapFollowOff="Follow Mode OFF";
+AutoMapGridOn="Grid ON";
+AutoMapGridOff="Grid OFF";
+AutoMapMarkedSpot="Marked Spot";
+AutoMapMarksClear="All Marks Cleared";
+
+MusChange="Music Change";
+ImpossibleChange="IMPOSSIBLE SELECTION";
+HomDetectOn="HOM Detection ON";
+HomDetectOff="HOM Detection OFF";
+
+ClipON="No Clipping Mode ON";
+ClipOFF="No Clipping Mode OFF";
+
+LevelChange="Changing Level...";
+
+SuicideCheat="Loser!";
+StuffRemoval="Stuff removed";
+UnlockCheat="Got all the keys!";
+LoadedCheat="Full ammo added!";
+MonstersKilled="Monsters Killed.";
+
+LevelQ="Level Change!\nEnter Level Name:\n\n";
+MusicQ="Music Change!\nEnter Music Name:\n\n";
+
+OB_Generic  = "%o was killed by %k.";
+OB_NoKiller = "%o was killed.";
+
+Notice=
+ "=======================================================================================\n"
+ " This is EDGE-Classic: a project that is based upon the Doom Source Code released by   \n"
+ " John Carmack of Id Software in December 1997. The work on this project is designed    \n"
+ " and implemented by the EDGE-Classic Team (https://edge-classic.github.io)\n"
+ "=======================================================================================\n";
+
+ModeSelErr=      "Unable to Initialise Graphics Mode";
+
+// Menu option text (so menu's can change to other languages)
+OptStandardControls="Standard Controls";
+OptExtendedControls="Extended Controls";
+OptSetResolution="Screen Options";
+OptVideoOptions="Video Options";
+OptSoundOptions="Sound Options";
+OptGameplayOptions="Gameplay Options";
+OptPerformanceOptions="Performance Options";
+OptAnalogueOptions="Analogue Options";
+OptLanguage="Language";
+OptMessages="Messages";
+OptSwapStereo="Swap Stereo";
+OptSoundVolume="Sound Volume";
+OptMusicVolume="Music Volume";
+OptResetToRecommended="Reset to Recommended";
+OptResetToOriginalDoom="Reset to Original Doom";
+OptBrightness="Brightness";
+OptScreensize="Screensize";
+OptFieldOfView="Field Of View";
+OptZoomedFOV="Zoomed FOV";
+OptTranslucency="Translucency";
+OptMipmapping="Mipmapping";
+OptSmoothing="Smoothing";
+OptShadows="Shadows";
+OptDynamicLighting="Dynamic Lighting";
+OptCrosshair="Crosshair";
+OptMapRotation="Map Rotation";
+OptMapOverlay="Map Overlay";
+OptScreenComposition="Screen Composition";
+OptTeleportationeffect="Teleportation effect";
+OptReverseeffect="Reverse effect";
+OptTeleportFlash="Teleport Flash";
+OptWipemethod="Wipe method";
+OptReversedwipe="Reversed wipe";
+OptStretchSky="Stretch Sky";
+OptCyanRed3dEffect="Cyan/Red 3d effect";
+OptChangeSize="Change Size";
+OptChangeDepth="Change Depth";
+OptSetResolution="Screen Options";
+OptTestResolution="Test Resolution";
+Optanalogueoptionssize="analogueoptionssize";
+OptInvertMouse="Invert Mouse";
+OptMouseXAxis="Mouse X Axis";
+OptMouseYAxis="Mouse Y Axis";
+OptMouseSpeed="MouseSpeed";
+OptMLookSpeed="MLook Speed";
+OptTwoStageTurning="Two-Stage Turning";
+OptTurningSpeed="Turning Speed";
+OptSideMoveSpeed="Side Move Speed";
+OptForwardMoveSpeed="Forward Move Speed";
+OptJoystickXAxis="Joystick X Axis";
+OptJoystickYAxis="Joystick Y Axis";
+OptCalibrateJoystick="Calibrate Joystick";
+Optplayoptionssize="playoptionssize";
+OptTrue3DGameplay="True 3D Gameplay";
+OptAutoAiming="AutoAiming";
+OptJumping="Jumping";
+OptCrouching="Crouching";
+OptMoreBlood="More Blood";
+OptExtras="Extras";
+OptGravity="Gravity";
+OptQuickLoad="Quick Load";
+OptEnemyRespawnMode="Enemy Respawn Mode";
+OptItemRespawn="Item Respawn";
+OptFastMonsters="Fast Monsters";
+OptRespawn="Respawn";
+OptPrimaryAttack="Primary Attack";
+OptSecondaryAtk="Secondary Atk";
+OptUseItem="Use Item";
+OptWalkForward="Walk Forward";
+OptWalkBackwards="Walk Backwards";
+OptTurnLeft="Turn Left";
+OptTurnRight="Turn Right";
+OptMoveUp="Move Up";
+OptMoveDown="Move Down";
+OptToggleAutorun="Toggle Autorun";
+OptRun="Run";
+OptStrafeLeft="Strafe Left";
+OptStrafeRight="Strafe Right";
+OptStrafe="Strafe";
+OptLookUp="Look Up";
+OptLookDown="Look Down";
+OptCenterView="Center View";
+OptZoomInOut="Zoom in/out";
+Opt180DegreeTurn="180 degree turn";
+OptJump="Jump";
+OptMouseLook="Mouse Look";
+OptMapToggle="Map Toggle";
+OptMultiplayTalk="Multiplay Talk";
+
+Controls="Setup standard and extended controls";
+Controls2="Setup Extended EDGE Controls";
+VideoOptions="Setup smoothing, gamma, etc...";
+UIOptions="Tweak user interface elements";
+SoundOptions="Setup volume, MIDI player, stereo, etc...";
+AccessibilityOptions="Adjust options to address various concerns";
+GameplayOptions="Setup respawn, gravity, 3D options etc...";
+PerformanceOptions="Tweak visuals or gameplay for extra performance";
+AnalogueOptions="Setup mouse and gamepad options";
+SwapStereo="Swap the left and right sound channels";
+Messages="Show informational messages";
+CDOptions="CD Audio Config: Off/On/Atmosphere";
+ResetEDGE="Resets all configs to EDGE Extended mode";
+ResetDoom="Resets all configs to be like original DOOM";
+NeedRestart="This is applied when EDGE-Classic is restarted";
+
+Gravity="Changes the global gravity setting";
+Blood="Controls amount of blood and gore";
+True3d="Enables jumping over things, flight etc...";
+
+ChangeRes="Setup screen resolution, VSync, aspect ratio...";

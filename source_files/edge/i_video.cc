@@ -29,11 +29,11 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "n_network.h"
+#include "platform/gd_platform.h"
 #include "r_backend.h"
 #include "r_modes.h"
 #include "r_state.h"
 #include "version.h"
-#include "platform/gd_platform.h"
 
 int graphics_shutdown = 0;
 
@@ -142,7 +142,7 @@ bool SetScreenSize(DisplayMode *mode)
 void StartFrame(void)
 {
     gd::Platform::StartFrame();
-}   
+}
 
 void FinishFrame(void)
 {

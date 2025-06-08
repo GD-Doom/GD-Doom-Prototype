@@ -584,7 +584,7 @@ File *FileOpen(std::string_view name, unsigned int flags)
 
 bool OpenDirectory(const std::string &src)
 {
-#ifdef GD_PLATFORM_SDL    
+#ifdef GD_PLATFORM_SDL
     // A result of 0 is 'success', but that only means SDL was able to launch
     // some kind of process to attempt to handle the path. -1 is the only result
     // that is guaranteed to be an 'error'

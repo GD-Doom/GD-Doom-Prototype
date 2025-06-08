@@ -70,30 +70,33 @@
 #include "w_files.h"
 #include "w_texture.h"
 
-// Combination of unique lumps needed to best identify an IWAD
-const std::vector<GameCheck> game_checker = {{
-    {"Custom", "custom", {"EDGEGAME", "EDGEGAME"}},
-    {"Blasphemer", "blasphemer", {"BLASPHEM", "E1M1"}},
-    {"Freedoom 1", "freedoom1", {"FREEDOOM", "E1M1"}},
-    {"Freedoom 2", "freedoom2", {"FREEDOOM", "MAP01"}},
-    {"REKKR", "rekkr", {"REKCREDS", "E1M1"}},
-    {"HacX", "hacx", {"HACX-R", "MAP01"}},
-    {"Harmony", "harmony", {"0HAWK01", "DBIGFONT"}},         // Original Harmony Release
-    {"Harmony Compat", "harmonyc", {"0HAWK01", "DMAPINFO"}}, // Harmony Compatible Release
-    {"Chex Quest 3M", "chex3vm", {"ENDOOM", "MAP01"}},       // Chex Quest 3: Vanilla Edition
-                                                             // Modder/Doom 2 Base
-    {"Chex Quest 3", "chex3v", {"ENDOOM", "BOSSBACK"}},      // Chex Quest 3: Vanilla Edition
-    {"Chex Quest 1", "chex1", {"ENDOOM", "E4M1"}},
-    {"Heretic", "heretic", {"MUS_E1M1", "E1M1"}},
-    {"Plutonia", "plutonia", {"CAMO1", "MAP01"}},
-    {"Evilution", "tnt", {"REDTNT2", "MAP01"}},
-    {"Doom", "doom", {"BFGGA0", "E2M1"}},
-    {"Doom BFG", "doom", {"DMENUPIC", "M_MULTI"}},
-    {"Doom Demo", "doom1", {"SHOTA0", "E1M1"}},
-    {"Doom II", "doom2", {"BFGGA0", "MAP01"}},
-    {"Doom II BFG", "doom2", {"DMENUPIC", "MAP33"}},
-    {"Strife", "strife", {"VELLOGO", "RGELOGO"}} // Dev/internal use - Definitely nowhwere near playable
-}};
+// Game display name, autoload folders to use, and combination of
+// unique lumps needed to best identify them.
+
+const std::vector<GameProfile> game_profiles = {
+    {{"Custom", NULL, NULL, {"EDGEGAME", "EDGEGAME"}},
+     {"Blasphemer", "heretic-all,heretic.wad,blasphemer-all", "blasphemer-all,blasphem.wad", {"BLASPHEM", "E1M1"}},
+     {"Blasphemer DM", "heretic-all,heretic.wad,blasphemer-all", "blasphemer-all,blasphdm.wad", {"BLASPHDM", "E1M1"}},
+     {"Freedoom 1", "doom-all,doom1-all,doom.wad", "freedoom-all,freedoom1-all,freedoom1.wad", {"FREEDOOM", "E1M1"}},
+     {"Freedoom 2", "doom-all,doom2-all", "freedoom-all,freedoom2-all,freedoom2.wad", {"FREEDOOM", "MAP01"}},
+     {"Freedoom 2 DM", "doom-all,doom2-all", "freedoom-all,freedoom2-all,freedm.wad", {"FREEDM", "MAP01"}},
+     {"REKKR", "doom-all,doom1-all,doom.wad,rekkr-all", "rekkr-all,rekkr.wad", {"REKCREDS", "E1M1"}},
+     {"HacX", "doom-all,doom2-all,hacx.wad", "hacx.wad", {"HACX-R", "MAP01"}},
+     {"Harmony", "doom-all,doom2-all,harmonyc.wad", "harmonyc.wad", {"0HAWK01", "DMAPINFO"}},
+     {"Chex Quest 3", "doom-all,doom2-all,chex-all", "chex-all,chex3d2.wad", {"ENDOOM", "MAP01"}},
+     {"Chex Quest 3", "doom-all,doom1-all,chex-all,chex3v.wad", "chex-all,chex3v.wad", {"ENDOOM", "E1M1"}},
+     {"Heretic", "heretic-all,heretic.wad", "heretic-all,heretic.wad", {"MUS_E1M1", "E2M1"}},
+     {"Heretic Demo", "heretic-all", "heretic-all,heretic1.wad", {"MUS_E1M1", "E1M1"}},
+     {"Plutonia", "doom-all,doom2-all,plutonia.wad", "doom-all,doom2-all,plutonia.wad", {"CAMO1", "MAP01"}},
+     {"Evilution", "doom-all,doom2-all,tnt.wad", "doom-all,doom2-all,tnt.wad", {"REDTNT2", "MAP01"}},
+     {"Doom", "doom-all,doom1-all,doom.wad", "doom-all,doom1-all,doom.wad", {"BFGGA0", "E2M1"}},
+     {"Doom BFG", "doom-all,doom1-all,doom.wad", "doom-all,doom1-all,doom.wad", {"DMENUPIC", "M_MULTI"}},
+     {"Doom Demo", "doom-all,doom1-all", "doom-all,doom1-all,doom1.wad", {"SHOTA0", "E1M1"}},
+     {"Doom II", "doom-all,doom2-all", "doom-all,doom2-all,doom2.wad", {"BFGGA0", "MAP01"}},
+     {"Doom II BFG", "doom-all,doom2-all,doom2-bfg", "doom-all,doom2-all,doom2.wad", {"DMENUPIC", "MAP33"}},
+     // Dev/internal use - Definitely nowhwere near playable
+     {"Strife", "strife-all,strife1.wad", "strife-all,strife1.wad", {"VELLOGO", "MAP01"}},
+     {"Strife Demo", "strife-all", "strife-all,strife0.wad", {"VELLOGO", "RGELOGO"}}}};
 
 class WadFile
 {
@@ -495,7 +498,7 @@ static void SortSpriteLumps(WadFile *wad)
 //
 // AddLump
 //
-static void AddLump(DataFile *df, const char *raw_name, int pos, int size, int file_index, bool allow_ddf)
+static void AddLump(DataFile *df, const char *raw_name, int pos, int size, int file_index)
 {
     int lump = (int)lump_info.size();
 
@@ -591,7 +594,7 @@ static void AddLump(DataFile *df, const char *raw_name, int pos, int size, int f
     }
 
     // -KM- 1998/12/16 Load DDF/RSCRIPT file from wad.
-    if (allow_ddf && wad != nullptr)
+    if (wad != nullptr)
     {
         DDFType type = DDFLumpToType(info.name);
 
@@ -844,9 +847,9 @@ int CheckForUniqueGameLumps(epi::File *file)
     file->Seek(header.directory_start, epi::File::kSeekpointStart);
     file->Read(raw_info, length);
 
-    for (size_t check = 0; check < game_checker.size(); check++)
+    for (size_t check = 0; check < game_profiles.size(); check++)
     {
-        GameCheck   gamecheck = game_checker[check];
+        GameProfile gamecheck = game_profiles[check];
         const char *lump0     = gamecheck.unique_lumps[0];
         const char *lump1     = gamecheck.unique_lumps[1];
 
@@ -886,18 +889,10 @@ int CheckForUniqueGameLumps(epi::File *file)
                     file->Seek(entry.position, epi::File::kSeekpointStart);
                     uint8_t *endoom = new uint8_t[entry.size];
                     file->Read(endoom, entry.size);
-                    // CQ3: Vanilla
                     if (endoom[1174] == 'c' && endoom[1176] == 'h' && endoom[1178] == 'e' && endoom[1180] == 'x' &&
                         endoom[1182] == 'q' && endoom[1184] == 'u' && endoom[1186] == 'e' && endoom[1188] == 's' &&
                         endoom[1190] == 't' && endoom[1192] == '.' && endoom[1194] == 'o' && endoom[1196] == 'r' &&
                         endoom[1198] == 'g')
-                    {
-                        lump1_found = true;
-                    }
-                    // CQ1
-                    else if (endoom[1026] == 'c' && endoom[1028] == 'h' && endoom[1030] == 'e' && endoom[1032] == 'x' &&
-                             endoom[1034] == 'q' && endoom[1036] == 'u' && endoom[1038] == 'e' && endoom[1040] == 's' &&
-                             endoom[1042] == 't')
                     {
                         lump1_found = true;
                     }
@@ -1066,11 +1061,8 @@ void ProcessWad(DataFile *df, size_t file_index)
     {
         const RawWadEntry &entry = raw_info[i];
 
-        bool allow_ddf = (epi::StringCompare(game_base, "custom") == 0 || df->kind_ == kFileKindPWAD ||
-                          df->kind_ == kFileKindPackWAD || df->kind_ == kFileKindIPK || df->kind_ == kFileKindIFolder);
-
         AddLump(df, entry.name, AlignedLittleEndianS32(entry.position), AlignedLittleEndianS32(entry.size),
-                (int)file_index, allow_ddf);
+                (int)file_index);
 
         // this will be uppercase
         const char *level_name = lump_info[startlump + i].name;
@@ -2258,7 +2250,7 @@ bool IsLumpInPwad(const char *name)
     {
         int filenum = GetDataFileIndexForLump(lumpnum);
 
-        if (filenum >= 2) // ignore edge_defs and the IWAD itself
+        if (filenum >= external_content_index)
         {
             const DataFile *df = data_files[filenum];
 
@@ -2273,7 +2265,7 @@ bool IsLumpInPwad(const char *name)
     if (!in_pwad) // Check EPKs/folders now
     {
         // search from newest file to oldest
-        for (int i = (int)data_files.size() - 1; i >= 2; i--) // ignore edge_defs and the IWAD itself
+        for (int i = (int)data_files.size() - 1; i >= external_content_index; i--)
         {
             DataFile *df = data_files[i];
             if (df->kind_ == kFileKindFolder || df->kind_ == kFileKindEFolder || df->kind_ == kFileKindEPK ||

@@ -35,7 +35,7 @@
 #include "w_files.h"
 #include "w_wad.h"
 
-static std::string known_image_directories[5] = {"flats", "graphics", "skins", "textures", "sprites"};
+static std::string known_image_directories[4] = {"flats", "graphics", "textures", "sprites"};
 
 class PackEntry
 {
@@ -701,7 +701,7 @@ static void ProcessLuaAPIInPack(PackFile *pack)
             }
         }
     }
-    FatalError("edge_api.lua not found in edge_defs; unable to initialize LUA!\n");
+    FatalError("edge_api.lua not found; unable to initialize LUA!\n");
 }
 
 static void ProcessLuaHUDInPack(PackFile *pack)
@@ -789,8 +789,6 @@ void ProcessPackSubstitutions(PackFile *pack, int pack_index)
                                       kImageTypeGraphic);
                 else if (dir_name == "flats")
                     AddPackImageSmart(texname.c_str(), kImageSourceGraphic, entry.pack_path_.c_str(), kImageTypeFlat);
-                else if (dir_name == "skins") // Not sure about this still
-                    AddPackImageSmart(texname.c_str(), kImageSourceSprite, entry.pack_path_.c_str(), kImageTypeSprite);
             }
             else
             {
@@ -1245,8 +1243,8 @@ void ProcessAllInPack(DataFile *df, size_t file_index)
     ProcessDDFInPack(df->pack_);
 
     // LUA
-    // parse lua api  only from edge_defs folder or `edge_defs.epk`
-    if ((df->kind_ == kFileKindEFolder || df->kind_ == kFileKindEEPK) && file_index == 0)
+    // parse lua api only from our shipped 'all-all' folder
+    if (df->kind_ == kFileKindEFolder && file_index == 0)
         ProcessLuaAPIInPack(df->pack_);
     ProcessLuaHUDInPack(df->pack_);
 

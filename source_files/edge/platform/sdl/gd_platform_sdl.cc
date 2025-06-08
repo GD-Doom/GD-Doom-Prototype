@@ -150,11 +150,6 @@ class SDL_Platform : public Platform
         return SDL_OpenURL(url);
     }
 
-    int ShowSimpleMessageBoxInternal(const char *title, const char *message) override
-    {
-        return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, nullptr);
-    }
-
     void DelayInternal(uint32_t milliseconds) override
     {
         SDL_Delay(milliseconds);
@@ -327,6 +322,11 @@ class SDL_Platform : public Platform
 void Platform_Init()
 {
     new SDL_Platform();
+}
+
+void Platform_SimpleMessageBox(const char *title, const char *message)
+{
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, NULL);
 }
 
 // Input

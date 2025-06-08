@@ -1,0 +1,25 @@
+// 
+//    EDGE FONTS.DDF -redefine or add new fonts.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<FONTS>
+
+[CONSOLE]
+TYPE=TRUETYPE;
+TTF="ECFONT02.ttf";
+TTF_SMOOTHING = "ALWAYS";
+
+[DEFAULT]
+TYPE=TRUETYPE;
+TTF="ECFONT01.ttf";
+TTF_SMOOTHING = "ALWAYS";
+
+[ENDOOM]
+TYPE=IMAGE;
+IMAGE="ENDFONT";
+
+[OPTIONS]
+TYPE=TRUETYPE;
+TTF="ECFONT01.ttf";
+TTF_SMOOTHING = "ALWAYS";

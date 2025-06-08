@@ -1019,9 +1019,19 @@ void ObituaryMessage(MapObject *victim, MapObject *killer, const DamageClass *da
     }
 
     if (killer)
-        DoObituary("%o was killed.", victim, killer);
+    {
+        if (language.IsValidRef("OB_Generic"))
+            DoObituary(language["OB_Generic"], victim, killer);
+        else
+            DoObituary("%o was killed.", victim, killer);
+    }
     else
-        DoObituary("%o died.", victim, killer);
+    {
+        if (language.IsValidRef("OB_NoKiller"))
+            DoObituary(language["OB_NoKiller"], victim, killer);
+        else
+            DoObituary("%o died.", victim, killer);
+    }
 }
 
 //
@@ -1581,7 +1591,9 @@ void DamageMapObject(MapObject *target, MapObject *inflictor, MapObject *source,
                 if (damtype && damtype->damage_flash_colour_ != kRGBANoValue)
                     player->last_damage_colour_ = damtype->damage_flash_colour_;
                 else
-                    player->last_damage_colour_ = current_map->episode_->default_damage_flash_;
+                    player->last_damage_colour_ = colormaps.Lookup("DAMAGEFLASH")->gl_color_;
+                // Dasho - Cache this; it replaces the DDFGAME property which honestly
+                // wasn't the best way to do it
             }
 
             player->damage_count_ += (int)HMM_MAX(damage, kDamageAddMinimum);
@@ -1729,9 +1741,10 @@ void TelefragMapObject(MapObject *target, MapObject *inflictor, const DamageClas
 
     if (target->player_)
     {
-        target->player_->attacker_     = inflictor;
-        target->player_->damage_count_ = kDamageLimit;
-        target->player_->damage_pain_  = target->spawn_health_;
+        target->player_->attacker_           = inflictor;
+        target->player_->damage_count_       = kDamageLimit;
+        target->player_->damage_pain_        = target->spawn_health_;
+        target->player_->last_damage_colour_ = colormaps.Lookup("DAMAGEFLASH")->gl_color_;
     }
 
     KillMapObject(inflictor, target, damtype);

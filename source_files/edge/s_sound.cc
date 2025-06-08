@@ -16,6 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include "s_sound.h"
+
 #include "dm_state.h"
 #include "epi.h"
 #include "epi_sdl.h"
@@ -29,7 +31,6 @@
 #include "s_blit.h"
 #include "s_cache.h"
 #include "s_music.h"
-#include "s_sound.h"
 #include "w_wad.h"
 
 extern void StartupProgressMessage(const char *message);

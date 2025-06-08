@@ -1,0 +1,12 @@
+//
+//    EDGE LANGUAGE.LDF -redefine or add new messages.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<LANGUAGES>
+
+[ENGLISH]
+
+Map31Desc="IDKFA";
+Map32Desc="Keen";
+Map33Desc="Betray";
