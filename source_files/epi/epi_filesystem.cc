@@ -598,6 +598,7 @@ bool OpenDirectory(const std::string &src)
     return true;
 #else
     // TODO: SDL call in the epi library, where we don't have platform abstraction
+    EPI_UNUSED(src);
     FatalError("OpenDirectory - Not Implemented");
 #endif
 }

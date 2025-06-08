@@ -143,7 +143,7 @@ else()
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-exceptions -fno-rtti -fno-strict-aliasing")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing")
 
   if (EDGE_SANITIZE AND EDGE_SANITIZE_THREADS)
     message( FATAL_ERROR "Cannot enable both EDGE_SANITIZE AND EDGE_SANITIZE_THREADS!" )

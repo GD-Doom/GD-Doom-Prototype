@@ -58,7 +58,7 @@
             "program": "C:\\Godot\\Godot_v4.4.1-stable_win64.exe",
             // Change the arguments below for the project you want to test with.
             // To run the project instead of editing it, remove the "--editor" argument.
-            "args": [                
+            "args": [
                 "--path",
                 "${workspaceFolder}/gd-doom"
             ],
@@ -66,7 +66,36 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "internalConsole",
-            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"            
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"
+        },
+        {
+            "name": "Launch Godot (Linux gdb)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/jenge/Dev/Godot/Godot_v4.4.1-stable_linux.x86_64",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

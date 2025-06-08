@@ -13,7 +13,10 @@
 
 #ifdef WIN32
 #include "windows.h"
+#else
+#include <unistd.h>
 #endif
+
 
 extern std::string executable_path;
 
@@ -27,10 +30,15 @@ void GDD_Init(int argc, char *argv[])
 {
 
 #ifdef WIN32
-    SetCurrentDirectory("C:\\Dev\\GD-Doom-Prototype");
-#endif
-
     executable_path = "C:\\Dev\\GD-Doom-Prototype";//SDL_GetBasePath();
+    SetCurrentDirectory("C:\\Dev\\GD-Doom-Prototype");
+#else
+    //argc = 2;
+    //const char* argvv[] = {"-iwad", "/home/jenge/Dev/GD-Doom-Prototype/DOOM2.WAD"};
+    //argv = (char**) argvv;
+    executable_path = "/home/jenge/Dev/GD-Doom-Prototype";//SDL_GetBasePath();
+    chdir(executable_path.c_str());
+#endif
 
     gd::Platform_Init();
 

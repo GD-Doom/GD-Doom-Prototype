@@ -258,6 +258,8 @@ if (GD_PLATFORM_GODOT)
 
   if (WIN32)
     set(GD_GODOT_PLATFORM_FOLDER windows)
+  else()
+    set(GD_GODOT_PLATFORM_FOLDER linux)
   endif()
 
   set(OUTPUT_NAME ${GDEXTENSION_NAME})
@@ -267,30 +269,27 @@ if (GD_PLATFORM_GODOT)
   set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Darwin>:.macos>)
   set(OUTPUT_NAME ${OUTPUT_NAME}$<$<CONFIG:Debug>:.debug>)
   set(OUTPUT_NAME ${OUTPUT_NAME}$<$<CONFIG:Release>:.release>)
-
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
-
   set(OUTPUT_NAME ${OUTPUT_NAME}.x86_64)
 
   # Add a dynamic library named ${GDEXTENSION_NAME}
   add_library(${GDEXTENSION_NAME} SHARED ${EDGE_SOURCE_FILES} ${GODOT_SOURCES})
 
   if(WIN32)
-    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE WIN32 GD_PLATFORM_GODOT)
-    target_include_directories(${GDEXTENSION_NAME} PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/msvc/include)
+    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE WIN32 GD_PLATFORM_GODOT)    
   else()
-    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE UNIX)
+    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE UNIX GD_PLATFORM_GODOT)
   endif()
 
+  #FIXME: -Wno-unused-parameter is for Godot headers, need to still enable for our sources
+
   target_compile_options(${GDEXTENSION_NAME} PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:${EDGE_WARNING_LEVEL}> /wd4201 /wd4127
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${EDGE_WARNING_LEVEL}>
+    $<$<CXX_COMPILER_ID:MSVC>:${EDGE_WARNING_LEVEL} /wd4201 /wd4127> 
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${EDGE_WARNING_LEVEL} -Wno-unused-parameter>
   )
 
-  set_target_properties(${GDEXTENSION_NAME} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
+set_target_properties(${GDEXTENSION_NAME} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
+set_target_properties(${GDEXTENSION_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+
   target_include_directories(${GDEXTENSION_NAME} PRIVATE ./ "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(${GDEXTENSION_NAME} PUBLIC godot::cpp ${EDGE_LINK_LIBRARIES})
 

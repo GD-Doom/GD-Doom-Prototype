@@ -39,3 +39,4 @@ source_files/glew/glew.pc
 .godot
 *.dll
 *.pdb
+*.so
