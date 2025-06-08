@@ -23,10 +23,10 @@ struct TexInfo
 
 constexpr int32_t kMaxClipPlane = 6;
 
-class NullRenderState : public RenderState
+class GodotRenderState : public RenderState
 {
   public:
-    NullRenderState()
+    GodotRenderState()
     {
         Reset();
     }
@@ -505,8 +505,8 @@ class NullRenderState : public RenderState
     EScissor scissor_;
 };
 
-static NullRenderState state;
-RenderState            *render_state = &state;
+static GodotRenderState godot_render_state;
+RenderState            *render_state = &godot_render_state;
 
 void SetupSkyMatrices(void)
 {

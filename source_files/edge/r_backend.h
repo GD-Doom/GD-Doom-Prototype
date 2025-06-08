@@ -43,6 +43,12 @@ struct FrameStats
 class RenderBackend
 {
   public:
+
+    virtual ~RenderBackend()
+    {
+        
+    }
+    
     // Setup the GL matrices for drawing 2D stuff.
     virtual void SetupMatrices2D() = 0;
 

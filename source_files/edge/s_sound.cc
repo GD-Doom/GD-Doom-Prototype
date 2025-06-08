@@ -20,7 +20,9 @@
 
 #include "dm_state.h"
 #include "epi.h"
+#ifdef GD_PLATFORM_SDL
 #include "epi_sdl.h"
+#endif
 #include "i_movie.h"
 #include "i_sound.h"
 #include "i_system.h"

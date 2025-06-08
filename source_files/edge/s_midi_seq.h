@@ -2231,7 +2231,7 @@ class MidiSequencer
         //! Is valid event
         uint_fast16_t is_valid = 1;
         //! Reserved 5 bytes padding
-        uint_fast16_t padding[4];
+        uint_fast16_t padding[4] = {0, 0, 0, 0};
         //! Absolute tick position (Used for the tempo calculation only)
         uint64_t absolute_tick_position = 0;
         //! Raw data of this event

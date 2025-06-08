@@ -1,0 +1,14 @@
+[configuration]
+
+entry_symbol = "gd_doom_library_init"
+compatibility_minimum = "4.4"
+
+[libraries]
+; Relative paths ensure that our GDExtension can be placed anywhere in the project directory.
+
+windows.x86_64.debug = "./windows/gd-doom.windows.debug.x86_64.dll"
+windows.x86_64.release = "./windows/gd-doom.windows.release.x86_64.dll"
+
+linux.x86_64.debug = "./linux/libgd-doom.linux.debug.x86_64.so"
+linux.x86_64.release = "./linux/libgd-doom.linux.release.x86_64.so"
+

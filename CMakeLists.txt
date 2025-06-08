@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.27)
 
 project(
-  edge-classic
+  gd-doom
   LANGUAGES C CXX
   VERSION 0.1.0
 )
@@ -15,17 +15,37 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if ("${CMAKE_TOOLCHAIN_FILE}" MATCHES "vcpkg.cmake")
+    if (CMAKE_HOST_UNIX)
+        # These are needed or else building certain vcpkg deps will fail
+        # find_package (PkgConfig REQUIRED)
+        # find_program (AUTOMAKE_EXECUTABLE NAMES automake REQUIRED)
+        # find_program (AUTOCONF_EXECUTABLE NAMES autoconf REQUIRED)
+        # find_program (LIBTOOL_EXECUTABLE NAMES libtoolize REQUIRED)
+        include ("vcpkg-triplets/vcpkg-triplets-linux.cmake")
+    else()
+        include ("vcpkg-triplets/vcpkg-triplets-windows.cmake")
+    endif()
+endif()
+
+include(CMakeDependentOption)
+
 # Platform Options
 option(GD_PLATFORM_SDL "Platform SDL" ON)
+option(GD_PLATFORM_GODOT "Platform Godot" OFF)
+option(GD_PLATFORM_NULL "Platform Null" OFF)
+
+if (GD_PLATFORM_GODOT) 
+  find_package(unofficial-godot-cpp CONFIG REQUIRED)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  add_definitions(-DGD_PLATFORM_GODOT)
+endif()
+
 
 if (GD_PLATFORM_SDL)
 add_definitions(-DGD_PLATFORM_SDL)
-endif()
-
-# Rendering Options
-
-# Sokol Renderer
 option(EDGE_SOKOL_GL "Sokol GL" ON)
+endif()
 
 # Development 
 option(EDGE_SANITIZE "Enable code sanitizing" OFF)
@@ -34,7 +54,8 @@ option(EDGE_PROFILING "Enable Profiling" OFF)
 option(EDGE_EXTRA_CHECKS "Enable diagnostic checks/functions" OFF)
 
 # memory allocator
-option(EDGE_MIMALLOC "Enable mimalloc" ON)
+option(EDGE_MIMALLOC "Enable mimalloc" OFF)
+
 # Enables exhaustive memory checks, see mimalloc CMakeLists.txt for what is enabled
 # Memory error logging goes to debug.txt
 option(EDGE_MEMORY_CHECK "Enable Memory Checks" OFF)
@@ -50,8 +71,6 @@ else()
 endif()
 
 if(MSVC)
-    # Use static C runtime, necessary for mimalloc and also means matching C runtime doesn't need to be on users box
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:Debug>")   
     if (EDGE_MIMALLOC)
       # Override memory allocations to use mimalloc
       add_compile_options(/FI${CMAKE_SOURCE_DIR}/libraries/mimalloc/include/mimalloc-override.h)
@@ -132,7 +151,7 @@ else()
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-exceptions -fno-rtti -fno-strict-aliasing")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing")
 
   if (EDGE_SANITIZE AND EDGE_SANITIZE_THREADS)
     message( FATAL_ERROR "Cannot enable both EDGE_SANITIZE AND EDGE_SANITIZE_THREADS!" )

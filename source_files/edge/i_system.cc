@@ -122,10 +122,8 @@ void LogPrint(const char *message, ...)
     // Send the message to the console.
     ConsoleMessage(kConsoleOnly, "%s", printbuf);
 
-#ifndef GD_PLATFORM_SDL
-    // Send to debug console in browser
-    printf("%s", printbuf);
-#endif
+    gd::Platform::DebugPrint(printbuf);
+
 }
 
 void ShowMessageBox(const char *message, const char *title)

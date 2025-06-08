@@ -23,6 +23,7 @@ set (EDGE_SOURCE_FILES
   hu_font.cc
   hu_stuff.cc
   hu_style.cc
+  i_main.cc
   i_system.cc
   im_data.cc
   im_funcs.cc
@@ -113,10 +114,19 @@ set (EDGE_SOURCE_FILES
   script/compat/lua_game.cc
   script/compat/lua_player.cc
   script/compat/lua_hud.cc)
-  
-if (EDGE_SOKOL_GL)
 
-  set (EDGE_SOKOL_SOURCE_FILES
+
+if (GD_PLATFORM_GODOT)
+
+  set (EDGE_RENDER_SOURCE_FILES
+    render/godot/godot_backend.cc
+    render/godot/godot_state.cc
+    render/godot/godot_units.cc
+  )
+  
+elseif (EDGE_SOKOL_GL)
+
+  set (EDGE_RENDER_SOURCE_FILES
     render/sokol/sokol_backend.cc
     render/sokol/sokol_gl.cc  
     render/sokol/sokol_images.cc
@@ -124,63 +134,47 @@ if (EDGE_SOKOL_GL)
     render/sokol/sokol_sky.cc
     render/sokol/sokol_state.cc
     render/sokol/sokol_units.cc
-  )
-
-  list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
+  )  
 
 else()
 
-  set (EDGE_NULL_SOURCE_FILES
+  set (EDGE_RENDER_SOURCE_FILES
     render/null/null_backend.cc
     render/null/null_state.cc
     render/null/null_units.cc
-  )
-
-  list (APPEND EDGE_SOURCE_FILES ${EDGE_NULL_SOURCE_FILES})
+  )  
 
 endif()
 
+
+list (APPEND EDGE_SOURCE_FILES ${EDGE_RENDER_SOURCE_FILES})
+
 # Platform sources
-if (GD_PLATFORM_SDL)
+if (GD_PLATFORM_GODOT)
 
-  set (GD_PLATFORM_SDL_SOURCE_FILES
+  file(GLOB_RECURSE GD_PLATFORM_SOURCE_FILES 
+        "${CMAKE_CURRENT_SOURCE_DIR}/platform/godot/*.cc")
+
+
+elseif(GD_PLATFORM_SDL)
+
+  set (GD_PLATFORM_SOURCE_FILES
     platform/sdl/gd_platform_sdl.cc
-  )
+  )  
 
-  list (APPEND EDGE_SOURCE_FILES ${GD_PLATFORM_SDL_SOURCE_FILES})
+elseif(GD_PLATFORM_NULL)
 
-else()
-
-  set (GD_PLATFORM_NULL_SOURCE_FILES
+  set (GD_PLATFORM_SOURCE_FILES
     platform/null/gd_platform_null.cc
   )
 
-  list (APPEND EDGE_SOURCE_FILES ${GD_PLATFORM_NULL_SOURCE_FILES})
+  endif()
 
-endif()
-
-list (APPEND EDGE_SOURCE_FILES i_main.cc)
+list (APPEND EDGE_SOURCE_FILES ${GD_PLATFORM_SOURCE_FILES})
 
 if (WIN32)
   list (APPEND EDGE_SOURCE_FILES w32_res.rc)
 endif()
-
-add_executable(
-  edge-classic
-  ${EDGE_SOURCE_FILES}
-)
-
-if(WIN32)
-  target_compile_definitions(edge-classic PRIVATE WIN32)
-else()
-  target_compile_definitions(edge-classic PRIVATE UNIX)
-endif()
-
-if(WIN32)
-  target_include_directories(edge-classic PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/include)
-endif()
-
-target_include_directories(edge-classic PRIVATE ./)
 
 set (EDGE_LINK_LIBRARIES
   ajbsp
@@ -199,17 +193,8 @@ set (EDGE_LINK_LIBRARIES
   pl_mpeg
   prns
   stb
+  thread
 )
-
-if (GD_PLATFORM_SDL)
-  list (APPEND EDGE_LINK_LIBRARIES thread ${SDL2_LIBRARIES})
-elseif(WIN32)
-    set_target_properties(edge-classic PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
-endif()
-
-if (NOT EMSCRIPTEN)
-  list (APPEND EDGE_LINK_LIBRARIES thread)
-endif()
 
 if (EDGE_PROFILING)
   list (APPEND EDGE_LINK_LIBRARIES TracyClient)
@@ -219,33 +204,111 @@ if (EDGE_SOKOL_GL)
   list(APPEND EDGE_LINK_LIBRARIES sokol)
 endif()
 
-target_link_libraries(edge-classic PRIVATE ${EDGE_LINK_LIBRARIES})
+if (NOT GD_PLATFORM_GODOT)
 
-target_compile_options(edge-classic PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:${EDGE_WARNING_LEVEL}>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${EDGE_WARNING_LEVEL}>
-)
+  add_executable(
+    edge-classic
+    ${EDGE_SOURCE_FILES}
+  )
 
-set(COPY_FILES "")
-
-
-set (DEST_DIR "${CMAKE_SOURCE_DIR}")
-list(APPEND COPY_FILES "$<TARGET_FILE:edge-classic>")
-
-if (GD_PLATFORM_SDL)
-
-  # Copy appropriate SDL2.dll to local install directory when built with MSVC/Clang
-  if (WIN32)
-    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
-      list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x64/SDL2.dll")
-    else ()
-      list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x86/SDL2.dll")
-    endif ()
+  if(WIN32)
+    target_compile_definitions(edge-classic PRIVATE WIN32)
+  else()
+    target_compile_definitions(edge-classic PRIVATE UNIX)
   endif()
+
+  if(WIN32)
+    target_include_directories(edge-classic PRIVATE ${EDGE_LIBRARY_DIR}/sdl2/include)
+  endif()
+
+  target_include_directories(edge-classic PRIVATE ./)
+
+  if (GD_PLATFORM_SDL)
+    list (APPEND EDGE_LINK_LIBRARIES thread ${SDL2_LIBRARIES})
+  elseif(WIN32)
+      set_target_properties(edge-classic PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+  endif()
+
+  target_link_libraries(edge-classic PRIVATE ${EDGE_LINK_LIBRARIES})
+
+  target_compile_options(edge-classic PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:${EDGE_WARNING_LEVEL}>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${EDGE_WARNING_LEVEL}>
+  )
+
+  set(COPY_FILES "")
+
+  set (DEST_DIR "${CMAKE_SOURCE_DIR}")
+  list(APPEND COPY_FILES "$<TARGET_FILE:edge-classic>")
+
+  if (GD_PLATFORM_SDL)
+
+    # Copy appropriate SDL2.dll to local install directory when built with MSVC/Clang
+    if (WIN32)
+      if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+        list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x64/SDL2.dll")
+      else ()
+        list(APPEND COPY_FILES "${CMAKE_SOURCE_DIR}/libraries/sdl2/x86/SDL2.dll")
+      endif ()
+    endif()
+  endif()
+
+  if (COPY_FILES)
+    add_custom_command( TARGET edge-classic POST_BUILD COMMAND_EXPAND_LISTS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COPY_FILES} ${DEST_DIR})
+  endif()
+
 endif()
 
-if (COPY_FILES)
-  add_custom_command( TARGET edge-classic POST_BUILD COMMAND_EXPAND_LISTS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COPY_FILES} ${DEST_DIR})
-endif()
+if (GD_PLATFORM_GODOT)
 
+  set(GDEXTENSION_NAME gd-doom)
+
+  if (WIN32)
+    set(GD_GODOT_PLATFORM_FOLDER windows)
+  else()
+    set(GD_GODOT_PLATFORM_FOLDER linux)
+  endif()
+
+  set(OUTPUT_NAME ${GDEXTENSION_NAME})
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Windows>:.windows>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Linux>:.linux>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Android>:.android>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<PLATFORM_ID:Darwin>:.macos>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<CONFIG:Debug>:.debug>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}$<$<CONFIG:Release>:.release>)
+  set(OUTPUT_NAME ${OUTPUT_NAME}.x86_64)
+
+  # Add a dynamic library named ${GDEXTENSION_NAME}
+  add_library(${GDEXTENSION_NAME} SHARED ${EDGE_SOURCE_FILES} ${GODOT_SOURCES})
+
+  if(WIN32)
+    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE WIN32 GD_PLATFORM_GODOT)    
+  else()
+    target_compile_definitions(${GDEXTENSION_NAME} PRIVATE UNIX GD_PLATFORM_GODOT)
+  endif()
+
+  #FIXME: -Wno-unused-parameter is for Godot headers, need to still enable for our sources
+
+  target_compile_options(${GDEXTENSION_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:${EDGE_WARNING_LEVEL} /wd4201 /wd4127> 
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${EDGE_WARNING_LEVEL} -Wno-unused-parameter>
+  )
+
+set_target_properties(${GDEXTENSION_NAME} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
+
+if (WIN32)
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+else()
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+endif() 
+
+
+
+  target_include_directories(${GDEXTENSION_NAME} PRIVATE ./ "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  target_link_libraries(${GDEXTENSION_NAME} PUBLIC unofficial::godot::cpp ${EDGE_LINK_LIBRARIES})
+
+endif()
 

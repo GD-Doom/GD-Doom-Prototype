@@ -1,0 +1,201 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "gd-doom",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+        },
+        {
+            "name": "gd-doom-debug",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "gd-doom-release",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "gd-doom-relwithdebinfo",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "gd-doom-msvc",
+            "hidden": true,
+            "inherits": "gd-doom",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "gd-doom-ninja",
+            "hidden": true,
+            "inherits": "gd-doom",
+            "generator": "Ninja",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }            
+        },
+        {
+            "name": "gd-doom-godot",
+            "hidden": true,
+            "cacheVariables": {
+                "GD_PLATFORM_SDL": "OFF",
+                "GD_PLATFORM_GODOT": "ON"
+            }
+        },
+        {
+            "name": "gd-doom-sdl",
+            "hidden": true,
+            "cacheVariables": {
+                "GD_PLATFORM_SDL": "ON",
+                "GD_PLATFORM_GODOT": "OFF"
+            }
+        },
+        {
+            "name": "gd-doom-godot-msvc",
+            "inherits": [
+                "gd-doom-msvc",
+                "gd-doom-godot"
+            ]
+        },
+        {
+            "name": "gd-doom-sdl-msvc",
+            "inherits": [
+                "gd-doom-msvc",
+                "gd-doom-sdl"
+            ]
+        },
+        {
+            "name": "gd-doom-godot-ninja-debug",
+            "inherits": [
+                "gd-doom-debug",
+                "gd-doom-ninja",
+                "gd-doom-godot"
+            ]
+        },
+                {
+            "name": "gd-doom-godot-ninja-release",
+            "inherits": [                
+                "gd-doom-ninja",
+                "gd-doom-godot",
+                "gd-doom-release"
+            ]
+        },
+        {
+            "name": "gd-doom-godot-ninja-relwithdebinfo",
+            "inherits": [
+                "gd-doom-relwithdebinfo",
+                "gd-doom-ninja",
+                "gd-doom-godot"                
+            ]
+        },
+        {
+            "name": "gd-doom-sdl-ninja-debug",
+            "inherits": [
+                "gd-doom-debug",
+                "gd-doom-ninja",
+                "gd-doom-sdl"
+            ]
+        },
+                {
+            "name": "gd-doom-sdl-ninja-release",
+            "inherits": [                
+                "gd-doom-ninja",
+                "gd-doom-sdl",
+                "gd-doom-release"
+            ]
+        },
+        {
+            "name": "gd-doom-sdl-ninja-relwithdebinfo",
+            "inherits": [
+                "gd-doom-relwithdebinfo",
+                "gd-doom-ninja",
+                "gd-doom-sdl"                
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Debug - Godot",
+            "configuration": "Debug",
+            "configurePreset": "gd-doom-godot-msvc"
+        },
+        {
+            "name": "Release - Godot",
+            "configuration": "Release",
+            "configurePreset": "gd-doom-godot-msvc"
+        },
+        {
+            "name": "RelWithDebInfo - Godot",
+            "configuration": "RelWithDebInfo",
+            "configurePreset": "gd-doom-godot-msvc"
+        },
+        {
+            "name": "Debug - SDL",
+            "configuration": "Debug",
+            "configurePreset": "gd-doom-sdl-msvc"
+        },
+        {
+            "name": "Release - SDL",
+            "configuration": "Release",
+            "configurePreset": "gd-doom-sdl-msvc"
+        },
+        {
+            "name": "RelWithDebInfo - SDL",
+            "configuration": "RelWithDebInfo",
+            "configurePreset": "gd-doom-sdl-msvc"
+        },
+        {
+            "name": "Debug - Godot - Ninja",
+            "configuration": "Debug",
+            "configurePreset": "gd-doom-godot-ninja-debug"
+        },
+        {
+            "name": "Release - Godot - Ninja",
+            "configuration": "Release",
+            "configurePreset": "gd-doom-godot-ninja-release"
+        },
+        {
+            "name": "RelWithDebInfo - Godot - Ninja",
+            "configuration": "RelWithDebInfo",
+            "configurePreset": "gd-doom-godot-ninja-relwithdebinfo"
+        },
+        {
+            "name": "Debug - SDL - Ninja",
+            "configuration": "Debug",
+            "configurePreset": "gd-doom-sdl-ninja-debug"
+        },
+        {
+            "name": "Release - SDL - Ninja",
+            "configuration": "Release",
+            "configurePreset": "gd-doom-sdl-ninja-release"
+        },
+        {
+            "name": "RelWithDebInfo - SDL - Ninja",
+            "configuration": "RelWithDebInfo",
+            "configurePreset": "gd-doom-sdl-ninja-relwithdebinfo"
+        }
+
+
+
+
+    ]
+}
