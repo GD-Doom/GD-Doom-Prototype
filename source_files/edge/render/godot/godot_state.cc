@@ -23,10 +23,10 @@ struct TexInfo
 
 constexpr int32_t kMaxClipPlane = 6;
 
-class NullRenderState : public RenderState
+class GodotRenderState : public RenderState
 {
   public:
-    NullRenderState()
+    GodotRenderState()
     {
         Reset();
     }
@@ -214,6 +214,7 @@ class NullRenderState : public RenderState
     {
         if (mask & GL_DEPTH_BUFFER_BIT)
         {
+            
         }
     }
 
@@ -382,6 +383,8 @@ class NullRenderState : public RenderState
         EPI_UNUSED(type);
         EPI_UNUSED(pixels);
         EPI_UNUSED(usage);
+        
+
     }
 
     void PixelStorei(GLenum pname, GLint param)
@@ -505,11 +508,12 @@ class NullRenderState : public RenderState
     EScissor scissor_;
 };
 
-static NullRenderState state;
+static GodotRenderState state;
 RenderState            *render_state = &state;
 
 void SetupSkyMatrices(void)
 {
+
 }
 
 void RendererRevertSkyMatrices(void)

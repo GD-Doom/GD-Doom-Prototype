@@ -115,10 +115,19 @@ set (EDGE_SOURCE_FILES
   script/compat/lua_game.cc
   script/compat/lua_player.cc
   script/compat/lua_hud.cc)
-  
-if (EDGE_SOKOL_GL)
 
-  set (EDGE_SOKOL_SOURCE_FILES
+
+if (GD_PLATFORM_GODOT)
+
+  set (EDGE_RENDER_SOURCE_FILES
+    render/godot/godot_backend.cc
+    render/godot/godot_state.cc
+    render/godot/godot_units.cc
+  )
+  
+elseif (EDGE_SOKOL_GL)
+
+  set (EDGE_RENDER_SOURCE_FILES
     render/sokol/sokol_backend.cc
     render/sokol/sokol_gl.cc  
     render/sokol/sokol_images.cc
@@ -126,21 +135,20 @@ if (EDGE_SOKOL_GL)
     render/sokol/sokol_sky.cc
     render/sokol/sokol_state.cc
     render/sokol/sokol_units.cc
-  )
-
-  list (APPEND EDGE_SOURCE_FILES ${EDGE_SOKOL_SOURCE_FILES})
+  )  
 
 else()
 
-  set (EDGE_NULL_SOURCE_FILES
+  set (EDGE_RENDER_SOURCE_FILES
     render/null/null_backend.cc
     render/null/null_state.cc
     render/null/null_units.cc
-  )
-
-  list (APPEND EDGE_SOURCE_FILES ${EDGE_NULL_SOURCE_FILES})
+  )  
 
 endif()
+
+
+list (APPEND EDGE_SOURCE_FILES ${EDGE_RENDER_SOURCE_FILES})
 
 # Platform sources
 if (GD_PLATFORM_GODOT)
@@ -288,7 +296,17 @@ if (GD_PLATFORM_GODOT)
   )
 
 set_target_properties(${GDEXTENSION_NAME} PROPERTIES OUTPUT_NAME "${OUTPUT_NAME}")
-set_target_properties(${GDEXTENSION_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+
+if (WIN32)
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+else()
+  set_target_properties(${GDEXTENSION_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/gd-doom/bin/${GD_GODOT_PLATFORM_FOLDER})
+endif() 
+
+
 
   target_include_directories(${GDEXTENSION_NAME} PRIVATE ./ "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(${GDEXTENSION_NAME} PUBLIC godot::cpp ${EDGE_LINK_LIBRARIES})
