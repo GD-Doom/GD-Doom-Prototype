@@ -2898,14 +2898,9 @@ void MenuDrawer(void)
         (option_menu_on || network_game_menu_on ||
          (current_menu->draw_function == MenuDrawLoad || current_menu->draw_function == MenuDrawSave)))
     {
-        if (title_scaling.d_) // Fill Border
-        {
-            if (!menu_backdrop->blurred_version_)
-                StoreBlurredImage(menu_backdrop);
-            HUDStretchImage(-320, -200, 960, 600, menu_backdrop->blurred_version_, 0, 0);
-        }
-        else
-            HUDSolidBox(-320, -200, 960, 600, 0);
+        if (menu_backdrop->average_color_ == kRGBANoValue)
+            ImagePrecache(menu_backdrop);
+        HUDSolidBox(-320, -200, 960, 600, menu_backdrop->average_color_);
         HUDDrawImageTitleWS(menu_backdrop);
     }
 

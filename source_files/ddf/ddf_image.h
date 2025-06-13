@@ -52,10 +52,9 @@ enum ImageSpecial : uint32_t
     kImageSpecialSmooth    = 1 << 5,  // force smoothing
     kImageSpecialNoSmooth  = 1 << 6,  // disable smoothing
     kImageSpecialCrosshair = 1 << 7,  // weapon crosshair (center vertically)
-    kImageSpecialGrayscale = 1 << 8,  // forces image to be grayscaled upon creation
-    kImageSpecialPrecache  = 1 << 9,  // forces image to be precached upon creation
-    kImageSpecialFlip      = 1 << 10, // horizontally flip image when loading
-    kImageSpecialInvert    = 1 << 11, // vertically flip image when loading
+    kImageSpecialPrecache  = 1 << 8,  // forces image to be precached upon creation
+    kImageSpecialFlip      = 1 << 9,  // horizontally flip image when loading
+    kImageSpecialInvert    = 1 << 10, // vertically flip image when loading
 };
 
 enum ImageTransparencyFix
@@ -105,9 +104,6 @@ class ImageDefinition
     int hsv_rotation_;
     int hsv_saturation_;
     int hsv_value_;
-
-    // Gaussian blurring
-    float blur_factor_;
 
   private:
     // disable copy construct and assignment operator

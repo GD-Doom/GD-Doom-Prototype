@@ -32,7 +32,6 @@
 void ClearEventInput(void);
 void BuildEventTicCommand(EventTicCommand *cmd);
 void ReleaseAllKeys(void);
-void SetTurboScale(int scale);
 void UpdateKeyState(void);
 
 void ProcessInputEvents(void);

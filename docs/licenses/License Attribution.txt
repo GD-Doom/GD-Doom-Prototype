@@ -24,8 +24,8 @@ DSDGACT.ogg and DSDGATK.ogg sounds - apolloaiello (edited from "Mr Dog_01.wav")
 
 DSDGDTH.ogg, DSDGPAIN.ogg and DSDGSIT.ogg sounds - TobiasKosmos (edited from "DogYelp.wav")
 
-Bundled graphics (contents of the /crosshairs, /autoload/all-all/graphics,  
-/autoload/all-all/textures, and /overlays folders) - The EDGE Team
+Bundled graphics (contents of the /crosshairs, /content/all-all/graphics,  
+/content/all-all/textures, and /overlays folders) - The EDGE Team
 
 ===========================================================================================
 CC-BY-3.0 Unported License
@@ -67,10 +67,6 @@ MIT License
 base64.lua - Copyright (c) 2018 Ilya Kolbin 
 
 BW_Midi_Sequencer library - Copyright (c) 2015-2022 Vitaly Novichkov
-
-"C++ implementation of a fast Gaussian blur algorithm by Ivan Kutskir - Integer Version"
-	- Copyright (C) 2017 Basile Fraboni
-	- Copyright (C) 2014 Ivan Kutskir
 
 debugger.lua -Copyright (c) 2023 Scott Lembcke and Howling Moon Software
 

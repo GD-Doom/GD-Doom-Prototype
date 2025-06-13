@@ -12,8 +12,6 @@ local step_tic = 0
 
 -- Default all of these to black so that in a "worse-case scenario", it's just the old behavior of black areas
 local stbar_average_color = vec3(0, 0, 0)
-local stbar_darkest_color = vec3(0, 0, 0)
-local stbar_lightest_color = vec3(0, 0, 0)
 local stbar_average_hue = vec3(0, 0, 0)
 
 function doom_weapon_icon(slot, x, y, off_pic, on_pic)
@@ -533,14 +531,10 @@ end
 
 function new_game()
     stbar_average_color = hud.get_average_color("STBAR")
-    stbar_darkest_color = hud.get_darkest_color("STBAR")
-    stbar_lightest_color = hud.get_lightest_color("STBAR")
 end
 
 function load_game()
     stbar_average_color = hud.get_average_color("STBAR")
-    stbar_darkest_color = hud.get_darkest_color("STBAR")
-    stbar_lightest_color = hud.get_lightest_color("STBAR")
 end
 
 function save_game() end

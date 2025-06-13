@@ -78,7 +78,6 @@ extern std::vector<AutomapLine *> automap_lines;
 extern bool                       automap_active;
 extern bool                       rotate_map;
 extern bool                       automap_keydoor_blink;
-extern ConsoleVariable            automap_keydoor_text;
 
 void AutomapInitLevel(void);
 

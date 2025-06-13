@@ -527,9 +527,6 @@ static void P_SpawnLineEffectDebris(Line *TheLine, const LineType *special)
     if (!info)
         return; // found nothing so exit
 
-    if (!level_flags.have_extra && (info->extended_flags_ & kExtendedFlagExtra))
-        return;
-
     // if it's shootable we've already handled this elsewhere
     if (special->type_ == kLineTriggerShootable)
         return;
@@ -2289,8 +2286,6 @@ void UpdateSpecials()
 //
 void SpawnMapSpecials1(void)
 {
-    int i;
-
     active_sector_animations.clear();
     active_line_animations.clear();
     sector_animations.clear();
@@ -2301,13 +2296,6 @@ void SpawnMapSpecials1(void)
 
     // See if -TIMER needs to be used.
     level_timer = false;
-
-    i = FindArgument("avg");
-    if (i > 0 && InDeathmatch())
-    {
-        level_timer      = true;
-        level_time_count = 20 * 60 * kTicRate;
-    }
 
     std::string s = ArgumentValue("timer");
 
@@ -2320,7 +2308,7 @@ void SpawnMapSpecials1(void)
         level_time_count = time;
     }
 
-    for (i = 0; i < total_level_lines; i++)
+    for (int i = 0; i < total_level_lines; i++)
     {
         const LineType *special = level_lines[i].special;
 

@@ -131,7 +131,6 @@ extern ConsoleVariable draw_culling;
 extern ConsoleVariable draw_culling_distance;
 extern ConsoleVariable cull_fog_color;
 extern ConsoleVariable distance_cull_thinkers;
-extern ConsoleVariable max_dynamic_lights;
 extern ConsoleVariable vsync;
 extern ConsoleVariable view_bobbing;
 extern ConsoleVariable gore_level;
@@ -141,11 +140,8 @@ extern ConsoleVariable show_endoom;
 extern ConsoleVariable confirm_quickload;
 extern ConsoleVariable confirm_quicksave;
 
-// extern console_variable_c automap_keydoor_text;
-
 extern ConsoleVariable sector_brightness_correction;
 extern ConsoleVariable gamma_correction;
-extern ConsoleVariable title_scaling;
 extern ConsoleVariable sky_stretch_mode;
 extern ConsoleVariable force_flat_lighting;
 
@@ -191,7 +187,6 @@ static void OptionMenuChangeBobbing(int key_pressed, ConsoleVariable *console_va
 static void OptionMenuChangeMLook(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeJumping(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeCrouching(int key_pressed, ConsoleVariable *console_variable);
-static void OptionMenuChangeExtra(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeMonitorSize(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeKicking(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeWeaponSwitch(int key_pressed, ConsoleVariable *console_variable);
@@ -390,10 +385,6 @@ static OptionMenuItem vidoptions[] = {
      nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Smoothing", YesNo, 2, &image_smoothing, OptionMenuChangeMipMap, nullptr, nullptr, 0, 0,
      0, ""},
-    {kOptionMenuItemTypeSwitch, "Upscale Textures", "Off/UI Only/UI & Sprites/All", 4, &hq2x_scaling,
-     OptionMenuChangeMipMap, "Only affects paletted (Doom format) textures", nullptr, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Title/Intermission Scaling", "Normal/Border Fill", 2, &title_scaling.d_,
-     OptionMenuUpdateConsoleVariableFromInt, nullptr, &title_scaling, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Sky Scaling", "Mirror/Repeat/Stretch/Vanilla", 4, &sky_stretch_mode.d_,
      OptionMenuUpdateConsoleVariableFromInt, "Vanilla will be forced when Mouselook is Off", &sky_stretch_mode, 0, 0, 0,
      ""},
@@ -401,12 +392,8 @@ static OptionMenuItem vidoptions[] = {
      ""},
     {kOptionMenuItemTypeFunction, "Overlay", nullptr, 0, nullptr, OptionMenuChangeOverlay, nullptr, nullptr, 0, 0, 0,
      ""},
-    {kOptionMenuItemTypeSwitch, "Invulnerability", "Simple/Textured", kTotalInvulnerabilityEffects,
-     &invulnerability_effect, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Wipe method", "None/Melt/Crossfade/Pixelfade/Top/Bottom/Left/Right/Spooky/Doors",
-     kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Animated Liquid Type", "Vanilla/SMMU/SMMU+Swirl/Parallax", 4, &swirling_flats, nullptr,
-     nullptr, nullptr, 0, 0, 0, ""}};
+     kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""}};
 
 static OptionMenuDefinition video_optmenu = {
     vidoptions,           sizeof(vidoptions) / sizeof(OptionMenuItem), &options_menu_default_style, 150, 77, 0, "",
@@ -594,9 +581,6 @@ static OptionMenuItem playoptions[] = {
     {kOptionMenuItemTypeSwitch, "Blood Level", "Normal/Extra/None", 3, &gore_level.d_,
      OptionMenuUpdateConsoleVariableFromInt, "Blood", &gore_level, 0, 0, 0, ""},
 
-    {kOptionMenuItemTypeBoolean, "Extras", YesNo, 2, &global_flags.have_extra, OptionMenuChangeExtra, nullptr, nullptr,
-     0, 0, 0, ""},
-
     {kOptionMenuItemTypeBoolean, "True 3D Gameplay", YesNo, 2, &global_flags.true_3d_gameplay, OptionMenuChangeTrue3d,
      "True3d", nullptr, 0, 0, 0, ""},
 
@@ -605,9 +589,6 @@ static OptionMenuItem playoptions[] = {
 
     {kOptionMenuItemTypeBoolean, "Erraticism", YesNo, 2, &erraticism.d_, OptionMenuUpdateConsoleVariableFromInt,
      "Time only advances when you move or fire", &erraticism, 0, 0, 0, ""},
-
-    {kOptionMenuItemTypeSlider, "OptGravity", nullptr, 0, &gravity_factor.f_, OptionMenuUpdateConsoleVariableFromFloat,
-     "Gravity", &gravity_factor, 0.10f, 0.0f, 2.0f, "%gx"},
 
     {kOptionMenuItemTypeBoolean, "Respawn Enemies", YesNo, 2, &global_flags.enemies_respawn, OptionMenuChangeRespawn,
      nullptr, nullptr, 0, 0, 0, ""},
@@ -651,11 +632,7 @@ static OptionMenuItem perfoptions[] = {
      0, ""},
     {kOptionMenuItemTypeBoolean, "Slow Thinkers Over Distance", YesNo, 2, &distance_cull_thinkers.d_,
      OptionMenuUpdateConsoleVariableFromInt, "Only recommended for extreme monster/projectile counts",
-     &distance_cull_thinkers, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Maximum Dynamic Lights", "Unlimited/20/40/60/80/100", 6, &max_dynamic_lights.d_,
-     OptionMenuUpdateConsoleVariableFromInt, "Control how many dynamic lights are rendered per tick",
-     &max_dynamic_lights, 0, 0, 0, ""},
-};
+     &distance_cull_thinkers, 0, 0, 0, ""}};
 
 static OptionMenuDefinition perf_optmenu = {perfoptions,
                                             sizeof(perfoptions) / sizeof(OptionMenuItem),
@@ -676,10 +653,7 @@ static OptionMenuItem accessibilityoptions[] = {
     {kOptionMenuItemTypeSwitch, "Reduce Flashing", YesNo, 2, &reduce_flash, nullptr,
      "May help with epilepsy or photosensitivity", nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeBoolean, "Automap: Keyed Doors Pulse", YesNo, 2, &automap_keydoor_blink, nullptr,
-     "Can help locate doors more easily", nullptr, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Automap: Keyed Doors Overlay", "Nothing/Text/Graphic", 3, &automap_keydoor_text.d_,
-     OptionMenuUpdateConsoleVariableFromInt, "Required key shown visually", &automap_keydoor_text, 0, 0, 0, ""},
-};
+     "Can help locate doors more easily", nullptr, 0, 0, 0, ""}};
 
 static OptionMenuDefinition accessibility_optmenu = {accessibilityoptions,
                                                      sizeof(accessibilityoptions) / sizeof(OptionMenuItem),
@@ -1919,16 +1893,6 @@ static void OptionMenuChangeCrouching(int key_pressed, ConsoleVariable *console_
         return;
 
     level_flags.crouch = global_flags.crouch;
-}
-
-static void OptionMenuChangeExtra(int key_pressed, ConsoleVariable *console_variable)
-{
-    EPI_UNUSED(key_pressed);
-    EPI_UNUSED(console_variable);
-    if (current_map && ((current_map->force_on_ | current_map->force_off_) & kMapFlagExtras))
-        return;
-
-    level_flags.have_extra = global_flags.have_extra;
 }
 
 //

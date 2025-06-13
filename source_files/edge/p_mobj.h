@@ -60,8 +60,6 @@ extern std::unordered_set<const MapObjectDefinition *> seen_monsters;
 
 extern bool time_stop_active;
 
-extern ConsoleVariable gravity_factor;
-
 constexpr float kStopSpeed = 0.0625f;
 
 //
