@@ -10,15 +10,11 @@
 -- Startup stuff
 function new_game()
     stbar_average_color = hud.get_average_color("BARBACK")
-    stbar_darkest_color = hud.get_darkest_color("BARBACK")
-    stbar_lightest_color = hud.get_lightest_color("BARBACK")
     hud.automap_player_arrow(hud.AM_ARROW_HERETIC)
 end
 
 function load_game()
     stbar_average_color = hud.get_average_color("BARBACK")
-    stbar_darkest_color = hud.get_darkest_color("BARBACK")
-    stbar_lightest_color = hud.get_lightest_color("BARBACK")
     hud.automap_player_arrow(hud.AM_ARROW_HERETIC)
 end
 

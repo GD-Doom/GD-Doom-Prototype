@@ -190,8 +190,6 @@ EDGE_DEFINE_CONSOLE_VARIABLE(homepage, "https://edge-classic.github.io", kConsol
 
 EDGE_DEFINE_CONSOLE_VARIABLE(video_overlay, "None", kConsoleVariableFlagArchive)
 
-EDGE_DEFINE_CONSOLE_VARIABLE_CLAMPED(title_scaling, "0", kConsoleVariableFlagArchive, 0, 1)
-
 EDGE_DEFINE_CONSOLE_VARIABLE(force_infighting, "0", kConsoleVariableFlagArchive)
 
 EDGE_DEFINE_CONSOLE_VARIABLE(ddf_strict, "0", kConsoleVariableFlagArchive)
@@ -242,12 +240,9 @@ class StartupProgress
         HUDFrameSetup();
         if (loading_image)
         {
-            if (title_scaling.d_) // Fill Border
-            {
-                if (!loading_image->blurred_version_)
-                    StoreBlurredImage(loading_image);
-                HUDStretchImage(-320, -200, 960, 600, loading_image->blurred_version_, 0, 0);
-            }
+            if (loading_image->average_color_ == kRGBANoValue)
+                ImagePrecache(loading_image);
+            HUDSolidBox(-320, -200, 960, 600, loading_image->average_color_);
             HUDDrawImageTitleWS(loading_image);
             HUDSolidBox(25, 25, 295, 175, kRGBABlack);
         }
@@ -839,12 +834,9 @@ static void TitleDrawer(void)
 {
     if (title_image)
     {
-        if (title_scaling.d_) // Fill Border
-        {
-            if (!title_image->blurred_version_)
-                StoreBlurredImage(title_image);
-            HUDStretchImage(-320, -200, 960, 600, title_image->blurred_version_, 0, 0);
-        }
+        if (title_image->average_color_ == kRGBANoValue)
+            ImagePrecache(title_image);
+        HUDSolidBox(-320, -200, 960, 600, title_image->average_color_);
         HUDDrawImageTitleWS(title_image);
     }
     else
@@ -1050,7 +1042,6 @@ static void PickMenuBackdrop(void)
         new_backdrop->cache_             = menu_image->cache_;
         new_backdrop->is_empty_          = menu_image->is_empty_;
         new_backdrop->is_font_           = menu_image->is_font_;
-        new_backdrop->liquid_type_       = menu_image->liquid_type_;
         new_backdrop->offset_x_          = menu_image->offset_x_;
         new_backdrop->offset_y_          = menu_image->offset_y_;
         new_backdrop->opacity_           = menu_image->opacity_;
@@ -1064,7 +1055,7 @@ static void PickMenuBackdrop(void)
         new_backdrop->total_height_      = menu_image->total_height_;
         new_backdrop->total_width_       = menu_image->total_width_;
         new_backdrop->animation_.current = new_backdrop;
-        new_backdrop->grayscale_         = true;
+        new_backdrop->hsv_saturation_    = 0;
         menu_backdrop                    = new_backdrop;
         return;
     }
@@ -1081,7 +1072,6 @@ static void PickMenuBackdrop(void)
         new_backdrop->cache_             = loading_image->cache_;
         new_backdrop->is_empty_          = loading_image->is_empty_;
         new_backdrop->is_font_           = loading_image->is_font_;
-        new_backdrop->liquid_type_       = loading_image->liquid_type_;
         new_backdrop->offset_x_          = loading_image->offset_x_;
         new_backdrop->offset_y_          = loading_image->offset_y_;
         new_backdrop->opacity_           = loading_image->opacity_;
@@ -1095,7 +1085,7 @@ static void PickMenuBackdrop(void)
         new_backdrop->total_height_      = loading_image->total_height_;
         new_backdrop->total_width_       = loading_image->total_width_;
         new_backdrop->animation_.current = new_backdrop;
-        new_backdrop->grayscale_         = true;
+        new_backdrop->hsv_saturation_    = 0;
         menu_backdrop                    = new_backdrop;
     }
     else

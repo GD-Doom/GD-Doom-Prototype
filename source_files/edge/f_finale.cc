@@ -373,12 +373,9 @@ static void TextWrite(void)
         }
         else
         {
-            if (title_scaling.d_) // Fill Border
-            {
-                if (!finale_text_background->blurred_version_)
-                    StoreBlurredImage(finale_text_background);
-                HUDStretchImage(-320, -200, 960, 600, finale_text_background->blurred_version_, 0, 0);
-            }
+            if (finale_text_background->average_color_ == kRGBANoValue)
+                ImagePrecache(finale_text_background);
+            HUDSolidBox(-320, -200, 960, 600, finale_text_background->average_color_);
             HUDDrawImageTitleWS(finale_text_background);
         }
 
@@ -762,12 +759,9 @@ static void CastDrawer(void)
     else
     {
         image = ImageLookup("BOSSBACK");
-        if (title_scaling.d_) // Fill Border
-        {
-            if (!image->blurred_version_)
-                StoreBlurredImage(image);
-            HUDStretchImage(-320, -200, 960, 600, image->blurred_version_, 0, 0);
-        }
+        if (image->average_color_ == kRGBANoValue)
+            ImagePrecache(image);
+        HUDSolidBox(-320, -200, 960, 600, image->average_color_);
         HUDDrawImageTitleWS(image);
     }
 
@@ -874,6 +868,10 @@ static void BunnyScroll(void)
     if (scrolled < 0)
         scrolled = 0;
 
+    if (p2->average_color_ == kRGBANoValue)
+        ImagePrecache(p2);
+    HUDSolidBox(-320, -200, 960, 600, p2->average_color_);
+
     HUDStretchImage(CenterX - scrolled, 0, TempWidth, TempHeight, p1, 0.0, 0.0);
     HUDStretchImage((CenterX + TempWidth) - (scrolled + 1), 0, TempWidth, TempHeight, p2, 0.0, 0.0);
 
@@ -925,12 +923,9 @@ void FinaleDrawer(void)
     case kFinaleStagePicture: {
         const Image *image =
             ImageLookup(finale->pics_[HMM_MIN((size_t)picture_number, finale->pics_.size() - 1)].c_str());
-        if (title_scaling.d_) // Fill Border
-        {
-            if (!image->blurred_version_)
-                StoreBlurredImage(image);
-            HUDStretchImage(-320, -200, 960, 600, image->blurred_version_, 0, 0);
-        }
+        if (image->average_color_ == kRGBANoValue)
+            ImagePrecache(image);
+        HUDSolidBox(-320, -200, 960, 600, image->average_color_);
         HUDDrawImageTitleWS(image);
         break;
     }

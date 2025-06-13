@@ -53,9 +53,6 @@ static Font *default_font;
 extern int game_tic;
 int        hud_tic;
 
-int  hud_swirl_pass   = 0;
-bool hud_thick_liquid = false;
-
 float hud_x_left;
 float hud_x_right;
 float hud_x_middle;
@@ -446,64 +443,6 @@ void HUDCalcScrollTexCoords(float x_scroll, float y_scroll, float *tx1, float *t
     *ty2 += adjustedScrollT;
 }
 
-// Adapted from Quake 3 GPL release
-void HUDCalcTurbulentTexCoords(float *tx, float *ty, float x, float y)
-{
-    float now;
-    float phase     = 0;
-    float frequency = hud_thick_liquid ? 0.5 : 1.0;
-    float amplitude = 0.05;
-
-    now = (phase + hud_tic / 100.0f * frequency);
-
-    if (swirling_flats == kLiquidSwirlParallax)
-    {
-        frequency *= 2;
-        if (hud_thick_liquid)
-        {
-            if (hud_swirl_pass == 1)
-            {
-                *tx = *tx +
-                      sine_table[(int)((x * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-                *ty = *ty +
-                      sine_table[(int)((y * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-            }
-            else
-            {
-                amplitude = 0;
-                *tx       = *tx -
-                      sine_table[(int)((x * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-                *ty = *ty -
-                      sine_table[(int)((y * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-            }
-        }
-        else
-        {
-            if (hud_swirl_pass == 1)
-            {
-                amplitude = 0.025;
-                *tx       = *tx +
-                      sine_table[(int)((x * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-                *ty = *ty +
-                      sine_table[(int)((y * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-            }
-            else
-            {
-                amplitude = 0.015;
-                *tx       = *tx -
-                      sine_table[(int)((x * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-                *ty = *ty -
-                      sine_table[(int)((y * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-            }
-        }
-    }
-    else
-    {
-        *tx = *tx + sine_table[(int)((x * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-        *ty = *ty + sine_table[(int)((y * 1.0 / 128 * 0.125 + now) * kSineTableSize) & (kSineTableMask)] * amplitude;
-    }
-}
-
 //----------------------------------------------------------------------------
 
 void HUDRawImage(float hx1, float hy1, float hx2, float hy2, const Image *image, float tx1, float ty1, float tx2,
@@ -619,27 +558,10 @@ void HUDRawImage(float hx1, float hy1, float hx2, float hy2, const Image *image,
         HUDCalcScrollTexCoords(sx, sy, &tx1, &ty1, &tx2, &ty2);
     }
 
-    bool hud_swirl = false;
-
-    if (image->liquid_type_ > kLiquidImageNone && swirling_flats > kLiquidSwirlSmmu)
-    {
-        hud_swirl_pass = 1;
-        hud_swirl      = true;
-    }
-
-    if (image->liquid_type_ == kLiquidImageThick)
-        hud_thick_liquid = true;
-
     StartUnitBatch(false);
 
     RendererVertex *glvert =
         BeginRenderUnit(GL_QUADS, 4, GL_MODULATE, tex_id, (GLuint)kTextureEnvironmentDisable, 0, 0, blend);
-
-    if (hud_swirl)
-    {
-        HUDCalcTurbulentTexCoords(&tx1, &ty1, hx1, hy1);
-        HUDCalcTurbulentTexCoords(&tx2, &ty2, hx2, hy2);
-    }
 
     glvert->rgba                   = unit_col;
     glvert->texture_coordinates[0] = {{tx1, ty1}};
@@ -656,40 +578,7 @@ void HUDRawImage(float hx1, float hy1, float hx2, float hy2, const Image *image,
 
     EndRenderUnit(4);
 
-    if (hud_swirl && swirling_flats == kLiquidSwirlParallax)
-    {
-        hud_swirl_pass = 2;
-        tx1 += 0.2;
-        tx2 += 0.2;
-        ty1 += 0.2;
-        ty2 += 0.2;
-        HUDCalcTurbulentTexCoords(&tx1, &ty1, hx1, hy1);
-        HUDCalcTurbulentTexCoords(&tx2, &ty2, hx2, hy2);
-        alpha /= 2;
-        blend = (BlendingMode)(blend | kBlendingMasked | kBlendingAlpha);
-
-        glvert = BeginRenderUnit(GL_QUADS, 4, GL_MODULATE, tex_id, (GLuint)kTextureEnvironmentDisable, 0, 0, blend);
-
-        glvert->rgba                   = unit_col;
-        glvert->texture_coordinates[0] = {{tx1, ty1}};
-        glvert++->position             = {{hx1, hy1, 0}};
-        glvert->rgba                   = unit_col;
-        glvert->texture_coordinates[0] = {{tx2, ty1}};
-        glvert++->position             = {{hx2, hy1, 0}};
-        glvert->rgba                   = unit_col;
-        glvert->texture_coordinates[0] = {{tx2, ty2}};
-        glvert++->position             = {{hx2, hy2, 0}};
-        glvert->rgba                   = unit_col;
-        glvert->texture_coordinates[0] = {{tx1, ty2}};
-        glvert->position               = {{hx1, hy2, 0}};
-
-        EndRenderUnit(4);
-    }
-
     FinishUnitBatch();
-
-    hud_swirl_pass   = 0;
-    hud_thick_liquid = false;
 }
 
 void HUDRawFromTexID(float hx1, float hy1, float hx2, float hy2, unsigned int tex_id, ImageOpacity opacity, float tx1,

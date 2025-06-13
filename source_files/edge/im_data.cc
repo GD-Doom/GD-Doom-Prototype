@@ -25,7 +25,6 @@
 #include "HandmadeMath.h"
 #include "epi.h"
 #include "epi_color.h"
-#include "swirl_table.h"
 
 ImageData::ImageData(int width, int height, int depth)
     : width_(width), height_(height), depth_(depth), used_width_(width), used_height_(height)
@@ -689,131 +688,6 @@ RGBAColor ImageData::AverageColor(int from_x, int to_x, int from_y, int to_y)
     }
 
     return average_color;
-}
-
-RGBAColor ImageData::LightestColor(int from_x, int to_x, int from_y, int to_y)
-{
-    // make sure we don't overflow
-    EPI_ASSERT(used_width_ * used_height_ <= 2048 * 2048);
-
-    int lightest_total = 0;
-    int lightest_r     = 0;
-    int lightest_g     = 0;
-    int lightest_b     = 0;
-
-    // Sanity checking; at a minimum sample a 1x1 portion of the image
-    from_x = HMM_Clamp(0, from_x, used_width_ - 1);
-    to_x   = HMM_Clamp(1, to_x, used_width_);
-    from_y = HMM_Clamp(0, from_y, used_height_ - 1);
-    to_y   = HMM_Clamp(1, to_y, used_height_);
-
-    for (int y = from_y; y < to_y; y++)
-    {
-        const uint8_t *src = PixelAt(0, y);
-
-        for (int x = from_x; x < to_x; x++, src += depth_)
-        {
-            if (depth_ == 4 && src[3] == 0)
-                continue;
-            int current_total = src[0] + src[1] + src[2];
-            if (current_total > lightest_total)
-            {
-                lightest_r     = src[0];
-                lightest_g     = src[1];
-                lightest_b     = src[2];
-                lightest_total = current_total;
-            }
-        }
-    }
-
-    return epi::MakeRGBA(lightest_r, lightest_g, lightest_b);
-}
-
-RGBAColor ImageData::DarkestColor(int from_x, int to_x, int from_y, int to_y)
-{
-    // make sure we don't overflow
-    EPI_ASSERT(used_width_ * used_height_ <= 2048 * 2048);
-
-    int darkest_total = 765;
-    int darkest_r     = 0;
-    int darkest_g     = 0;
-    int darkest_b     = 0;
-
-    // Sanity checking; at a minimum sample a 1x1 portion of the image
-    from_x = HMM_Clamp(0, from_x, used_width_ - 1);
-    to_x   = HMM_Clamp(1, to_x, used_width_);
-    from_y = HMM_Clamp(0, from_y, used_height_ - 1);
-    to_y   = HMM_Clamp(1, to_y, used_height_);
-
-    for (int y = from_y; y < to_y; y++)
-    {
-        const uint8_t *src = PixelAt(0, y);
-
-        for (int x = from_x; x < to_x; x++, src += depth_)
-        {
-            if (depth_ == 4 && src[3] == 0)
-                continue;
-            int current_total = src[0] + src[1] + src[2];
-            if (current_total < darkest_total)
-            {
-                darkest_r     = src[0];
-                darkest_g     = src[1];
-                darkest_b     = src[2];
-                darkest_total = current_total;
-            }
-        }
-    }
-
-    return epi::MakeRGBA(darkest_r, darkest_g, darkest_b);
-}
-
-void ImageData::Swirl(int leveltime, int thickness)
-{
-    const int swirlfactor  = 8192 / 64;
-    const int swirlfactor2 = 8192 / 32;
-    const int amp          = 2;
-    int       speed;
-
-    if (thickness == 1) // Thin liquid
-    {
-        speed = 40;
-    }
-    else
-    {
-        speed = 10;
-    }
-
-    uint8_t *new_pixels_ = new uint8_t[width_ * height_ * depth_];
-
-    int x, y;
-
-    // SMMU swirling algorithm
-    for (x = 0; x < width_; x++)
-    {
-        for (y = 0; y < height_; y++)
-        {
-            int x1, y1;
-            int sinvalue, sinvalue2;
-
-            sinvalue  = (y * swirlfactor + leveltime * speed * 5 + 900) & 8191;
-            sinvalue2 = (x * swirlfactor2 + leveltime * speed * 4 + 300) & 8191;
-            x1        = x + width_ + height_ + ((finesine[sinvalue] * amp) >> 16) + ((finesine[sinvalue2] * amp) >> 16);
-
-            sinvalue  = (x * swirlfactor + leveltime * speed * 3 + 700) & 8191;
-            sinvalue2 = (y * swirlfactor2 + leveltime * speed * 4 + 1200) & 8191;
-            y1        = y + width_ + height_ + ((finesine[sinvalue] * amp) >> 16) + ((finesine[sinvalue2] * amp) >> 16);
-
-            x1 &= width_ - 1;
-            y1 &= height_ - 1;
-
-            uint8_t *src  = pixels_ + (y1 * width_ + x1) * depth_;
-            uint8_t *dest = new_pixels_ + (y * width_ + x) * depth_;
-
-            memcpy(dest, src, depth_);
-        }
-    }
-    delete[] pixels_;
-    pixels_ = new_pixels_;
 }
 
 void ImageData::FillMarginX(int actual_w)

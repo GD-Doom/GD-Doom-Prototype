@@ -50,13 +50,6 @@ enum ImageOpacity
     kOpacityComplex = 3, // uses full range of alpha values
 };
 
-enum LiquidImageType
-{
-    kLiquidImageNone  = 0,
-    kLiquidImageThin  = 1,
-    kLiquidImageThick = 2
-};
-
 class Image
 {
   public:
@@ -93,23 +86,16 @@ class Image
     // one of the kOpacityXXX values
     int opacity_;
 
-    LiquidImageType liquid_type_;
-
-    int swirled_game_tic_;
-
     bool is_font_;
 
     // For fully transparent images
     bool is_empty_;
 
-    bool grayscale_ = false;
-
     int hsv_rotation_   = 0;
     int hsv_saturation_ = -1;
     int hsv_value_      = 0;
 
-    Image *blurred_version_ = nullptr;
-    float  blur_sigma_      = 0.0f;
+    RGBAColor average_color_ = kRGBANoValue;
 
     // --- information about where this image came from ---
     std::string name_;
@@ -265,17 +251,6 @@ void         ImageMakeSaveString(const Image *image, char *type, char *namebuf);
 
 extern int image_mipmapping;
 extern int image_smoothing;
-extern int hq2x_scaling;
-
-enum LiquidSwirl
-{
-    kLiquidSwirlVanilla   = 0,
-    kLiquidSwirlSmmu      = 1,
-    kLiquidSwirlSmmuSlosh = 2,
-    kLiquidSwirlParallax  = 3
-};
-
-extern LiquidSwirl swirling_flats;
 
 bool InitializeImages(void);
 void AnimationTicker(void);
@@ -300,9 +275,6 @@ const Image **GetUserSprites(int *count);
 
 // internal routines -- only needed by rgl_wipe.c
 int MakeValidTextureSize(int value);
-
-// Store a duplicate version of the image_c with smoothing forced
-void StoreBlurredImage(const Image *image);
 
 enum ImageSource
 {

@@ -145,7 +145,6 @@ extern ConsoleVariable confirm_quicksave;
 
 extern ConsoleVariable sector_brightness_correction;
 extern ConsoleVariable gamma_correction;
-extern ConsoleVariable title_scaling;
 extern ConsoleVariable sky_stretch_mode;
 extern ConsoleVariable force_flat_lighting;
 
@@ -390,10 +389,6 @@ static OptionMenuItem vidoptions[] = {
      nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Smoothing", YesNo, 2, &image_smoothing, OptionMenuChangeMipMap, nullptr, nullptr, 0, 0,
      0, ""},
-    {kOptionMenuItemTypeSwitch, "Upscale Textures", "Off/UI Only/UI & Sprites/All", 4, &hq2x_scaling,
-     OptionMenuChangeMipMap, "Only affects paletted (Doom format) textures", nullptr, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Title/Intermission Scaling", "Normal/Border Fill", 2, &title_scaling.d_,
-     OptionMenuUpdateConsoleVariableFromInt, nullptr, &title_scaling, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Sky Scaling", "Mirror/Repeat/Stretch/Vanilla", 4, &sky_stretch_mode.d_,
      OptionMenuUpdateConsoleVariableFromInt, "Vanilla will be forced when Mouselook is Off", &sky_stretch_mode, 0, 0, 0,
      ""},
@@ -404,9 +399,7 @@ static OptionMenuItem vidoptions[] = {
     {kOptionMenuItemTypeSwitch, "Invulnerability", "Simple/Textured", kTotalInvulnerabilityEffects,
      &invulnerability_effect, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Wipe method", "None/Melt/Crossfade/Pixelfade/Top/Bottom/Left/Right/Spooky/Doors",
-     kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Animated Liquid Type", "Vanilla/SMMU/SMMU+Swirl/Parallax", 4, &swirling_flats, nullptr,
-     nullptr, nullptr, 0, 0, 0, ""}};
+     kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""}};
 
 static OptionMenuDefinition video_optmenu = {
     vidoptions,           sizeof(vidoptions) / sizeof(OptionMenuItem), &options_menu_default_style, 150, 77, 0, "",
