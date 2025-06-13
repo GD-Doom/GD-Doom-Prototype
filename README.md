@@ -99,7 +99,6 @@ Bugfixes and detailed changes can be found in CHANGELOG.txt
 
 - The Ultimate Doom/Doom 1/Freedoom Phase 1
 - Doom 2/Freedoom Phase 2
-- Chex Quest 1
 - Chex Quest 3: Vanilla (Regular and Modding Edition)
 - Heretic/Blasphemer
 - HacX 1.2

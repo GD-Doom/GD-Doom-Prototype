@@ -49,7 +49,7 @@ static char              message_buffer[kMessageBufferSize];
 
 void SystemStartup(void)
 {
-    StartupGraphics(); 
+    StartupGraphics();
     gd::Platform::StartupControl();
     StartupAudio();
 }
@@ -83,7 +83,7 @@ void LogWarning(const char *warning, ...)
     {
         fprintf(debug_file, "ERROR: %s\n", message_buffer);
         fflush(debug_file);
-    }    
+    }
 
     SystemShutdown();
 
@@ -122,16 +122,15 @@ void LogPrint(const char *message, ...)
     // Send the message to the console.
     ConsoleMessage(kConsoleOnly, "%s", printbuf);
 
- #ifndef GD_PLATFORM_SDL
+#ifndef GD_PLATFORM_SDL
     // Send to debug console in browser
     printf("%s", printbuf);
 #endif
-
 }
 
 void ShowMessageBox(const char *message, const char *title)
 {
-    gd::Platform::ShowSimpleMessageBox(title, message);
+    gd::Platform_SimpleMessageBox(title, message);
 }
 
 int PureRandomNumber(void)

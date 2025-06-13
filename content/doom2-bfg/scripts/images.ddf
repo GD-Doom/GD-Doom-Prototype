@@ -1,0 +1,9 @@
+// 
+//    EDGE IMAGES.DDF -redefine or add new images.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<IMAGES>
+
+[GFX:TITLEPIC]
+IMAGE_DATA=LUMP:"INTERPIC";

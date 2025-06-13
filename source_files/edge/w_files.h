@@ -78,6 +78,9 @@ class DataFile
 };
 
 extern std::vector<DataFile *> data_files;
+// Index into data_files at which PWADs, their associated autoload folders,
+// and external loose files starts
+extern int external_content_index;
 
 size_t AddDataFile(const std::string &file, FileKind kind);
 int    GetTotalFiles();

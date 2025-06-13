@@ -1,0 +1,14 @@
+// 
+//    EDGE SOUNDS.DDF -redefine or add new sounds.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<SOUNDS>
+
+[CRUSH] // called for gib states
+PACK_NAME="RIPSLOP.lmp";
+PRIORITY=100;
+
+[SECRET]
+LUMP_NAME="DSSECRET";
+PRIORITY=64;

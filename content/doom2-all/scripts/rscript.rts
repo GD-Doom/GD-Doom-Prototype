@@ -1,0 +1,24 @@
+//
+//    EDGE Radius Triggers
+//
+//    These scripts replace hardcoded events for DOOM 2.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+START_MAP map07
+
+// lower the outer walls when all Mancubi are killed
+
+  RADIUS_TRIGGER 0 0 -1
+	WAIT_UNTIL_DEAD Mancubus
+    ACTIVATE_LINETYPE 38 666
+  END_RADIUS_TRIGGER
+
+// raise inner step when all Aracnotron are killed
+
+  RADIUS_TRIGGER 0 0 -1
+    WAIT_UNTIL_DEAD Arachnotron
+    ACTIVATE_LINETYPE 30 667
+  END_RADIUS_TRIGGER
+
+END_MAP

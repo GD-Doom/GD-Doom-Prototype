@@ -216,7 +216,6 @@ class SokolRenderBackend : public RenderBackend
 #if defined(SOKOL_GLCORE) || defined(SOKOL_GLES3)
         CaptureScreenGL(width, height, stride, dest);
 #endif
-
     }
 
     void Init()

@@ -1,0 +1,27 @@
+// 
+//    EDGE FONTS.DDF -redefine or add new fonts.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<FONTS>
+
+[OPTIONS]
+TYPE=TRUETYPE;
+TTF="ECFONT01.ttf";
+TTF_SMOOTHING = "ALWAYS";
+
+[DEFAULT]
+TYPE=PATCH;
+PATCHES=STCFN033("!":"_"),STCFN121("|");
+
+[BIG_DIGIT]
+TYPE=PATCH;
+PATCHES=STTNUM0("0":"9"),STTMINUS("-"),STTPRCNT("%");
+
+[YELLOW_DIGIT]
+TYPE=PATCH;
+PATCHES=STYSNUM0("0":"9");
+
+[AUTOMAP_DIGIT]
+TYPE=PATCH;
+PATCHES=AMMNUM0("0":"9");

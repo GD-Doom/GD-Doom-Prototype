@@ -1,0 +1,20 @@
+//
+//    EDGE COLMAP.DDF -redefine or add new color maps.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<COLOURMAPS>
+
+// For the invulnerability effect
+[ALLWHITE]
+gl_colour= #B0B000; 
+
+// For the night-vision effect
+[ALLGREEN]
+gl_colour = #33FF33;
+
+[BERSERK]
+gl_colour = #FF7979;
+
+[DAMAGE_FLASH]
+gl_colour = #FF7979;

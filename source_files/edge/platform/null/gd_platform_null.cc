@@ -165,4 +165,10 @@ void Platform_Init()
     new NullPlatform();
 }
 
+void Platform_SimpleMessageBox(const char *title, const char *message)
+{
+    EPI_UNUSED(title);
+    EPI_UNUSED(message);
+}
+
 } // namespace gd

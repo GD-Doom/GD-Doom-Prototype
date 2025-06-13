@@ -20,11 +20,6 @@ debug.txt
 /*.dll
 edge-classic.cfg
 
-#EPKs
-edge-defs.epk
-edge_defs.epk
-/edge_base/*.epk
-
 # EDGE game folders
 /screenshot
 /savegame
@@ -33,8 +28,8 @@ edge_defs.epk
 source_files/glew/glew.pc
 
 # WADs
-*.wad
-*.WAD
+/*.wad
+/*.WAD
 
 /web/preload/*.epk
 

@@ -1,0 +1,12 @@
+//
+//    EDGE ANIMS.DDF -redefine or add new animated wall/floor textures.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<ANIMATIONS>
+
+[BLODGR1]
+TYPE =TEXTURE;
+FIRST="BLODGR1";
+LAST ="BLODGR4";
+SPEED=8T;

@@ -1,0 +1,14 @@
+// 
+//    EDGE STYLES.DDF -redefine or add new styles.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<STYLES>
+
+[DEFAULT]
+BACKGROUND.COLOUR=#000000;
+BACKGROUND.TRANSLUCENCY=75%;
+TEXT.FONT="DEFAULT";
+ALT.FONT="DEFAULT";
+TITLE.FONT="DEFAULT";
+HELP.FONT="DEFAULT";

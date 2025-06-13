@@ -25,8 +25,8 @@
 #include "epi_str_util.h"
 #include "i_system.h"
 #include "m_argv.h"
-#include "version.h"
 #include "platform/gd_platform.h"
+#include "version.h"
 
 std::string executable_path = ".";
 
@@ -35,7 +35,7 @@ extern "C"
     int main(int argc, char *argv[])
     {
         gd::Platform_Init();
-        
+
         executable_path = gd::Platform::GetBasePath();
 
         EdgeMain(argc, (const char **)argv);

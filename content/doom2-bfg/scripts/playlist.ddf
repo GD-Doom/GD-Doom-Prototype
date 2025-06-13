@@ -1,0 +1,8 @@
+// 
+//    EDGE PLAYLIST.DDF -redefine music playing information.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<PLAYLISTS>
+
+[60] MUSICINFO=MUS:LUMP:"D_READ_M";

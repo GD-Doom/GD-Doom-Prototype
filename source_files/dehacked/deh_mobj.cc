@@ -4875,7 +4875,7 @@ DehackedMapObjectDefinition mobjinfo[kTotalDehackedMapObjectTypesPortCompatibili
 
     // MT_MISC68
     {
-        "DEAD_GIBBER_PLAYER1", // name
+        "DEAD_GIBBED_PLAYER1", // name
         10,                    // doomednum
         kS_PLAY_XDIE9,         // spawnstate
         1000,                  // spawnhealth
@@ -5740,7 +5740,7 @@ DehackedMapObjectDefinition mobjinfo[kTotalDehackedMapObjectTypesPortCompatibili
 
     // MT_DOGS
     {
-        "DOG",                                     // name
+        "MBF_COMPANION",                           // name
         888,                                       // doomednum
         kS_DOGS_STND,                              // spawnstate
         500,                                       // spawnhealth

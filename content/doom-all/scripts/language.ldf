@@ -1,0 +1,205 @@
+//
+//    EDGE LANGUAGE.LDF -redefine or add new messages.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<LANGUAGES>
+
+[ENGLISH]
+
+MusicPrefix="D_";
+
+MenuDifficulty1="I'm too young to die.";
+MenuDifficulty2="Hey, not too rough.";
+MenuDifficulty3="Hurt me plenty.";
+MenuDifficulty4="Ultra-Violence.";
+MenuDifficulty5="Nightmare!";
+
+NightmareCheck="Are you sure ? this skill level\n"
+               "isn't even remotely fair.\n\npress y or n.";
+
+GotArmour="Picked up the armor.";
+GotMegaArmour="Picked up the megaarmor!";
+GotPurpleArmour="Picked up the purple armor!";
+GotYellowArmour="Picked up the yellow armor!";
+GotRedArmour="Picked up the red armor!";
+
+GotHealthPotion="Picked up a health bonus.";
+GotArmourHelmet="Picked up an armour bonus.";
+
+GotStim="Picked up a stimpack.";
+GotMedi="Picked up a medikit.";
+GotSoul="Supercharge!";
+
+GotBlueCard="Picked up a blue keycard.";
+GotBlueSkull="Picked up a blue skull key.";
+GotYellowCard="Picked up a yellow keycard.";
+GotYellowSkull="Picked up a yellow skull key.";
+GotRedCard="Picked up a red keycard.";
+GotRedSkull="Picked up a red skull key.";
+GotGreenCard="Picked up a green keycard.";
+GotGreenSkull="Picked up a green skull key.";
+
+GotInvulner="Invulnerability!";
+GotBerserk="Berserk!";
+GotJetPack="JetPack!";
+GotInvis="Partial Invisibility";
+GotSuit="Radiation Shielding Suit";
+GotMap="Computer Area Map";
+GotNight="Nightvision goggles";
+GotVisor="Light Amplification Visor";
+GotStopTime="Stop Time!";
+
+GotClip="Picked up a clip.";
+GotClipBox="Picked up a box of bullets.";
+GotShells="Picked up 4 shotgun shells.";
+GotShellBox="Picked up a box of shotgun shells.";
+GotRocket="Picked up a rocket.";
+GotRocketBox="Picked up a box of rockets.";
+GotCell="Picked up an energy cell.";
+GotCellPack="Picked up an energy cell pack.";
+GotBackpack="Picked up a backpack full of ammo!";
+
+GotBFG="You got the BFG9000!  Oh, yes.";
+GotChainGun="You got the chaingun!";
+GotChainSaw="A chainsaw!  Find some meat!";
+GotRocketLauncher="You got the rocket launcher!";
+GotPlasmaGun="You got the plasma gun!";
+GotShotgun="You got the shotgun!";
+
+NeedBlueForObject="You need a blue key to activate this object";
+NeedBlueForDoor="You need a blue key to open this door";
+NeedBlueSkullForDoor="You need a blue skull to open this door";
+NeedBlueCardForDoor="You need a blue card to open this door";
+NeedBlueCardForObject="You need a blue card to activate this object";
+NeedBlueSkullForObject="You need a blue skull to activate this object";
+NeedYellowForObject="You need a yellow key to activate this object";
+NeedYellowForDoor="You need a yellow key to open this door";
+NeedYellowSkullForDoor="You need a yellow skull to open this door";
+NeedYellowCardForDoor="You need a yellow card to open this door";
+NeedYellowCardForObject="You need a yellow card to activate this object";
+NeedYellowSkullForObject="You need a yellow skull to activate this object";
+NeedRedForObject="You need a red key to activate this object";
+NeedRedForDoor="You need a red key to open this door";
+NeedRedSkullForDoor="You need a red skull to open this door";
+NeedRedCardForDoor="You need a red card to open this door";
+NeedRedCardForObject="You need a red card to activate this object";
+NeedRedSkullForObject="You need a red skull to activate this object";
+NeedGreenForObject="You need a green key to activate this object";
+NeedGreenForDoor="You need a green key to open this door";
+NeedAnyForDoor="Any key will open this door";
+NeedAll3ForDoor="You need all three keys to open this door";
+NeedAll6ForDoor="You need all six keys to open this door";
+
+OB_CRUSH    = "%o was crushed.";
+OB_EXPLODE  = "%o was blown up.";
+OB_DROWN    = "%o drowned";
+OB_SECTOR   = "%o melted.";
+OB_SUICIDE  = "%o suicided.";
+OB_SLIME    = "%o choked on the slime.";
+OB_LAVA     = "%o was burnt to a crisp.";
+
+OB_Baron       = "%o was killed by a Baron of Hell.";
+OB_BaronClaw   = "%o was clawed by a Baron of Hell.";
+OB_CacoBite    = "A Cacodemon chewed up %o!";
+OB_Cacodemon   = "%o was killed by a Cacodemon.";
+OB_Cyberdemon  = "%o was blown to bits by a Cyberdemon.";
+OB_Mastermind  = "A Spider Mastermind ripped %o apart!";
+
+OB_Demon       = "%o was mauled by a Demon.";
+OB_Dog         = "%o was bitten by a Dog.";
+OB_Imp         = "%o was killed by an Imp.";
+OB_ImpClaw     = "An Imp tore %o a new one!";
+OB_ShotgunGuy  = "%o was shot by a Shotgun Sergeant.";
+OB_Skull       = "%o was eaten by a Lost Soul!";
+OB_Zombie      = "%o was gunned down by a Zombie.";
+
+OB_Chaingun  = "%o was torn apart by %k.";
+OB_Pistol    = "%o was gunned down by %k.";
+OB_Missile   = "%o was blown up by %k.";
+OB_Plasma    = "%o was melted by %k.";
+OB_Punch     = "%k punched %o's lights out.";
+OB_Saw       = "%k sawed %o's head off.";
+OB_Shotgun   = "%o was shot by %k.";
+OB_BFG       = "%k annihilated %o.";
+
+GodModeON="Degreelessness Mode On";
+GodModeOFF="Degreelessness Mode Off";
+
+VeryHappyAmmo="Very Happy Ammo Added";
+AmmoAdded="Ammo (no keys) Added";
+
+BEHOLDNote="inVul, Str, Invis, Rad, mAp, Lite-amp, or Jetpack";
+BEHOLDUsed="Power-up Toggled";
+
+ChoppersNote="... doesn't suck - GM";
+
+CheckNetGame=    "D_CheckNetGame: Checking network game status.\n";
+HeadsUpInit=     "HU_Init: Setting up heads up display.\n";
+InitMachine=     "I_Init: Setting up machine state.\n";
+ListenNet=       "Listening for network start info...\n";
+DefaultLoad=     "M_LoadDefaults: Loaded system defaults.\n";
+MiscInfo=        "M_Init: Init Miscellaneous Info.\n";
+RefreshDaemon=   "R_Init: Init DOOM refresh daemon.\n";
+PlayState=       "P_Init: Init Playloop state.\n";
+SoundInit=       "S_Init: Setting up sound.\n";
+STBarInit=       "ST_Init: Init status bar.\n";
+SendNet=         "sending network start info...\n";
+TurboScale=      "turbo scale:";
+AllocScreens=    "V_Init: allocate screens.\n";
+WadFileInit=     "W_Init: Init WADfiles.\n";
+ZoneMemoryAlloc= "Z_Init: Init Zone Memory Allocation. \n";
+
+BaronOfHellName=     "BARON OF HELL";
+CacodemonName=       "CACODEMON";
+CyberdemonName=      "THE CYBERDEMON";
+DemonName=           "DEMON";
+ImpName=             "IMP";
+LostSoulName=        "LOST SOUL";
+OurHeroName=         "OUR HERO";
+ShotgunGuyName=      "SHOTGUN GUY";
+SpiderMastermindName="THE SPIDER MASTERMIND";
+ZombiemanName=       "ZOMBIEMAN";
+
+iddt="iddt";
+idmus="idmus";
+iddqd="iddqd";
+idkfa="idkfa";
+idfa="idfa";
+idspispopd="idspispopd";
+idclip="idclip";
+idbehold1="idbeholdv";
+idbehold2="idbeholds";
+idbehold3="idbeholdi";
+idbehold4="idbeholdr";
+idbehold5="idbeholda";
+idbehold6="idbeholdl";
+idbehold7="idbeholdj";
+idbehold8="idbeholdn";
+idbehold9="idbeholdb";
+idchoppers="idchoppers";
+idclev="idclev";
+idmypos="idmypos";
+cdnext="cdnext";
+cdprev="cdprev";
+idkillall="killall";
+idinfo="idinfo";
+idsuicide="idsuicide";
+idunlock="idunlock";
+idloaded="idloaded";
+idtakeall="idtakeall";
+idgive0="idgive";
+idgive1="idgive1";
+idgive2="idgive2";
+idgive3="idgive3";
+idgive4="idgive4";
+idgive5="idgive5";
+idgive6="idgive6";
+idgive7="idgive7";
+idgive8="idgive8";
+idgive9="idgive9";
+idgive10="idgive10";
+idbot="idbot";
+idtst="idtst";
+BotSpawn="Death Bot Spawn Detected...";
+idhom="idhom";

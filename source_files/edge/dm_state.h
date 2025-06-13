@@ -33,6 +33,7 @@
 #include "con_var.h"
 #include "dm_defs.h"
 #include "e_player.h"
+#include "w_wad.h"
 
 class Image;
 
@@ -93,7 +94,7 @@ constexpr uint8_t kMaximumArmor  = 200;
 extern std::string configuration_file;
 extern std::string branding_file;
 
-extern std::string game_base;
+extern GameProfile loaded_game;
 
 extern std::string cache_directory;
 extern std::string game_directory;

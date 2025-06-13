@@ -1,0 +1,14 @@
+//***************************************
+//*** https://edge-classic.github.io/ ***
+//***************************************
+
+
+<IMAGES>
+
+[GFX:AUTOPAGE]
+IMAGE_DATA=LUMP:DOOM:"AUTOPAGE";
+SCALE=1;
+FIX_TRANS=BLACKEN;
+ROTATE_HUE = 400;
+SATURATION = 100;
+BRIGHTNESS = 75;

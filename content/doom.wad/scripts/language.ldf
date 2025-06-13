@@ -1,0 +1,95 @@
+//
+//    EDGE LANGUAGE.LDF -redefine or add new messages.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<LANGUAGES>
+
+[ENGLISH]
+
+M_EPI2_Desc="The Shores of Hell";
+M_EPI3_Desc="Inferno";
+M_EPI4_Desc="Thy Flesh Consumed";
+
+E2M1Desc="Deimos Anomaly";
+E2M2Desc="Containment Area";
+E2M3Desc="Refinery";
+E2M4Desc="Deimos Lab";
+E2M5Desc="Command Center";
+E2M6Desc="Halls of the Damned";
+E2M7Desc="Spawning Vats";
+E2M8Desc="Tower of Babel";
+E2M9Desc="Fortress of Mystery";
+
+E3M1Desc="Hell Keep";
+E3M2Desc="Slough of Despair";
+E3M3Desc="Pandemonium";
+E3M4Desc="House of Pain";
+E3M5Desc="Unholy Cathedral";
+E3M6Desc="Mt. Erebus";
+E3M7Desc="Limbo";
+E3M8Desc="Dis";
+E3M9Desc="Warrens";
+
+E4M1Desc="Hell Beneath";
+E4M2Desc="Perfect Hatred";
+E4M3Desc="Sever The Wicked";
+E4M4Desc="Unruly Evil";
+E4M5Desc="They Will Repent";
+E4M6Desc="Against Thee Wickedly";
+E4M7Desc="And Hell Followed";
+E4M8Desc="Unto The Cruel";
+E4M9Desc="Fear";
+
+Episode2Text="You've done it! The hideous cyber-\n"
+"demon lord that ruled the lost Deimos\n"
+"moon base has been slain and you\n"
+"are triumphant! But ... where are\n"
+"you? You clamber to the edge of the\n"
+"moon and look down to see the awful\n"
+"truth.\n"
+"\n"
+"Deimos floats above Hell itself!\n"
+"You've never heard of anyone escaping\n"
+"from Hell, but you'll make the bastards\n"
+"sorry they ever heard of you! Quickly,\n"
+"you rappel down to  the surface of\n"
+"Hell.\n"
+"\n"
+"Now, it's on to the final chapter of\n"
+"DOOM! -- Inferno.";
+
+Episode3Text="The loathsome spiderdemon that\n"
+"masterminded the invasion of the moon\n"
+"bases and caused so much death has had\n"
+"its ass kicked for all time.\n"
+"\n"
+"A hidden doorway opens and you enter.\n"
+"You've proven too tough for Hell to\n"
+"contain, and now Hell at last plays\n"
+"fair -- for you emerge from the door\n"
+"to see the green fields of Earth!\n"
+"Home at last.\n"
+"\n"
+"You wonder what's been happening on\n"
+"Earth while you were battling evil\n"
+"unleashed. It's good that no Hell-\n"
+"spawn could have come through that\n"
+"door with you ...";
+
+Episode4Text="the spider mastermind must have sent forth\n"
+"its legions of hellspawn before your\n"
+"final confrontation with that terrible\n"
+"beast from hell.  but you stepped forward\n"
+"and brought forth eternal damnation and\n"
+"suffering upon the horde as a true hero\n"
+"would in the face of something so evil.\n"
+"\n"
+"besides, someone was gonna pay for what\n"
+"happened to daisy, your pet rabbit.\n"
+"\n"
+"but now, you see spread before you more\n"
+"potential pain and gibbitude as a nation\n"
+"of demons run amok among our cities.\n"
+"\n"
+"next stop, hell on earth!";

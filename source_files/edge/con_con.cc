@@ -490,22 +490,22 @@ void ConsoleSetupFont(void)
 {
     if (!console_font)
     {
-        FontDefinition *DEF = fontdefs.Lookup("CON_FONT_2");
+        FontDefinition *DEF = fontdefs.Lookup("CONSOLE");
         if (!DEF)
-            FatalError("CON_FONT_2 definition missing from DDFFONT!\n");
+            FatalError("CONSOLE definition missing from DDFFONT!\n");
         console_font = hud_fonts.Lookup(DEF);
         EPI_ASSERT(console_font);
     }
 
     if (!endoom_font)
     {
-        FontDefinition *DEF = fontdefs.Lookup("ENDFONT");
+        FontDefinition *DEF = fontdefs.Lookup("ENDOOM");
         if (!DEF)
-            FatalError("ENDFONT definition missing from DDFFONT!\n");
+            FatalError("ENDOOM definition missing from DDFFONT!\n");
         endoom_font = hud_fonts.Lookup(DEF);
         EPI_ASSERT(endoom_font);
         if (endoom_font->definition_->type_ != kFontTypeImage)
-            FatalError("ENDFONT needs to be a spritesheet!\n");
+            FatalError("ENDOOM font needs to be a spritesheet!\n");
     }
 
     if (!console_style)

@@ -982,17 +982,19 @@ const Image *CreateSprite(const char *name, int lump, bool is_weapon)
     if (!rim)
         return nullptr;
 
-    // adjust sprite offsets so that (0,0) is normal
-    if (is_weapon)
+    // if Doom format, adjust sprite offsets so that (0,0) is normal
+    if (rim->source_.graphic.is_patch)
     {
-        rim->offset_x_ += (320.0f / 2.0f - rim->actual_width_ / 2.0f); // loss of accuracy
-        rim->offset_y_ += (200.0f - 32.0f - rim->actual_height_);
-    }
-    else
-    {
-        // rim->offset_x_ -= rim->actual_width_ / 2;   // loss of accuracy
-        rim->offset_x_ -= ((float)rim->actual_width_) / 2.0f; // Lobo 2023: dancing eye fix
-        rim->offset_y_ -= rim->actual_height_;
+        if (is_weapon)
+        {
+            rim->offset_x_ += (320.0f / 2.0f - rim->actual_width_ / 2.0f); // loss of accuracy
+            rim->offset_y_ += (200.0f - 32.0f - rim->actual_height_);
+        }
+        else
+        {
+            rim->offset_x_ -= ((float)rim->actual_width_) / 2.0f; // Lobo 2023: dancing eye fix
+            rim->offset_y_ -= rim->actual_height_;
+        }
     }
 
     return rim;
@@ -1007,16 +1009,19 @@ const Image *CreatePackSprite(const std::string &packname, const PackFile *pack,
     if (!rim)
         return nullptr;
 
-    // adjust sprite offsets so that (0,0) is normal
-    if (is_weapon)
+    // if Doom format, adjust sprite offsets so that (0,0) is normal
+    if (rim->source_.graphic.is_patch)
     {
-        rim->offset_x_ += (320.0f / 2.0f - rim->actual_width_ / 2.0f);
-        rim->offset_y_ += (200.0f - 32.0f - rim->actual_height_);
-    }
-    else
-    {
-        rim->offset_x_ -= ((float)rim->actual_width_) / 2.0f; // Lobo 2023: dancing eye fix
-        rim->offset_y_ -= rim->actual_height_;
+        if (is_weapon)
+        {
+            rim->offset_x_ += (320.0f / 2.0f - rim->actual_width_ / 2.0f);
+            rim->offset_y_ += (200.0f - 32.0f - rim->actual_height_);
+        }
+        else
+        {
+            rim->offset_x_ -= ((float)rim->actual_width_) / 2.0f; // Lobo 2023: dancing eye fix
+            rim->offset_y_ -= rim->actual_height_;
+        }
     }
 
     return rim;

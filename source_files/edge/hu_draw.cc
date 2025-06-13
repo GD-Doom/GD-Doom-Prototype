@@ -327,8 +327,7 @@ void HUDFrameSetup(void)
 {
     if (default_font == nullptr)
     {
-        // FIXME: get default font from DDF gamedef
-        FontDefinition *DEF = fontdefs.Lookup("DOOM");
+        FontDefinition *DEF = fontdefs.Lookup("DEFAULT");
         EPI_ASSERT(DEF);
 
         default_font = hud_fonts.Lookup(DEF);

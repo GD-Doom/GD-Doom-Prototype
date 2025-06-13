@@ -1,0 +1,12 @@
+//
+//    EDGE ANIMS.DDF -redefine or add new animated wall/floor textures.
+//    For documentation, see https://edge-classic.github.io/
+//
+
+<ANIMATIONS>
+
+[WFALL1]
+TYPE =TEXTURE;
+FIRST="WFALL1";
+LAST ="WFALL4";
+SPEED=8T;
