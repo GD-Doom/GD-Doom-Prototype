@@ -68,13 +68,6 @@ class GodotPlatform : public Platform
         return 0;
     }
 
-    int ShowSimpleMessageBoxInternal(const char *title, const char *message) override
-    {
-        EPI_UNUSED(title);
-        EPI_UNUSED(message);
-        return 0;
-    }
-
     void DelayInternal(uint32_t milliseconds) override
     {
         EPI_UNUSED(milliseconds);
@@ -176,6 +169,12 @@ class GodotPlatform : public Platform
 void Platform_Init()
 {
     new GodotPlatform();
+}
+
+void Platform_SimpleMessageBox(const char *title, const char *message)
+{
+    EPI_UNUSED(title);
+    EPI_UNUSED(message);
 }
 
 } // namespace gd
