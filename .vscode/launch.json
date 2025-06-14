@@ -69,6 +69,23 @@
             "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"
         },
         {
+            "name": "Launch Godot (Editor)",            
+            "type": "cppvsdbg",
+            "request": "launch",
+            // Don't use the console exe if you want breakpoints to work (something to look into)
+            "program": "C:\\Godot\\Godot_v4.4.1-stable_win64.exe",
+            "args": [
+                "--editor",
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"
+        },
+        {
             "name": "Launch Godot (Linux gdb)",
             "type": "cppdbg",
             "request": "launch",
