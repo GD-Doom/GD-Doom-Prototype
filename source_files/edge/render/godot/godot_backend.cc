@@ -104,11 +104,13 @@ class GodotRenderBackend : public RenderBackend
     {
       EPI_UNUSED(layer);
       EPI_UNUSED(clear_depth);
+
+      layer_ = layer;
     }
 
     RenderLayer GetRenderLayer()
     {
-        return kRenderLayerHUD;
+        return layer_;
     }
 
     void BeginWorldRender()
@@ -125,6 +127,8 @@ class GodotRenderBackend : public RenderBackend
     }
 
   private:
+
+    RenderLayer layer_ = kRenderLayerInvalid;
 };
 
 static GodotRenderBackend godot_render_backend;

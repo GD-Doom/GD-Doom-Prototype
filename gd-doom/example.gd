@@ -1,4 +1,4 @@
-extends Node
+extends Node3D
 
 var example: ExampleClass
 var render_units: GDRenderUnitMesh
@@ -9,7 +9,9 @@ func _ready() -> void:
 	example.init()
 	
 	render_units = GDRenderUnitMesh.new()
-	render_units.init()
+	render_units.init()	
+	
+	self.add_child(render_units)
 
 func _process(delta: float) -> void:
 	example.tick()

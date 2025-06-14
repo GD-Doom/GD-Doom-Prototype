@@ -20,6 +20,7 @@
 //
 
 #include <algorithm>
+#include <godot_cpp/classes/box_mesh.hpp>
 #include <godot_cpp/classes/immediate_mesh.hpp>
 #include <godot_cpp/classes/mesh_instance3d.hpp>
 #include <unordered_map>
@@ -112,7 +113,8 @@ class GDRenderUnitMesh : public MeshInstance3D
         }
 
         gd_render_mesh = this;
-        set_mesh(memnew(ImmediateMesh));
+        set_mesh(memnew(ImmediateMesh));        
+        //set_mesh(memnew(BoxMesh));
     }
 
     GDRenderUnitMesh()           = default;
@@ -141,7 +143,30 @@ void gd_render_units_begin_frame()
     }
 
     Ref<ImmediateMesh> mesh = GDRenderUnitMesh::gd_render_mesh->get_mesh();
+    if (mesh.is_null())
+    {
+        return;
+    }
+
     mesh->clear_surfaces();
+
+    /*
+    mesh->surface_begin(Mesh::PRIMITIVE_TRIANGLES);
+
+	mesh->surface_set_normal(Vector3(0, 0, 1));
+	mesh->surface_set_uv(Vector2(0, 0));
+	mesh->surface_add_vertex(Vector3(-1, -1, 0));
+
+	mesh->surface_set_normal(Vector3(0, 0, 1));
+	mesh->surface_set_uv(Vector2(0, 1));
+	mesh->surface_add_vertex(Vector3(-1, 1, 0));
+
+	mesh->surface_set_normal(Vector3(0, 0, 1));
+	mesh->surface_set_uv(Vector2(1, 1));
+	mesh->surface_add_vertex(Vector3(1, 1, 0));    
+
+    mesh->surface_end();
+    */
 }
 
 //
@@ -353,6 +378,12 @@ void RenderCurrentUnits(void)
 
     RenderLayer render_layer = render_backend->GetRenderLayer();
 
+    if (render_layer != RenderLayer::kRenderLayerSolid)
+    {
+        current_render_vert = current_render_unit = 0;
+        return;
+    }
+
     RenderFlush();
 
     bool no_fog = (render_layer == kRenderLayerHUD) || (render_layer == kRenderLayerWeapon);
@@ -533,14 +564,30 @@ void RenderCurrentUnits(void)
         if (mesh.is_null())
         {
             return;
-        }
+        }        
+
+        const float scale = 0.01f;
 
         // glBegin(unit->shape);
         if (unit->shape == GL_QUADS)
         {
+            continue;
         }
         else if (unit->shape == GL_TRIANGLES)
         {
+            mesh->surface_begin(Mesh::PRIMITIVE_TRIANGLES);
+            const RendererVertex *V = local_verts + unit->first;
+
+            for (int v_idx = 0, v_last_idx = unit->count; v_idx < v_last_idx; v_idx++, V++)
+            {
+                mesh->surface_set_color(Color(1.0f, 1.0f, 0.0f, 1.0f));
+                mesh->surface_set_normal(Vector3(0, 0, 1));
+                mesh->surface_add_vertex(Vector3(V->position.X * scale, V->position.Y * scale, V->position.Z * scale));                
+            }
+
+            mesh->surface_end();
+
+            continue;
         }
         else if (unit->shape == GL_POLYGON)
         {
@@ -553,15 +600,19 @@ void RenderCurrentUnits(void)
                 const RendererVertex *V1 = &V[k + 1];
                 const RendererVertex *V2 = &V[((k + 2) % unit->count)];
 
-                mesh->surface_add_vertex(Vector3(V->position.X, V->position.Y, V->position.Z));
-                mesh->surface_set_color(Color(epi::GetRGBARed(V->rgba), epi::GetRGBAGreen(V->rgba), epi::GetRGBABlue(V->rgba)));
+                mesh->surface_set_color(Color(1.0f, 1.0f, 0.0f, 1.0f));
+                mesh->surface_set_normal(Vector3(0, 0, 1));
+                mesh->surface_add_vertex(Vector3(V->position.X * scale, V->position.Y * scale, V->position.Z * scale));
 
-                mesh->surface_add_vertex(Vector3(V1->position.X, V1->position.Y, V1->position.Z));
-                mesh->surface_set_color(Color(epi::GetRGBARed(V1->rgba), epi::GetRGBAGreen(V1->rgba), epi::GetRGBABlue(V1->rgba)));
+                mesh->surface_set_color(Color(1.0f, 1.0f, 0.0f, 1.0f));
+                mesh->surface_set_normal(Vector3(0, 0, 1));
+                mesh->surface_add_vertex(
+                    Vector3(V1->position.X * scale, V1->position.Y * scale, V1->position.Z * scale));
 
-                mesh->surface_add_vertex(Vector3(V2->position.X, V2->position.Y, V2->position.Z));
-                mesh->surface_set_color(Color(epi::GetRGBARed(V2->rgba), epi::GetRGBAGreen(V2->rgba), epi::GetRGBABlue(V2->rgba)));
-
+                mesh->surface_set_color(Color(1.0f, 1.0f, 0.0f, 1.0f));
+                mesh->surface_set_normal(Vector3(0, 0, 1));
+                mesh->surface_add_vertex(
+                    Vector3(V2->position.X * scale, V2->position.Y * scale, V2->position.Z * scale));
             }
 
             mesh->surface_end();
