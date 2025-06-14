@@ -90,14 +90,6 @@ class ImageData
     // of a pixel group.
     void ShrinkMasked(int new_width, int new_height);
 
-    // scale the image up to a larger size.
-    // The old size and the new size must be powers of two.
-    void Grow(int new_width, int new_height);
-
-    // convert an RGBA image to RGB.  Partially transparent colors
-    // (alpha < 255) are blended with black.
-    void RemoveAlpha();
-
     // Set uniform alpha value for all pixels in an image
     // If RGB, will convert to RGBA
     void SetAlpha(int alpha);
@@ -106,22 +98,10 @@ class ImageData
     // lesser values become 0, and greater-or-equal values become 255.
     void ThresholdAlpha(uint8_t alpha = 128);
 
-    // mirror the already-drawn corner (lowest x/y values) into the
-    // other three corners.  When width or height is odd, the middle
-    // column/row must already be drawn.
-    void FourWaySymmetry();
-
     // Intended for font spritesheets; will turn the background color
     // (as determined by the first pixel of the image) transparent, if the
     // background is not already transparent
     void RemoveBackground();
-
-    // mirror the already-drawn half corner (1/8th of the image)
-    // into the rest of the image.  The source corner has lowest x/y
-    // values, and the triangle piece is where y <= x, including the
-    // pixels along the diagonal where (x == y).
-    // NOTE: the image must be SQUARE (width == height).
-    void EightWaySymmetry();
 
     // Determine the bounds of the image data that actually contain
     // non-backgroundpixels, based on the provided color

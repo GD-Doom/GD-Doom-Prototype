@@ -68,9 +68,6 @@
 // Misc
 #define EDGE_DEFAULT_MENULANGUAGE (0)
 
-// Sound and Music
-#define EDGE_DEFAULT_SOUND_STEREO (1) // Stereo
-
 // Video Options
 #define EDGE_DEFAULT_USE_SMOOTHING  (0)
 #define EDGE_DEFAULT_USE_MIPMAPPING (2)
@@ -80,9 +77,7 @@
 #define EDGE_DEFAULT_CROSSHAIR      (0)
 #define EDGE_DEFAULT_MAP_OVERLAY    (0)
 #define EDGE_DEFAULT_ROTATEMAP      (0)
-#define EDGE_DEFAULT_INVUL_FX       (1) // TEXTURED
 #define EDGE_DEFAULT_WIPE_METHOD    (1)
-#define EDGE_DEFAULT_PNG_SCRSHOTS   (1)
 
 // Gameplay Options
 #define EDGE_DEFAULT_AUTOAIM        (0)
@@ -92,7 +87,6 @@
 #define EDGE_DEFAULT_KICKING        (0)
 #define EDGE_DEFAULT_WEAPON_SWITCH  (1)
 #define EDGE_DEFAULT_MORE_BLOOD     (0)
-#define EDGE_DEFAULT_HAVE_EXTRA     (1)
 #define EDGE_DEFAULT_TRUE3DGAMEPLAY (1)
 #define EDGE_DEFAULT_PASS_MISSILE   (1)
 #define EDGE_DEFAULT_RES_RESPAWN    (1) // Resurrect Mode
@@ -101,7 +95,6 @@
 #define EDGE_DEFAULT_RESPAWN        (0)
 
 #define EDGE_DEFAULT_AM_KEYDOORBLINK (1)
-#define EDGE_DEFAULT_AM_KEYDOORTEXT  (0)
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

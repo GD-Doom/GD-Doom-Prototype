@@ -261,57 +261,6 @@ void ImageData::ShrinkMasked(int new_w, int new_h)
     height_ = new_h;
 }
 
-void ImageData::Grow(int new_w, int new_h)
-{
-    EPI_ASSERT(new_w >= width_ && new_h >= height_);
-
-    uint8_t *new_pixels_ = new uint8_t[new_w * new_h * depth_];
-
-    for (int dy = 0; dy < new_h; dy++)
-        for (int dx = 0; dx < new_w; dx++)
-        {
-            int sx = dx * width_ / new_w;
-            int sy = dy * height_ / new_h;
-
-            const uint8_t *src = PixelAt(sx, sy);
-
-            uint8_t *dest = new_pixels_ + (dy * new_w + dx) * depth_;
-
-            for (int i = 0; i < depth_; i++)
-                *dest++ = *src++;
-        }
-
-    delete[] pixels_;
-
-    used_width_  = used_width_ * new_w / width_;
-    used_height_ = used_height_ * new_h / height_;
-
-    pixels_ = new_pixels_;
-    width_  = new_w;
-    height_ = new_h;
-}
-
-void ImageData::RemoveAlpha()
-{
-    if (depth_ != 4)
-        return;
-
-    uint8_t *src   = pixels_;
-    uint8_t *s_end = src + (width_ * height_ * depth_);
-    uint8_t *dest  = pixels_;
-
-    for (; src < s_end; src += 4)
-    {
-        // blend alpha with BLACK
-
-        *dest++ = (int)src[0] * (int)src[3] / 255;
-        *dest++ = (int)src[1] * (int)src[3] / 255;
-        *dest++ = (int)src[2] * (int)src[3] / 255;
-    }
-
-    depth_ = 3;
-}
-
 void ImageData::SetAlpha(int alphaness)
 {
     if (depth_ < 3)
@@ -357,23 +306,6 @@ void ImageData::ThresholdAlpha(uint8_t alpha)
     }
 }
 
-void ImageData::FourWaySymmetry()
-{
-    int w2 = (width_ + 1) / 2;
-    int h2 = (height_ + 1) / 2;
-
-    for (int y = 0; y < h2; y++)
-        for (int x = 0; x < w2; x++)
-        {
-            int ix = width_ - 1 - x;
-            int iy = height_ - 1 - y;
-
-            CopyPixel(x, y, ix, y);
-            CopyPixel(x, y, x, iy);
-            CopyPixel(x, y, ix, iy);
-        }
-}
-
 void ImageData::RemoveBackground()
 {
     if (depth_ < 3)
@@ -409,21 +341,6 @@ void ImageData::RemoveBackground()
                 pixels_[i + 3] = 0;
         }
     }
-}
-
-void ImageData::EightWaySymmetry()
-{
-    EPI_ASSERT(width_ == height_);
-
-    int hw = (width_ + 1) / 2;
-
-    for (int y = 0; y < hw; y++)
-        for (int x = y + 1; x < hw; x++)
-        {
-            CopyPixel(x, y, y, x);
-        }
-
-    FourWaySymmetry();
 }
 
 void ImageData::DetermineRealBounds(uint16_t *bottom, uint16_t *left, uint16_t *right, uint16_t *top,

@@ -106,7 +106,6 @@ const DDFCommandList thing_commands[] = {
     DDF_FIELD("MASS", dummy_mobj, mass_, DDFMainGetFloat),
     DDF_FIELD("SPEED", dummy_mobj, speed_, DDFMainGetFloat),
     DDF_FIELD("FAST", dummy_mobj, fast_, DDFMainGetFloat),
-    DDF_FIELD("EXTRA", dummy_mobj, extended_flags_, DDFMobjGetExtra),
     DDF_FIELD("RESPAWN_TIME", dummy_mobj, respawntime_, DDFMainGetTime),
     DDF_FIELD("FUSE", dummy_mobj, fuse_, DDFMainGetTime),
     DDF_FIELD("LIFESPAN", dummy_mobj, fuse_, DDFMainGetTime),
@@ -1712,26 +1711,6 @@ void DDFMobjGetDLight(const char *info, void *storage)
     }
 
     (*dtype) = (DynamicLightType)flag_value;
-}
-
-//
-// DDFMobjGetExtra
-//
-void DDFMobjGetExtra(const char *info, void *storage)
-{
-    int *extendedflags = (int *)storage;
-
-    // If keyword is "NULL", then the mobj is not marked as extra.
-    // Otherwise it is.
-
-    if (DDFCompareName(info, "NULL") == 0)
-    {
-        *extendedflags &= ~kExtendedFlagExtra;
-    }
-    else
-    {
-        *extendedflags |= kExtendedFlagExtra;
-    }
 }
 
 //

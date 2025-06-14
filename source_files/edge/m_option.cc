@@ -141,8 +141,6 @@ extern ConsoleVariable show_endoom;
 extern ConsoleVariable confirm_quickload;
 extern ConsoleVariable confirm_quicksave;
 
-// extern console_variable_c automap_keydoor_text;
-
 extern ConsoleVariable sector_brightness_correction;
 extern ConsoleVariable gamma_correction;
 extern ConsoleVariable sky_stretch_mode;
@@ -190,7 +188,6 @@ static void OptionMenuChangeBobbing(int key_pressed, ConsoleVariable *console_va
 static void OptionMenuChangeMLook(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeJumping(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeCrouching(int key_pressed, ConsoleVariable *console_variable);
-static void OptionMenuChangeExtra(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeMonitorSize(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeKicking(int key_pressed, ConsoleVariable *console_variable);
 static void OptionMenuChangeWeaponSwitch(int key_pressed, ConsoleVariable *console_variable);
@@ -396,8 +393,6 @@ static OptionMenuItem vidoptions[] = {
      ""},
     {kOptionMenuItemTypeFunction, "Overlay", nullptr, 0, nullptr, OptionMenuChangeOverlay, nullptr, nullptr, 0, 0, 0,
      ""},
-    {kOptionMenuItemTypeSwitch, "Invulnerability", "Simple/Textured", kTotalInvulnerabilityEffects,
-     &invulnerability_effect, nullptr, nullptr, nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeSwitch, "Wipe method", "None/Melt/Crossfade/Pixelfade/Top/Bottom/Left/Right/Spooky/Doors",
      kTotalScreenWipeTypes, &wipe_method, nullptr, nullptr, nullptr, 0, 0, 0, ""}};
 
@@ -587,9 +582,6 @@ static OptionMenuItem playoptions[] = {
     {kOptionMenuItemTypeSwitch, "Blood Level", "Normal/Extra/None", 3, &gore_level.d_,
      OptionMenuUpdateConsoleVariableFromInt, "Blood", &gore_level, 0, 0, 0, ""},
 
-    {kOptionMenuItemTypeBoolean, "Extras", YesNo, 2, &global_flags.have_extra, OptionMenuChangeExtra, nullptr, nullptr,
-     0, 0, 0, ""},
-
     {kOptionMenuItemTypeBoolean, "True 3D Gameplay", YesNo, 2, &global_flags.true_3d_gameplay, OptionMenuChangeTrue3d,
      "True3d", nullptr, 0, 0, 0, ""},
 
@@ -669,9 +661,7 @@ static OptionMenuItem accessibilityoptions[] = {
     {kOptionMenuItemTypeSwitch, "Reduce Flashing", YesNo, 2, &reduce_flash, nullptr,
      "May help with epilepsy or photosensitivity", nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeBoolean, "Automap: Keyed Doors Pulse", YesNo, 2, &automap_keydoor_blink, nullptr,
-     "Can help locate doors more easily", nullptr, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Automap: Keyed Doors Overlay", "Nothing/Text/Graphic", 3, &automap_keydoor_text.d_,
-     OptionMenuUpdateConsoleVariableFromInt, "Required key shown visually", &automap_keydoor_text, 0, 0, 0, ""},
+     "Can help locate doors more easily", nullptr, 0, 0, 0, ""}
 };
 
 static OptionMenuDefinition accessibility_optmenu = {accessibilityoptions,
@@ -1912,16 +1902,6 @@ static void OptionMenuChangeCrouching(int key_pressed, ConsoleVariable *console_
         return;
 
     level_flags.crouch = global_flags.crouch;
-}
-
-static void OptionMenuChangeExtra(int key_pressed, ConsoleVariable *console_variable)
-{
-    EPI_UNUSED(key_pressed);
-    EPI_UNUSED(console_variable);
-    if (current_map && ((current_map->force_on_ | current_map->force_off_) & kMapFlagExtras))
-        return;
-
-    level_flags.have_extra = global_flags.have_extra;
 }
 
 //

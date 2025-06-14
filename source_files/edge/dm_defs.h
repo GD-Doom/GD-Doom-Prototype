@@ -90,7 +90,6 @@ struct GameFlags
     AutoAimState autoaim;
 
     bool cheats;
-    bool have_extra;
     bool limit_zoom;
 
     bool kicking;

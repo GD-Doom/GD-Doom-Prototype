@@ -171,7 +171,6 @@ static void SaveGlobalGetLevelFlags(const char *info, void *storage)
     dest->cheats             = (flags & kMapFlagCheats) ? true : false;
     dest->enemies_respawn    = (flags & kMapFlagRespawn) ? true : false;
     dest->enemy_respawn_mode = (flags & kMapFlagResRespawn) ? true : false;
-    dest->have_extra         = (flags & kMapFlagExtras) ? true : false;
     dest->limit_zoom         = (flags & kMapFlagLimitZoom) ? true : false;
     dest->kicking            = (flags & kMapFlagKicking) ? true : false;
     dest->weapon_switch      = (flags & kMapFlagWeaponSwitch) ? true : false;
@@ -290,8 +289,6 @@ static const char *SaveGlobalPutLevelFlags(void *storage)
         flags |= kMapFlagRespawn;
     if (src->enemy_respawn_mode)
         flags |= kMapFlagResRespawn;
-    if (src->have_extra)
-        flags |= kMapFlagExtras;
     if (src->limit_zoom)
         flags |= kMapFlagLimitZoom;
     if (src->kicking)

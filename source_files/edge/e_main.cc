@@ -116,10 +116,6 @@ bool single_tics = false; // debug flag to cancel adaptiveness
 
 static bool need_wipe = false;
 
-// -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
-// Must be used in conjunction with single_tics.
-static int screenshot_rate;
-
 // For screenies...
 bool m_screenshot_required = false;
 bool need_save_screenshot  = false;
@@ -149,7 +145,6 @@ GameFlags default_game_flags = {
     kAutoAimOff, // autoaim
 
     true,        // cheats
-    true,        // have_extra
     false,       // limit_zoom
 
     true,        // kicking
@@ -416,24 +411,6 @@ static void SetGlobalVariables(void)
         current_screen_height = 100000;
     }
 
-    // sprite kludge (TrueBSP)
-    p = FindArgument("spritekludge");
-    if (p > 0)
-    {
-        if (p + 1 < int(program_argument_list.size()) && !ArgumentIsOption(p + 1))
-            sprite_kludge = atoi(program_argument_list[p + 1].c_str());
-
-        if (!sprite_kludge)
-            sprite_kludge = 1;
-    }
-
-    s = ArgumentValue("screenshot");
-    if (!s.empty())
-    {
-        screenshot_rate = atoi(s.c_str());
-        single_tics     = true;
-    }
-
     // -AJA- 1999/10/18: Reworked these with CheckBooleanParameter
     CheckBooleanParameter("rotate_map", &rotate_map, false);
     CheckBooleanParameter("sound", &no_sound, true);
@@ -442,7 +419,6 @@ static void SetGlobalVariables(void)
     CheckBooleanParameter("mlook", &global_flags.mouselook, false);
     CheckBooleanParameter("monsters", &global_flags.no_monsters, true);
     CheckBooleanParameter("fast", &global_flags.fast_monsters, false);
-    CheckBooleanParameter("extras", &global_flags.have_extra, false);
     CheckBooleanParameter("kick", &global_flags.kicking, false);
     CheckBooleanParameter("single_tics", &single_tics, false);
     CheckBooleanParameter("true3d", &global_flags.true_3d_gameplay, false);
@@ -807,15 +783,6 @@ void EdgeDisplay(void)
     {
         m_screenshot_required = false;
         render_backend->OnFrameFinished([]() -> void { TakeScreenshot(true); });
-    }
-    else if (screenshot_rate && (game_state >= kGameStateLevel))
-    {
-        EPI_ASSERT(single_tics);
-
-        if (level_time_elapsed % screenshot_rate == 0)
-        {
-            render_backend->OnFrameFinished([]() -> void { TakeScreenshot(false); });
-        }
     }
 
     FinishFrame(); // page flip or blit buffer
@@ -1332,7 +1299,6 @@ static void AddBaseContent(void)
     if (loaded_game.content_folders == NULL)
         return; // Standalone EDGE IWADs/EPKs should already contain their
                 // necessary resources and definitions - Dasho
-    std::vector<epi::DirectoryEntry> fsd;
     std::string                      content_dir = epi::PathAppend(game_directory, "content");
     std::vector<std::string>         base_dirs   = epi::SeparatedStringVector(loaded_game.content_folders, ',');
 
@@ -1352,7 +1318,6 @@ static void AddBaseAutoloads(void)
 {
     if (loaded_game.autoload_folders == NULL)
         return;
-    std::vector<epi::DirectoryEntry> fsd;
     std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
     if (!epi::IsDirectory(autoload_dir))
     {
@@ -1785,7 +1750,6 @@ static void AddSingleCommandLineFile(const std::string &name, bool ignore_unknow
     // add autoload folder if appropriate
     if (kind == kFileKindPWAD || kind == kFileKindEPK)
     {
-        std::vector<epi::DirectoryEntry> fsd;
         std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
         filename                                      = epi::GetFilename(filename);
         epi::StringLowerASCII(filename);
