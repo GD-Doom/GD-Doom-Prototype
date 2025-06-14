@@ -1,11 +1,16 @@
 
 
+#include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
+
 #include "epi.h"
 #include "r_backend.h"
 #include "r_state.h"
 
 static constexpr GLuint kGenTextureId       = 0x0000FFFF;
 static constexpr GLuint kRenderStateInvalid = 0xFFFFFFFF;
+
+using namespace godot;
 
 struct MipLevel
 {
@@ -214,7 +219,6 @@ class GodotRenderState : public RenderState
     {
         if (mask & GL_DEPTH_BUFFER_BIT)
         {
-            
         }
     }
 
@@ -367,7 +371,46 @@ class GodotRenderState : public RenderState
     void FinishTextures(GLsizei n, GLuint *textures)
     {
         EPI_UNUSED(n);
-        EPI_UNUSED(textures);
+
+        EPI_UNUSED(n);
+        if (!mip_levels_.size())
+        {
+            FatalError("FinishTextures: No mip levels defined");
+        }
+
+        uint8_t bpp = 0;
+        switch (texture_format_)
+        {
+        case godot::Image::FORMAT_RGBA8:
+            bpp = 4;
+            break;
+        case godot::Image::FORMAT_R8:
+            bpp = 1;
+            break;
+        default:
+            bpp = 0;
+            break;
+        }
+
+        if (!bpp)
+        {
+            FatalError("Unknown texture format");
+        }
+
+        MipLevel *mip = &mip_levels_[0];
+
+        godot::PackedByteArray bytes(std::initializer_list<uint8_t>(
+            (uint8_t *)mip->pixels_, (uint8_t *)mip->pixels_ + (mip->width_ * mip->height_ * 4)));
+
+        godot::Ref<godot::Image> image =
+            godot::Image::create_from_data(mip->width_, mip->height_, mip_levels_.size() > 1, texture_format_, bytes);
+
+        Ref<godot::ImageTexture> image_texture = ImageTexture::create_from_image(image);
+
+        mip_levels_.clear();
+        generating_texture_ = false;
+
+        texture_level_  = 0;
     }
 
     void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border,
@@ -383,8 +426,60 @@ class GodotRenderState : public RenderState
         EPI_UNUSED(type);
         EPI_UNUSED(pixels);
         EPI_UNUSED(usage);
-        
 
+        if (level)
+        {
+            return;
+        }
+
+        godot::Image::Format gd_texture_format;
+
+        uint8_t bpp = 0;
+        switch (internalformat)
+        {
+        case GL_RGB:
+            // https://github.com/floooh/sokol/pull/111
+            FatalError("GL_RGB is only supported by OpenGL, promote to GL_RGBA before calling TexImage2D");
+        case GL_RGBA:
+            gd_texture_format = godot::Image::FORMAT_RGBA8;
+            bpp               = 4;
+            break;
+        case GL_ALPHA:
+            FatalError("GL_ALPHA is only supported by OpenGL, promote to GL_RGBA before calling TexImage2D");
+        default:
+            FatalError("Unknown texture format");
+        }
+
+        // Texture Generation
+
+        if (generating_texture_)
+        {
+            if (texture_level_ > level)
+            {
+                FatalError("TexImage2D: texture levels must be sequential");
+            }
+
+            if (texture_bound_ != kGenTextureId)
+            {
+                FatalError("TexImage2D: texture_bound_ != kGenTextureId during texture generation");
+            }
+
+            texture_format_ = gd_texture_format;
+
+            MipLevel mip_level;
+            mip_level.width_  = width;
+            mip_level.height_ = height;
+            mip_level.pixels_ = nullptr;
+            if (pixels)
+            {
+                mip_level.pixels_ = malloc(width * height * bpp);
+                memcpy(mip_level.pixels_, pixels, width * height * bpp);
+            }
+            mip_levels_.push_back(mip_level);
+            return;
+        }
+
+        // Update
     }
 
     void PixelStorei(GLenum pname, GLint param)
@@ -479,6 +574,8 @@ class GodotRenderState : public RenderState
 
     GLuint texture_bound_ = kRenderStateInvalid;
 
+    godot::Image::Format texture_format_ = godot::Image::FORMAT_RGBA8;
+
     GLint texture_min_filter_;
     GLint texture_mag_filter_;
     GLint texture_wrap_s_;
@@ -513,7 +610,6 @@ RenderState            *render_state = &state;
 
 void SetupSkyMatrices(void)
 {
-
 }
 
 void RendererRevertSkyMatrices(void)

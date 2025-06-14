@@ -66,10 +66,10 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "internalConsole",
-            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis",
         },
         {
-            "name": "Launch Godot (Editor)",            
+            "name": "Launch Godot (Windows Editor)",            
             "type": "cppvsdbg",
             "request": "launch",
             // Don't use the console exe if you want breakpoints to work (something to look into)
@@ -83,7 +83,8 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "internalConsole",
-            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis"
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis",
+            "autoAttachChildProcess": true
         },
         {
             "name": "Launch Godot (Linux gdb)",

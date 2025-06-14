@@ -1,6 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://dh0oj81pufivs"]
+[gd_scene load_steps=3 format=3 uid="uid://dh0oj81pufivs"]
 
 [ext_resource type="Script" uid="uid://c6m2rl1xw4shv" path="res://example.gd" id="1_jdh55"]
 
-[node name="Node" type="Node"]
+[sub_resource type="Environment" id="Environment_2jas5"]
+
+[node name="Node" type="Node3D"]
 script = ExtResource("1_jdh55")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.0671, -25.0528, 713.729)
+environment = SubResource("Environment_2jas5")
+current = true

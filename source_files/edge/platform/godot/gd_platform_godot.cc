@@ -133,6 +133,7 @@ class GodotPlatform : public Platform
 
     void StartFrameInternal(void) override
     {
+        render_backend->StartFrame(current_screen_width, current_screen_height);
     }
 
     void FinishFrameInternal(void) override

@@ -20,6 +20,8 @@
 //
 
 #include <algorithm>
+#include <godot_cpp/classes/immediate_mesh.hpp>
+#include <godot_cpp/classes/mesh_instance3d.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -92,6 +94,55 @@ static int current_render_unit;
 static bool batch_sort;
 
 RGBAColor culling_fog_color;
+
+using namespace godot;
+class GDRenderUnitMesh : public MeshInstance3D
+{
+    GDCLASS(GDRenderUnitMesh, MeshInstance3D)
+
+  protected:
+    static void _bind_methods();
+
+  public:
+    void init()
+    {
+        if (gd_render_mesh)
+        {
+            FatalError("gd_render_mesh singleton already set");
+        }
+
+        gd_render_mesh = this;
+        set_mesh(memnew(ImmediateMesh));
+    }
+
+    GDRenderUnitMesh()           = default;
+    ~GDRenderUnitMesh() override = default;
+
+    static GDRenderUnitMesh *gd_render_mesh;
+};
+
+GDRenderUnitMesh *GDRenderUnitMesh::gd_render_mesh = nullptr;
+
+void GDRenderUnitMesh::_bind_methods()
+{
+    godot::ClassDB::bind_method(D_METHOD("init"), &GDRenderUnitMesh::init);
+}
+
+void gd_initialize_render_types()
+{
+    GDREGISTER_CLASS(GDRenderUnitMesh);
+}
+
+void gd_render_units_begin_frame()
+{
+    if (!GDRenderUnitMesh::gd_render_mesh)
+    {
+        return;
+    }
+
+    Ref<ImmediateMesh> mesh = GDRenderUnitMesh::gd_render_mesh->get_mesh();
+    mesh->clear_surfaces();
+}
 
 //
 // StartUnitBatch
@@ -472,6 +523,18 @@ void RenderCurrentUnits(void)
         {
         }
 
+        if (!GDRenderUnitMesh::gd_render_mesh)
+        {
+            return;
+        }
+
+        Ref<ImmediateMesh> mesh = GDRenderUnitMesh::gd_render_mesh->get_mesh();
+
+        if (mesh.is_null())
+        {
+            return;
+        }
+
         // glBegin(unit->shape);
         if (unit->shape == GL_QUADS)
         {
@@ -481,6 +544,28 @@ void RenderCurrentUnits(void)
         }
         else if (unit->shape == GL_POLYGON)
         {
+            const RendererVertex *V = local_verts + unit->first;
+
+            mesh->surface_begin(Mesh::PRIMITIVE_TRIANGLES);
+
+            for (int k = 0; k < unit->count - 1; k++)
+            {
+                const RendererVertex *V1 = &V[k + 1];
+                const RendererVertex *V2 = &V[((k + 2) % unit->count)];
+
+                mesh->surface_add_vertex(Vector3(V->position.X, V->position.Y, V->position.Z));
+                mesh->surface_set_color(Color(epi::GetRGBARed(V->rgba), epi::GetRGBAGreen(V->rgba), epi::GetRGBABlue(V->rgba)));
+
+                mesh->surface_add_vertex(Vector3(V1->position.X, V1->position.Y, V1->position.Z));
+                mesh->surface_set_color(Color(epi::GetRGBARed(V1->rgba), epi::GetRGBAGreen(V1->rgba), epi::GetRGBABlue(V1->rgba)));
+
+                mesh->surface_add_vertex(Vector3(V2->position.X, V2->position.Y, V2->position.Z));
+                mesh->surface_set_color(Color(epi::GetRGBARed(V2->rgba), epi::GetRGBAGreen(V2->rgba), epi::GetRGBABlue(V2->rgba)));
+
+            }
+
+            mesh->surface_end();
+
             continue;
         }
         else if (unit->shape == GL_LINES)

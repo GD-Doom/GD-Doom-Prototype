@@ -2,6 +2,12 @@
 #include "../../r_backend.h"
 #include <epi.h>
 
+
+void BSPStartThread();
+void BSPStopThread();
+
+void gd_render_units_begin_frame();
+
 class GodotRenderBackend : public RenderBackend
 {
   public:
@@ -21,6 +27,8 @@ class GodotRenderBackend : public RenderBackend
     {
       EPI_UNUSED(width);
       EPI_UNUSED(height);
+
+      gd_render_units_begin_frame();
     }
 
     void Flush(int32_t commands, int32_t vertices)
@@ -46,6 +54,7 @@ class GodotRenderBackend : public RenderBackend
 
     void Shutdown()
     {
+      BSPStopThread();
     }
 
 
@@ -61,6 +70,7 @@ class GodotRenderBackend : public RenderBackend
     {
         max_texture_size_ = 4096;
         RenderBackend::Init();
+        BSPStartThread();
     }
 
     // FIXME: go away!

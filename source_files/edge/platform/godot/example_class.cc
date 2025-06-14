@@ -1,4 +1,5 @@
 #include "example_class.h"
+#include <con_main.h>
 
 void GDD_Init(int argc, char *argv[]);
 void GDD_Tick();
@@ -18,6 +19,8 @@ void ExampleClass::print_type(const Variant &p_variant) const
 void ExampleClass::init() const
 {
 	GDD_Init(0, nullptr);
+
+    TryConsoleCommand("map map01");
 }
 
 void ExampleClass::tick() const
