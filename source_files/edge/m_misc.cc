@@ -83,7 +83,6 @@ static ConfigurationDefault defaults[] = {
 
     // -ES- 1998/11/28 Save fade settings
     {kConfigInteger, "reduce_flash", &reduce_flash, 0},
-    {kConfigInteger, "invuln_fx", &invulnerability_effect, EDGE_DEFAULT_INVUL_FX},
     {kConfigEnum, "wipe_method", &wipe_method, EDGE_DEFAULT_WIPE_METHOD},
     {kConfigBoolean, "rotate_map", &rotate_map, EDGE_DEFAULT_ROTATEMAP},
     {kConfigBoolean, "respawnsetting", &global_flags.enemy_respawn_mode, EDGE_DEFAULT_RES_RESPAWN},
@@ -93,14 +92,12 @@ static ConfigurationDefault defaults[] = {
     {kConfigBoolean, "true_3d_gameplay", &global_flags.true_3d_gameplay, EDGE_DEFAULT_TRUE3DGAMEPLAY},
     {kConfigEnum, "autoaim", &global_flags.autoaim, EDGE_DEFAULT_AUTOAIM},
     {kConfigBoolean, "shootthru_scenery", &global_flags.pass_missile, EDGE_DEFAULT_PASS_MISSILE},
-    {kConfigInteger, "swirling_flats", &swirling_flats, 0},
 
     {kConfigBoolean, "pistol_starts", &pistol_starts, 0},
     {kConfigBoolean, "automap_keydoor_blink", &automap_keydoor_blink, EDGE_DEFAULT_AM_KEYDOORBLINK},
 
     // -KM- 1998/07/21 Save the blood setting
     {kConfigBoolean, "blood", &global_flags.more_blood, EDGE_DEFAULT_MORE_BLOOD},
-    {kConfigBoolean, "extra", &global_flags.have_extra, EDGE_DEFAULT_HAVE_EXTRA},
     {kConfigBoolean, "weaponkick", &global_flags.kicking, EDGE_DEFAULT_KICKING},
     {kConfigBoolean, "weaponswitch", &global_flags.weapon_switch, EDGE_DEFAULT_WEAPON_SWITCH},
     {kConfigBoolean, "mlook", &global_flags.mouselook, EDGE_DEFAULT_MLOOK},
@@ -110,7 +107,6 @@ static ConfigurationDefault defaults[] = {
     {kConfigInteger, "mipmapping", &image_mipmapping, EDGE_DEFAULT_USE_MIPMAPPING},
     {kConfigInteger, "dlights", &use_dynamic_lights, EDGE_DEFAULT_USE_DLIGHTS},
     {kConfigInteger, "detail_level", &detail_level, EDGE_DEFAULT_DETAIL_LEVEL},
-    {kConfigInteger, "hq2x_scaling", &hq2x_scaling, EDGE_DEFAULT_HQ2X_SCALING},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added

@@ -615,18 +615,6 @@ bool InputResponder(InputEvent *ev)
     return false;
 }
 
-//
-// Sets the turbo scale (100 is normal)
-//
-void SetTurboScale(int scale)
-{
-    forward_move[0] = 25 * scale / 100;
-    forward_move[1] = 50 * scale / 100;
-
-    side_move[0] = 24 * scale / 100;
-    side_move[1] = 40 * scale / 100;
-}
-
 void ClearEventInput(void)
 {
     std::fill(game_key_down, game_key_down + kTotalKeys, 0);

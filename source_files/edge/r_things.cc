@@ -725,8 +725,6 @@ void RenderCrosshair(Player *p)
 // RendererBSP START
 // ============================================================================
 
-int sprite_kludge = 0;
-
 static inline void LinkDrawThingIntoDrawFloor(DrawFloor *dfloor, DrawThing *dthing)
 {
     dthing->properties = dfloor->properties;
@@ -1067,7 +1065,7 @@ static bool RenderThing(DrawThing *dthing, bool solid)
     {
         /* nothing, don't adjust clipping */
     }
-    else if (sprite_kludge == 0 && gzb < fz)
+    else if (gzb < fz)
     {
         // explosion ?
         if (mo->info_->flags_ & kMapObjectFlagMissile)

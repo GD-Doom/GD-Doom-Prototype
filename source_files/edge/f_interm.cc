@@ -392,12 +392,9 @@ static void DrawLevelFinished(void)
             HUDTileImage(-240, 0, 820, 200, leaving_background_image);
         else
         {
-            if (title_scaling.d_) // Fill Border
-            {
-                if (!leaving_background_image->blurred_version_)
-                    StoreBlurredImage(leaving_background_image);
-                HUDStretchImage(-320, -200, 960, 600, leaving_background_image->blurred_version_, 0, 0);
-            }
+            if (leaving_background_image->average_color_ == kRGBANoValue)
+                ImagePrecache(leaving_background_image);
+            HUDSolidBox(-320, -200, 960, 600, leaving_background_image->average_color_);
             HUDDrawImageTitleWS(leaving_background_image);
         }
     }
@@ -560,12 +557,9 @@ static void DrawEnteringLevel(void)
             HUDTileImage(-240, 0, 820, 200, entering_background_image);
         else
         {
-            if (title_scaling.d_) // Fill Border
-            {
-                if (!entering_background_image->blurred_version_)
-                    StoreBlurredImage(entering_background_image);
-                HUDStretchImage(-320, -200, 960, 600, entering_background_image->blurred_version_, 0, 0);
-            }
+            if (entering_background_image->average_color_ == kRGBANoValue)
+                ImagePrecache(entering_background_image);
+            HUDSolidBox(-320, -200, 960, 600, entering_background_image->average_color_);
             HUDDrawImageTitleWS(entering_background_image);
         }
     }
@@ -1812,12 +1806,9 @@ void IntermissionDrawer(void)
                              background_image); // Lobo: Widescreen support
             else
             {
-                if (title_scaling.d_)           // Fill Border
-                {
-                    if (!background_image->blurred_version_)
-                        StoreBlurredImage(background_image);
-                    HUDStretchImage(-320, -200, 960, 600, background_image->blurred_version_, 0, 0);
-                }
+                if (background_image->average_color_ == kRGBANoValue)
+                    ImagePrecache(background_image);
+                HUDSolidBox(-320, -200, 960, 600, background_image->average_color_);
                 HUDDrawImageTitleWS(background_image);
             }
 

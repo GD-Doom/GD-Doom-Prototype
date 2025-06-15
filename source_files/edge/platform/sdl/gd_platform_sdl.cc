@@ -910,25 +910,6 @@ void *SDL_Platform::GetProgramWindowInternal()
 
 void SDL_Platform::StartupGraphicsInternal()
 {
-    std::string driver = ArgumentValue("videodriver");
-
-    if (driver.empty())
-    {
-        const char *check = SDL_getenv("SDL_VIDEODRIVER");
-        if (check)
-            driver = check;
-    }
-
-    if (driver.empty())
-        driver = "default";
-
-    if (epi::StringCaseCompareASCII(driver, "default") != 0)
-    {
-        SDL_setenv("SDL_VIDEODRIVER", driver.c_str(), 1);
-    }
-
-    LogPrint("SDL_Video_Driver: %s\n", driver.c_str());
-
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
         FatalError("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
 

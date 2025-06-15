@@ -154,7 +154,6 @@ struct DrawSubsector
 
 extern int detail_level;
 extern int use_dynamic_lights;
-extern int sprite_kludge;
 
 const Image *GetOtherSprite(int sprite, int frame, bool *flip);
 

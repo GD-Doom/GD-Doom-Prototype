@@ -47,8 +47,6 @@
 #include "w_texture.h"
 #include "w_wad.h"
 
-EDGE_DEFINE_CONSOLE_VARIABLE(precache_all_models, "1", kConsoleVariableFlagArchive)
-
 static void AddTXAnimation(AnimationDefinition *anim, ImageNamespace NStype)
 {
     int start_offset = -1;

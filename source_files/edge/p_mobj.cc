@@ -86,8 +86,6 @@ static constexpr uint8_t kRespawnDelay = (kTicRate / 2);
 
 EDGE_DEFINE_CONSOLE_VARIABLE(distance_cull_thinkers, "0", kConsoleVariableFlagArchive)
 
-EDGE_DEFINE_CONSOLE_VARIABLE(gravity_factor, "1.0", kConsoleVariableFlagArchive)
-
 // List of all objects in map.
 MapObject *map_object_list_head;
 
@@ -1123,8 +1121,7 @@ static void P_ZMovement(MapObject *mo, const RegionProperties *props)
 
     // -KM- 1998/11/25 Gravity is now not precalculated so that
     //  menu changes affect instantly.
-    float gravity = props->gravity / 8.0f * (float)level_flags.menu_gravity_factor / kGravityDefault *
-                    gravity_factor.f_; // New global gravity menu item
+    float gravity = props->gravity / kGravityDefault;
 
     // check for smooth step up
     if (mo->player_ && mo->player_->map_object_ == mo && mo->z < mo->floor_z_)
@@ -1991,9 +1988,6 @@ void RunMapObjectThinkers()
 //
 void SpawnDebris(float x, float y, float z, BAMAngle angle, const MapObjectDefinition *debris)
 {
-    // if (!level_flags.have_extra && (splash->extended_flags_ &
-    // kExtendedFlagExtra)) return; if (! (splash->extended_flags_ &
-    // kExtendedFlagExtra)) return; //Optional extra
     MapObject *th;
 
     th = CreateMapObject(x, y, z, debris);

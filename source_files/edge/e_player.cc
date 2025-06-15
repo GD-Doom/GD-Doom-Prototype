@@ -284,16 +284,8 @@ void SetConsolePlayer(int player_number_)
             players[i]->player_flags_ &= ~kPlayerFlagConsole;
 
     players[player_number_]->player_flags_ |= kPlayerFlagConsole;
-
-    if (FindArgument("testbot") > 0)
-    {
-        CreateBotPlayer(players[player_number_], false);
-    }
-    else
-    {
-        players[player_number_]->Builder     = ConsolePlayerBuilder;
-        players[player_number_]->build_data_ = nullptr;
-    }
+    players[player_number_]->Builder     = ConsolePlayerBuilder;
+    players[player_number_]->build_data_ = nullptr;
 }
 
 //

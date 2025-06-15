@@ -116,10 +116,6 @@ bool single_tics = false; // debug flag to cancel adaptiveness
 
 static bool need_wipe = false;
 
-// -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
-// Must be used in conjunction with single_tics.
-static int screenshot_rate;
-
 // For screenies...
 bool m_screenshot_required = false;
 bool need_save_screenshot  = false;
@@ -140,7 +136,6 @@ GameFlags default_game_flags = {
     false,       // item respawn
 
     false,       // true 3d gameplay
-    8,           // gravity
     false,       // more blood
 
     true,        // jump
@@ -149,8 +144,6 @@ GameFlags default_game_flags = {
     kAutoAimOff, // autoaim
 
     true,        // cheats
-    true,        // have_extra
-    false,       // limit_zoom
 
     true,        // kicking
     true,        // weapon_switch
@@ -189,8 +182,6 @@ EDGE_DEFINE_CONSOLE_VARIABLE(application_name, "EDGE-Classic", kConsoleVariableF
 EDGE_DEFINE_CONSOLE_VARIABLE(homepage, "https://edge-classic.github.io", kConsoleVariableFlagNoReset)
 
 EDGE_DEFINE_CONSOLE_VARIABLE(video_overlay, "None", kConsoleVariableFlagArchive)
-
-EDGE_DEFINE_CONSOLE_VARIABLE_CLAMPED(title_scaling, "0", kConsoleVariableFlagArchive, 0, 1)
 
 EDGE_DEFINE_CONSOLE_VARIABLE(force_infighting, "0", kConsoleVariableFlagArchive)
 
@@ -242,12 +233,9 @@ class StartupProgress
         HUDFrameSetup();
         if (loading_image)
         {
-            if (title_scaling.d_) // Fill Border
-            {
-                if (!loading_image->blurred_version_)
-                    StoreBlurredImage(loading_image);
-                HUDStretchImage(-320, -200, 960, 600, loading_image->blurred_version_, 0, 0);
-            }
+            if (loading_image->average_color_ == kRGBANoValue)
+                ImagePrecache(loading_image);
+            HUDSolidBox(-320, -200, 960, 600, loading_image->average_color_);
             HUDDrawImageTitleWS(loading_image);
             HUDSolidBox(25, 25, 295, 175, kRGBABlack);
         }
@@ -421,24 +409,6 @@ static void SetGlobalVariables(void)
         current_screen_height = 100000;
     }
 
-    // sprite kludge (TrueBSP)
-    p = FindArgument("spritekludge");
-    if (p > 0)
-    {
-        if (p + 1 < int(program_argument_list.size()) && !ArgumentIsOption(p + 1))
-            sprite_kludge = atoi(program_argument_list[p + 1].c_str());
-
-        if (!sprite_kludge)
-            sprite_kludge = 1;
-    }
-
-    s = ArgumentValue("screenshot");
-    if (!s.empty())
-    {
-        screenshot_rate = atoi(s.c_str());
-        single_tics     = true;
-    }
-
     // -AJA- 1999/10/18: Reworked these with CheckBooleanParameter
     CheckBooleanParameter("rotate_map", &rotate_map, false);
     CheckBooleanParameter("sound", &no_sound, true);
@@ -447,7 +417,6 @@ static void SetGlobalVariables(void)
     CheckBooleanParameter("mlook", &global_flags.mouselook, false);
     CheckBooleanParameter("monsters", &global_flags.no_monsters, true);
     CheckBooleanParameter("fast", &global_flags.fast_monsters, false);
-    CheckBooleanParameter("extras", &global_flags.have_extra, false);
     CheckBooleanParameter("kick", &global_flags.kicking, false);
     CheckBooleanParameter("single_tics", &single_tics, false);
     CheckBooleanParameter("true3d", &global_flags.true_3d_gameplay, false);
@@ -813,15 +782,6 @@ void EdgeDisplay(void)
         m_screenshot_required = false;
         render_backend->OnFrameFinished([]() -> void { TakeScreenshot(true); });
     }
-    else if (screenshot_rate && (game_state >= kGameStateLevel))
-    {
-        EPI_ASSERT(single_tics);
-
-        if (level_time_elapsed % screenshot_rate == 0)
-        {
-            render_backend->OnFrameFinished([]() -> void { TakeScreenshot(false); });
-        }
-    }
 
     FinishFrame(); // page flip or blit buffer
 }
@@ -839,12 +799,9 @@ static void TitleDrawer(void)
 {
     if (title_image)
     {
-        if (title_scaling.d_) // Fill Border
-        {
-            if (!title_image->blurred_version_)
-                StoreBlurredImage(title_image);
-            HUDStretchImage(-320, -200, 960, 600, title_image->blurred_version_, 0, 0);
-        }
+        if (title_image->average_color_ == kRGBANoValue)
+            ImagePrecache(title_image);
+        HUDSolidBox(-320, -200, 960, 600, title_image->average_color_);
         HUDDrawImageTitleWS(title_image);
     }
     else
@@ -1050,7 +1007,6 @@ static void PickMenuBackdrop(void)
         new_backdrop->cache_             = menu_image->cache_;
         new_backdrop->is_empty_          = menu_image->is_empty_;
         new_backdrop->is_font_           = menu_image->is_font_;
-        new_backdrop->liquid_type_       = menu_image->liquid_type_;
         new_backdrop->offset_x_          = menu_image->offset_x_;
         new_backdrop->offset_y_          = menu_image->offset_y_;
         new_backdrop->opacity_           = menu_image->opacity_;
@@ -1064,7 +1020,7 @@ static void PickMenuBackdrop(void)
         new_backdrop->total_height_      = menu_image->total_height_;
         new_backdrop->total_width_       = menu_image->total_width_;
         new_backdrop->animation_.current = new_backdrop;
-        new_backdrop->grayscale_         = true;
+        new_backdrop->hsv_saturation_    = 0;
         menu_backdrop                    = new_backdrop;
         return;
     }
@@ -1081,7 +1037,6 @@ static void PickMenuBackdrop(void)
         new_backdrop->cache_             = loading_image->cache_;
         new_backdrop->is_empty_          = loading_image->is_empty_;
         new_backdrop->is_font_           = loading_image->is_font_;
-        new_backdrop->liquid_type_       = loading_image->liquid_type_;
         new_backdrop->offset_x_          = loading_image->offset_x_;
         new_backdrop->offset_y_          = loading_image->offset_y_;
         new_backdrop->opacity_           = loading_image->opacity_;
@@ -1095,7 +1050,7 @@ static void PickMenuBackdrop(void)
         new_backdrop->total_height_      = loading_image->total_height_;
         new_backdrop->total_width_       = loading_image->total_width_;
         new_backdrop->animation_.current = new_backdrop;
-        new_backdrop->grayscale_         = true;
+        new_backdrop->hsv_saturation_    = 0;
         menu_backdrop                    = new_backdrop;
     }
     else
@@ -1342,9 +1297,8 @@ static void AddBaseContent(void)
     if (loaded_game.content_folders == NULL)
         return; // Standalone EDGE IWADs/EPKs should already contain their
                 // necessary resources and definitions - Dasho
-    std::vector<epi::DirectoryEntry> fsd;
-    std::string                      content_dir = epi::PathAppend(game_directory, "content");
-    std::vector<std::string>         base_dirs   = epi::SeparatedStringVector(loaded_game.content_folders, ',');
+    std::string              content_dir = epi::PathAppend(game_directory, "content");
+    std::vector<std::string> base_dirs   = epi::SeparatedStringVector(loaded_game.content_folders, ',');
 
     for (const std::string &dir : base_dirs)
     {
@@ -1362,8 +1316,7 @@ static void AddBaseAutoloads(void)
 {
     if (loaded_game.autoload_folders == NULL)
         return;
-    std::vector<epi::DirectoryEntry> fsd;
-    std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
+    std::string autoload_dir = epi::PathAppend(home_directory, "autoload");
     if (!epi::IsDirectory(autoload_dir))
     {
         if (!epi::MakeDirectory(autoload_dir))
@@ -1674,30 +1627,6 @@ static void IdentifyVersion(void)
     }
 }
 
-static void CheckTurbo(void)
-{
-    int turbo_scale = 100;
-
-    int p = FindArgument("turbo");
-
-    if (p > 0)
-    {
-        if (p + 1 < int(program_argument_list.size()) && !ArgumentIsOption(p + 1))
-            turbo_scale = atoi(program_argument_list[p + 1].c_str());
-        else
-            turbo_scale = 200;
-
-        if (turbo_scale < 10)
-            turbo_scale = 10;
-        if (turbo_scale > 400)
-            turbo_scale = 400;
-
-        ConsoleMessage(kConsoleOnly, "%s %d%%\n", language["TurboScale"], turbo_scale);
-    }
-
-    SetTurboScale(turbo_scale);
-}
-
 static void ShowDateAndVersion(void)
 {
     time_t cur_time;
@@ -1795,9 +1724,8 @@ static void AddSingleCommandLineFile(const std::string &name, bool ignore_unknow
     // add autoload folder if appropriate
     if (kind == kFileKindPWAD || kind == kFileKindEPK)
     {
-        std::vector<epi::DirectoryEntry> fsd;
-        std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
-        filename                                      = epi::GetFilename(filename);
+        std::string autoload_dir = epi::PathAppend(home_directory, "autoload");
+        filename                 = epi::GetFilename(filename);
         epi::StringLowerASCII(filename);
         std::string path_check = epi::PathAppend(autoload_dir, filename);
         bool        add_it     = true;
@@ -1934,7 +1862,6 @@ static void EdgeStartup(void)
     InitializeDDF();
     IdentifyVersion();
     AddCommandLineFiles();
-    CheckTurbo();
 
     InitializeRADScripts();
     ProcessMultipleFiles();
@@ -2001,12 +1928,6 @@ static void InitialState(void)
 
     // do loadgames first, as they contain all of the
     // necessary state already (in the savegame).
-
-    if (FindArgument("playdemo") > 0 || FindArgument("timedemo") > 0 || FindArgument("record") > 0)
-    {
-        FatalError("Demos are no longer supported\n");
-    }
-
     ps = ArgumentValue("loadgame");
     if (!ps.empty())
     {

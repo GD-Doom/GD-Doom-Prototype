@@ -163,7 +163,7 @@ enum ExtendedFlag
     // Thing is never affected by friction
     kExtendedFlagNoFriction = (1 << 20),
     // Thing is optional, won't exist when -noextra is used.
-    kExtendedFlagExtra = (1 << 21),
+    // kExtendedFlagExtra = (1 << 21), - Dasho, unused
     // Just bounced, won't enter bounce states until BOUNCE_REARM.
     kExtendedFlagJustBounced = (1 << 22),
     // Thing can be "used" (like linedefs) with the spacebar.  Thing
