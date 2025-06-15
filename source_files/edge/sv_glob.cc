@@ -72,7 +72,6 @@ static const GlobalCommand global_commands[] = {
     {"HUB_TAG", SaveGlobalGetInteger, SaveGlobalPutInteger, offsetof(SaveGlobals, hub_tag)},
     {"HUB_FIRST", SaveGlobalGetString, SaveGlobalPutString, offsetof(SaveGlobals, hub_first)},
 
-    {"GRAVITY", SaveGlobalGetInteger, SaveGlobalPutInteger, offsetof(SaveGlobals, flags.menu_gravity_factor)},
     {"LEVEL_TIME", SaveGlobalGetInteger, SaveGlobalPutInteger, offsetof(SaveGlobals, level_time)},
     {"EXIT_TIME", SaveGlobalGetInteger, SaveGlobalPutInteger, offsetof(SaveGlobals, exit_time)},
     {"P_RANDOM", SaveGlobalGetU64, SaveGlobalPutU64, offsetof(SaveGlobals, p_random)},
@@ -171,7 +170,6 @@ static void SaveGlobalGetLevelFlags(const char *info, void *storage)
     dest->cheats             = (flags & kMapFlagCheats) ? true : false;
     dest->enemies_respawn    = (flags & kMapFlagRespawn) ? true : false;
     dest->enemy_respawn_mode = (flags & kMapFlagResRespawn) ? true : false;
-    dest->limit_zoom         = (flags & kMapFlagLimitZoom) ? true : false;
     dest->kicking            = (flags & kMapFlagKicking) ? true : false;
     dest->weapon_switch      = (flags & kMapFlagWeaponSwitch) ? true : false;
     dest->pass_missile       = (flags & kMapFlagPassMissile) ? true : false;
@@ -289,8 +287,6 @@ static const char *SaveGlobalPutLevelFlags(void *storage)
         flags |= kMapFlagRespawn;
     if (src->enemy_respawn_mode)
         flags |= kMapFlagResRespawn;
-    if (src->limit_zoom)
-        flags |= kMapFlagLimitZoom;
     if (src->kicking)
         flags |= kMapFlagKicking;
     if (src->weapon_switch)

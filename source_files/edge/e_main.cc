@@ -136,7 +136,6 @@ GameFlags default_game_flags = {
     false,       // item respawn
 
     false,       // true 3d gameplay
-    8,           // gravity
     false,       // more blood
 
     true,        // jump
@@ -145,7 +144,6 @@ GameFlags default_game_flags = {
     kAutoAimOff, // autoaim
 
     true,        // cheats
-    false,       // limit_zoom
 
     true,        // kicking
     true,        // weapon_switch
@@ -1299,8 +1297,8 @@ static void AddBaseContent(void)
     if (loaded_game.content_folders == NULL)
         return; // Standalone EDGE IWADs/EPKs should already contain their
                 // necessary resources and definitions - Dasho
-    std::string                      content_dir = epi::PathAppend(game_directory, "content");
-    std::vector<std::string>         base_dirs   = epi::SeparatedStringVector(loaded_game.content_folders, ',');
+    std::string              content_dir = epi::PathAppend(game_directory, "content");
+    std::vector<std::string> base_dirs   = epi::SeparatedStringVector(loaded_game.content_folders, ',');
 
     for (const std::string &dir : base_dirs)
     {
@@ -1318,7 +1316,7 @@ static void AddBaseAutoloads(void)
 {
     if (loaded_game.autoload_folders == NULL)
         return;
-    std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
+    std::string autoload_dir = epi::PathAppend(home_directory, "autoload");
     if (!epi::IsDirectory(autoload_dir))
     {
         if (!epi::MakeDirectory(autoload_dir))
@@ -1629,30 +1627,6 @@ static void IdentifyVersion(void)
     }
 }
 
-static void CheckTurbo(void)
-{
-    int turbo_scale = 100;
-
-    int p = FindArgument("turbo");
-
-    if (p > 0)
-    {
-        if (p + 1 < int(program_argument_list.size()) && !ArgumentIsOption(p + 1))
-            turbo_scale = atoi(program_argument_list[p + 1].c_str());
-        else
-            turbo_scale = 200;
-
-        if (turbo_scale < 10)
-            turbo_scale = 10;
-        if (turbo_scale > 400)
-            turbo_scale = 400;
-
-        ConsoleMessage(kConsoleOnly, "%s %d%%\n", language["TurboScale"], turbo_scale);
-    }
-
-    SetTurboScale(turbo_scale);
-}
-
 static void ShowDateAndVersion(void)
 {
     time_t cur_time;
@@ -1750,8 +1724,8 @@ static void AddSingleCommandLineFile(const std::string &name, bool ignore_unknow
     // add autoload folder if appropriate
     if (kind == kFileKindPWAD || kind == kFileKindEPK)
     {
-        std::string                      autoload_dir = epi::PathAppend(home_directory, "autoload");
-        filename                                      = epi::GetFilename(filename);
+        std::string autoload_dir = epi::PathAppend(home_directory, "autoload");
+        filename                 = epi::GetFilename(filename);
         epi::StringLowerASCII(filename);
         std::string path_check = epi::PathAppend(autoload_dir, filename);
         bool        add_it     = true;
@@ -1888,7 +1862,6 @@ static void EdgeStartup(void)
     InitializeDDF();
     IdentifyVersion();
     AddCommandLineFiles();
-    CheckTurbo();
 
     InitializeRADScripts();
     ProcessMultipleFiles();
@@ -1955,12 +1928,6 @@ static void InitialState(void)
 
     // do loadgames first, as they contain all of the
     // necessary state already (in the savegame).
-
-    if (FindArgument("playdemo") > 0 || FindArgument("timedemo") > 0 || FindArgument("record") > 0)
-    {
-        FatalError("Demos are no longer supported\n");
-    }
-
     ps = ArgumentValue("loadgame");
     if (!ps.empty())
     {

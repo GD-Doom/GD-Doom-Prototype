@@ -131,7 +131,6 @@ extern ConsoleVariable draw_culling;
 extern ConsoleVariable draw_culling_distance;
 extern ConsoleVariable cull_fog_color;
 extern ConsoleVariable distance_cull_thinkers;
-extern ConsoleVariable max_dynamic_lights;
 extern ConsoleVariable vsync;
 extern ConsoleVariable view_bobbing;
 extern ConsoleVariable gore_level;
@@ -591,9 +590,6 @@ static OptionMenuItem playoptions[] = {
     {kOptionMenuItemTypeBoolean, "Erraticism", YesNo, 2, &erraticism.d_, OptionMenuUpdateConsoleVariableFromInt,
      "Time only advances when you move or fire", &erraticism, 0, 0, 0, ""},
 
-    {kOptionMenuItemTypeSlider, "OptGravity", nullptr, 0, &gravity_factor.f_, OptionMenuUpdateConsoleVariableFromFloat,
-     "Gravity", &gravity_factor, 0.10f, 0.0f, 2.0f, "%gx"},
-
     {kOptionMenuItemTypeBoolean, "Respawn Enemies", YesNo, 2, &global_flags.enemies_respawn, OptionMenuChangeRespawn,
      nullptr, nullptr, 0, 0, 0, ""},
 
@@ -636,11 +632,7 @@ static OptionMenuItem perfoptions[] = {
      0, ""},
     {kOptionMenuItemTypeBoolean, "Slow Thinkers Over Distance", YesNo, 2, &distance_cull_thinkers.d_,
      OptionMenuUpdateConsoleVariableFromInt, "Only recommended for extreme monster/projectile counts",
-     &distance_cull_thinkers, 0, 0, 0, ""},
-    {kOptionMenuItemTypeSwitch, "Maximum Dynamic Lights", "Unlimited/20/40/60/80/100", 6, &max_dynamic_lights.d_,
-     OptionMenuUpdateConsoleVariableFromInt, "Control how many dynamic lights are rendered per tick",
-     &max_dynamic_lights, 0, 0, 0, ""},
-};
+     &distance_cull_thinkers, 0, 0, 0, ""}};
 
 static OptionMenuDefinition perf_optmenu = {perfoptions,
                                             sizeof(perfoptions) / sizeof(OptionMenuItem),
@@ -661,8 +653,7 @@ static OptionMenuItem accessibilityoptions[] = {
     {kOptionMenuItemTypeSwitch, "Reduce Flashing", YesNo, 2, &reduce_flash, nullptr,
      "May help with epilepsy or photosensitivity", nullptr, 0, 0, 0, ""},
     {kOptionMenuItemTypeBoolean, "Automap: Keyed Doors Pulse", YesNo, 2, &automap_keydoor_blink, nullptr,
-     "Can help locate doors more easily", nullptr, 0, 0, 0, ""}
-};
+     "Can help locate doors more easily", nullptr, 0, 0, 0, ""}};
 
 static OptionMenuDefinition accessibility_optmenu = {accessibilityoptions,
                                                      sizeof(accessibilityoptions) / sizeof(OptionMenuItem),

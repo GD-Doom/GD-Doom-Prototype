@@ -81,12 +81,11 @@ enum MapFlag
     kMapFlagAutoAimVertical     = (1 << 12),
     kMapFlagAutoAimVerticalSnap = (1 << 13),
     kMapFlagResetPlayer         = (1 << 14), // Force player back to square #1
-    kMapFlagLimitZoom           = (1 << 15), // Limit zoom to certain weapons
-    kMapFlagCrouching           = (1 << 16),
-    kMapFlagKicking             = (1 << 17), // Weapon recoil
-    kMapFlagWeaponSwitch        = (1 << 18),
-    kMapFlagPassMissile         = (1 << 19),
-    kMapFlagTeamDamage          = (1 << 20),
+    kMapFlagCrouching           = (1 << 15),
+    kMapFlagKicking             = (1 << 16), // Weapon recoil
+    kMapFlagWeaponSwitch        = (1 << 17),
+    kMapFlagPassMissile         = (1 << 18),
+    kMapFlagTeamDamage          = (1 << 19),
 };
 
 enum SkyStretch

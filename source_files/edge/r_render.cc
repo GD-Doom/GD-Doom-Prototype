@@ -86,8 +86,6 @@ float view_x_slope;
 float view_y_slope;
 float widescreen_view_width_multiplier;
 
-std::unordered_set<AbstractShader *> seen_dynamic_lights;
-
 static constexpr float kDoomYSlope     = 0.525f;
 static constexpr float kDoomYSlopeFull = 0.625f;
 
@@ -1933,7 +1931,6 @@ void RenderView(int x, int y, int w, int h, MapObject *camera, bool full_height,
     render_frame_count++;
     valid_count++;
 
-    seen_dynamic_lights.clear();
     RenderTrueBSP();
 
     render_world_index++;

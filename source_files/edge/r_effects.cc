@@ -79,7 +79,7 @@ void RendererRainbowEffect(Player *player)
         render_view_red_multiplier   = 0.90f;
         render_view_green_multiplier = render_view_red_multiplier;
         render_view_blue_multiplier  = render_view_red_multiplier;
-        render_view_extra_light = 255;
+        render_view_extra_light      = 255;
         return;
     }
 
@@ -151,7 +151,7 @@ void RendererColourmapEffect(Player *player)
     if (s > 0 && player->powers_[kPowerTypeInvulnerable] > 0 && player->effect_colourmap_ &&
         (player->effect_left_ & 8 || reduce_flash))
     {
-       if (!reduce_flash)
+        if (!reduce_flash)
         {
             StartUnitBatch(false);
 

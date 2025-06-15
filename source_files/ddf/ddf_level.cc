@@ -107,7 +107,6 @@ static DDFSpecialFlags map_specials[] = {{"JUMPING", kMapFlagJumping, 0},
                                          {"AUTOAIM_FULL_SNAP", kMapFlagAutoAimFullSnap, 0},
                                          {"AUTOAIM_VERTICAL_SNAP", kMapFlagAutoAimVerticalSnap, 0},
                                          {"RESET_PLAYER", kMapFlagResetPlayer, 0},
-                                         {"LIMIT_ZOOM", kMapFlagLimitZoom, 0},
                                          {"CROUCHING", kMapFlagCrouching, 0},
                                          {"WEAPON_KICK", kMapFlagKicking, 0},
 

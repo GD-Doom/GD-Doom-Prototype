@@ -81,7 +81,6 @@ struct GameFlags
     bool items_respawn;
 
     bool true_3d_gameplay;
-    int  menu_gravity_factor;
     bool more_blood;
 
     bool         jump;
@@ -90,7 +89,6 @@ struct GameFlags
     AutoAimState autoaim;
 
     bool cheats;
-    bool limit_zoom;
 
     bool kicking;
     bool weapon_switch;
