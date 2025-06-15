@@ -69,11 +69,9 @@ static int host_position;
 
 static int host_want_bots;
 
-static constexpr uint8_t kTotalHostOptions = 11;
+static constexpr uint8_t kTotalHostOptions = 10;
 
 static void ListAccept(void);
-
-EDGE_DEFINE_CONSOLE_VARIABLE(player_deathmatch_damage_resistance, "9", kConsoleVariableFlagArchive)
 
 static void DrawKeyword(int index, Style *style, int y, const char *keyword, const char *value)
 {
@@ -156,54 +154,6 @@ static const char *GetBotSkillName(int sk)
         return language["BotDifficulty4"];
     case 4:
         return language["BotDifficulty5"];
-
-    default:
-        return "????";
-    }
-}
-
-static const char *GetPlayerDamageResistanceNameName(int res)
-{
-    switch (res)
-    {
-    case 0:
-        return "-90%";
-    case 1:
-        return "-80%";
-    case 2:
-        return "-70%";
-    case 3:
-        return "-60%";
-    case 4:
-        return "-50%";
-    case 5:
-        return "-40%";
-    case 6:
-        return "-30%";
-    case 7:
-        return "-20%";
-    case 8:
-        return "-10%";
-    case 9:
-        return "Normal";
-    case 10:
-        return "+10%";
-    case 11:
-        return "+20%";
-    case 12:
-        return "+30%";
-    case 13:
-        return "+40%";
-    case 14:
-        return "+50%";
-    case 15:
-        return "+60%";
-    case 16:
-        return "+70%";
-    case 17:
-        return "+80%";
-    case 18:
-        return "+90%";
 
     default:
         return "????";
@@ -375,13 +325,7 @@ static void HostChangeOption(int opt, int key)
 
         break;
 
-    case 6:
-        player_deathmatch_damage_resistance = player_deathmatch_damage_resistance.d_ + dir;
-        player_deathmatch_damage_resistance = HMM_Clamp(0, player_deathmatch_damage_resistance.d_, 18);
-
-        break;
-
-    case 7: // Monsters
+    case 6: // Monsters
         if (network_game_parameters->flags_->fast_monsters)
         {
             network_game_parameters->flags_->fast_monsters = false;
@@ -397,11 +341,11 @@ static void HostChangeOption(int opt, int key)
 
         break;
 
-    case 8: // Item-Respawn
+    case 7: // Item-Respawn
         network_game_parameters->flags_->items_respawn = !network_game_parameters->flags_->items_respawn;
         break;
 
-    case 9: // Team-Damage
+    case 8: // Team-Damage
         network_game_parameters->flags_->team_damage = !network_game_parameters->flags_->team_damage;
         break;
 
@@ -476,18 +420,6 @@ void OptionMenuDrawHostMenu(void)
     DrawKeyword(idx, network_game_host_style, y, "Bot Skill", GetBotSkillName(skill));
     y += deltay;
     idx++;
-
-    int dm_damage_resistance = HMM_Clamp(0, player_deathmatch_damage_resistance.d_, 18);
-    DrawKeyword(idx, network_game_host_style, y, "Player Damage Resistance",
-                GetPlayerDamageResistanceNameName(dm_damage_resistance));
-    y += deltay;
-    idx++;
-
-    int x =
-        150 - (network_game_host_style->fonts_[StyleDefinition::kTextSectionText]->StringWidth("(Deathmatch Only)") *
-               network_game_host_style->definition_->text_[StyleDefinition::kTextSectionText].scale_);
-    HUDWriteText(network_game_host_style, idx - 1 == host_position ? 2 : 0, x, y, "(Deathmatch Only)");
-    y += deltay;
 
     DrawKeyword(idx, network_game_host_style, y, "Monsters",
                 network_game_parameters->flags_->no_monsters     ? "OFF"

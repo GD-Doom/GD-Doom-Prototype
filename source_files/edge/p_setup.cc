@@ -71,8 +71,6 @@ extern unsigned int root_node;
 
 static bool level_active = false;
 
-EDGE_DEFINE_CONSOLE_VARIABLE(udmf_strict_namespace, "0", kConsoleVariableFlagArchive)
-
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
@@ -2512,17 +2510,13 @@ static void LoadUDMFCounts()
 
             section = lex.state_.string;
 
-            if (udmf_strict_namespace.d_)
+            if (section != "doom" && section != "heretic" && section != "edge-classic" && section != "zdoomtranslated")
             {
-                if (section != "doom" && section != "heretic" && section != "edge-classic" &&
-                    section != "zdoomtranslated")
-                {
-                    LogWarning("UDMF: %s uses unsupported namespace "
-                               "\"%s\"!\nSupported namespaces are \"doom\", "
-                               "\"heretic\", \"edge-classic\", or "
-                               "\"zdoomtranslated\"!\n",
-                               current_map->lump_.c_str(), section.c_str());
-                }
+                LogWarning("UDMF: %s uses unsupported namespace "
+                           "\"%s\"!\nSupported namespaces are \"doom\", "
+                           "\"heretic\", \"edge-classic\", or "
+                           "\"zdoomtranslated\"!\n",
+                           current_map->lump_.c_str(), section.c_str());
             }
 
             if (!lex.CheckToken(';'))

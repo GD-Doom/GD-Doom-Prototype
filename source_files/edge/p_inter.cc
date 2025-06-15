@@ -53,7 +53,6 @@ static constexpr float kDeathViewHeight = 6.0f;
 bool show_obituaries = true;
 
 extern ConsoleVariable gore_level;
-extern ConsoleVariable player_deathmatch_damage_resistance;
 
 struct PickupInfo
 {
@@ -1486,21 +1485,6 @@ void DamageMapObject(MapObject *target, MapObject *inflictor, MapObject *source,
             if (damage > 0.1f && 0 == (inflictor->current_attack_->attack_class_ & ~arm_info->resistance_))
             {
                 damage = HMM_MAX(0.1f, damage * arm_info->resist_multiply_);
-            }
-        }
-
-        // Bot Deathmatch Damange Resistance check
-        if (InDeathmatch() && !player->IsBot() && source && source->player_ && source->player_->IsBot())
-        {
-            if (player_deathmatch_damage_resistance.d_ < 9)
-            {
-                float mul = 1.90f - (player_deathmatch_damage_resistance.d_ * 0.10f);
-                damage *= mul;
-            }
-            else if (player_deathmatch_damage_resistance.d_ > 9)
-            {
-                float mul = 0.10f + ((18 - player_deathmatch_damage_resistance.d_) * 0.10f);
-                damage    = HMM_MAX(0.1f, damage * mul);
             }
         }
 
