@@ -50,5 +50,71 @@
             "externalConsole": false,
             "MIMode": "lldb"
         },
+        {
+            "name": "Launch Godot (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            // Don't use the console exe if you want breakpoints to work (something to look into)
+            "program": "godot",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis",
+        },
+        {
+            "name": "Launch Godot (Windows Editor)",            
+            "type": "cppvsdbg",
+            "request": "launch",
+            // Don't use the console exe if you want breakpoints to work (something to look into)
+            "program": "godot",
+            "args": [
+                "--editor",
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "internalConsole",
+            "visualizerFile": "${workspaceFolder}/debugging/windows/godot.natvis",
+            "autoAttachChildProcess": true,            
+        },
+        {
+            "name": "Launch Godot Editor (Linux gdb)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${env:GODOT_BINARY_PATH}",
+            // Change the arguments below for the project you want to test with.
+            // To run the project instead of editing it, remove the "--editor" argument.
+            "args": [
+                "--editor",
+                "--path",
+                "${workspaceFolder}/gd-doom"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
     ]
 }

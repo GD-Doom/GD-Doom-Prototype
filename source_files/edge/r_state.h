@@ -99,6 +99,12 @@ enum RenderUsage
 class RenderState
 {
   public:
+
+    virtual ~RenderState()
+    {
+      
+    }
+
     virtual void Enable(GLenum cap, bool enabled = true) = 0;
 
     virtual void Disable(GLenum cap) = 0;

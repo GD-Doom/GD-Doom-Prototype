@@ -954,10 +954,10 @@ BotFollowPathResult DeathBot::FollowPath(bool do_look)
         EPI_ASSERT(lift_seg_ != nullptr);
         return kBotFollowPathResultOK;
     }
-    else if (flags & kBotPathNodeLift)
-    {
-        // TODO: kBotTaskTelport which attempts not to telefrag / be telefragged
-    }
+    //else if (flags & kBotPathNodeLift)
+    //{
+    //    // TODO: kBotTaskTelport which attempts not to telefrag / be telefragged
+    //}
 
     // have we reached the next node?
     if (path_->ReachedDestination(pl_->map_object_))

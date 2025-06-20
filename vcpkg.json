@@ -1,0 +1,12 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "dependencies": [
+        "godot-cpp"
+    ],
+    "overrides": [
+        {
+            "name": "godot-cpp",
+            "version": "4.4#0"
+        }
+    ]
+}
